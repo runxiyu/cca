@@ -152,8 +152,8 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if department == "SJ Co-Curricular Activities Office 松江课外项目办公室" {
-		department = "CCA Staff"
+	if department == "SJ Co-Curricular Activities Office 松江课外项目办公室" || department == "High School Teaching & Learning 高中教学部门" {
+		department = "Staff"
 	} else if department == "Y9" || department == "Y10" || department == "Y11" || department == "Y12" {
 	} else {
 		wstr(w, 403, fmt.Sprintf("Error: Your department \"%s\" is unknown.\nWe currently only allow Y9, Y10, Y11, Y12, and the CCA office."))
