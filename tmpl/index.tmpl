@@ -42,7 +42,29 @@
 				</div>
 			</div>
 		</header>
-		<main>
+		<noscript>
+			<style>
+				.script-required {
+					display: none
+				}
+			</style>
+			<main>
+				<div style="margin: auto; max-width: 30rem; border: solid 2px var(--border); background-color: var(--boxbg); padding: 0rem 1rem;">
+				<p>
+				Unfortunately, JavaScript is required to use this page.
+				</p>
+
+				<p>
+				I completely agree that ordinary websites that provide information should not require JavaScript. However, a CCA selection site is not a normal website. It needs to handle 600 people sending it requests at once; it needs to update the vacancy numbers live; it needs to responsively check for course consistencies; it needs to provide client-side search functionality; etc. These are better handled with client-side scripting, and we extensively use WebSocket for scalable communications (i.e. sending a few bytes as commands instead of a full-blown form or AJAX request).
+				</p>
+
+				<p>
+				The source code of this site is available in a <a href="https://git.sr.ht/~runxiyu/cca">repository on SourceHut</a>. You could also read the JavaScript sent to your browser or something. You could also implement a custom client that speaks the WebSocket-based protocol if interested.
+				</p>
+				</div>
+			</main>
+		</noscript>
+		<main class="script-required">
 		<p>
 		Okay I haven&rsquo;t written the web page yet.
 		</p>
