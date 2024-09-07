@@ -146,7 +146,7 @@ table.wide {
 }
 
 th[scope~="row"] {
-	width: 6em;
+	/* width: 6em; */
 	text-align: right;
 }
 

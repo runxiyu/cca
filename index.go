@@ -88,6 +88,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		w,
 		"index",
 		map[string]interface{}{
+			"open": true,
 			"user": map[string]interface{}{
 				"Name": name,
 				"Department": department,

@@ -65,9 +65,47 @@
 			</main>
 		</noscript>
 		<main class="script-required">
+		{{- if .open }}
+		<table>
+			<thead>
+				<tr>
+					<th scope="col">ID</th>
+					<th scope="col">Tick</th>
+					<th scope="col"><acronym title="Confirmed/Selected/Max
+
+Confirmed: chose here and secured their slot by submitting
+Selected: chose here but hasn&rsquo;t submitted yet
+Max: maximum number of students this CCA takes">Slots</acronym></th>
+					<th scope="col">Course</th>
+					<th scope="col">Type</th>
+					<th scope="col">Teacher</th>
+					<th scope="col">Location</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{ range .courses }}
+				<tr id="course{{.Id}}">
+					<th scope="row">{{.Id}}</th>
+					<td><input type="checkbox" id="tick{{.Id}}" name="tick{{.Id}}", value="tick{{.Id}}">{{.Id}}</input></td>
+					<td><span id="confirmed{{.Id}}">{{.Confirmed}}</span>/<span id="selected{{.Id}}">{{.Selected}}</span>/<span id="max{{.Id}}">{{.Max}}</span></td>
+					<td>{{.Title}}</td>
+					<td id="type{{.Id}}">{{.Type}}</td>
+					<td>{{.Teacher}}</td>
+					<td>{{.Location}}</td>
+				</tr>
+				{{ end }}
+			</tbody>
+		</table>
+		<script src="static/main.js"></script>
+		{{ else }}
 		<p>
-		Okay I haven&rsquo;t written the web page yet.
+		CCA selections are not currently open.
 		</p>
+		<!-- TODO: Open/not-open should be handled in JS and WS -->
+		<p>
+		Please contact <a href="mailto:sj-cca@ykpaoschool.cn">the CCA department</a> or <a href="mailto:s22537@stu.ykpaoschool.cn">Runxi Yu</a> (this site&rsquo;s maintainer) if necessary.
+		</p>
+		{{ end -}}
 		</main>
 	</body>
 </html>

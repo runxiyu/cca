@@ -72,6 +72,7 @@ func main() {
 	log.Println("Registering handlers")
 	http.HandleFunc("/{$}", handleIndex)
 	http.HandleFunc("/auth", handleAuth)
+	http.HandleFunc("/ws", handleWs)
 
 	log.Printf(
 		"Establishing listener for net \"%s\", addr \"%s\"\n",
