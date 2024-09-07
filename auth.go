@@ -73,13 +73,13 @@ func generate_authorization_url() string {
 
 func handleAuth(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
-		wstr(w, 405, "Error: Only POST is supported on the authentication endpoint")
+		wstr(w, 405, "Only POST is supported on the authentication endpoint")
 		return
 	}
 
 	err := req.ParseForm()
 	if err != nil {
-		wstr(w, 400, "Error: Malformed form data")
+		wstr(w, 400, "Malformed form data")
 		return
 	}
 
@@ -87,17 +87,17 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	if returned_error != "" {
 		returned_error_description := req.PostFormValue("error_description")
 		if returned_error_description == "" {
-			wstr(w, 400, fmt.Sprintf("Error: %s", returned_error))
+			wstr(w, 400, fmt.Sprintf("%s", returned_error))
 			return
 		} else {
-			wstr(w, 400, fmt.Sprintf("Error: %s: %s", returned_error, returned_error_description))
+			wstr(w, 400, fmt.Sprintf("%s: %s", returned_error, returned_error_description))
 			return
 		}
 	}
 
 	id_token_string := req.PostFormValue("id_token")
 	if id_token_string == "" {
-		wstr(w, 400, "Error: Missing id_token")
+		wstr(w, 400, "Missing id_token")
 		return
 	}
 
@@ -107,7 +107,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		myKeyfunc.Keyfunc,
 	)
 	if err != nil {
-		wstr(w, 400, "Error: Cannot parse claims")
+		wstr(w, 400, "Cannot parse claims")
 		return
 	}
 
@@ -115,24 +115,24 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	case token.Valid:
 		break
 	case errors.Is(err, jwt.ErrTokenMalformed):
-		wstr(w, 400, "Error: Malformed JWT token")
+		wstr(w, 400, "Malformed JWT token")
 		return
 	case errors.Is(err, jwt.ErrTokenSignatureInvalid):
-		wstr(w, 400, "Error: Invalid JWS signature")
+		wstr(w, 400, "Invalid JWS signature")
 		return
 	case errors.Is(err, jwt.ErrTokenExpired) ||
 		errors.Is(err, jwt.ErrTokenNotValidYet):
-		wstr(w, 400, "Error: JWT token expired or not yet valid")
+		wstr(w, 400, "JWT token expired or not yet valid")
 		return
 	default:
-		wstr(w, 400, "Error: Unhandled JWT token error")
+		wstr(w, 400, "Unhandled JWT token error")
 		return
 	}
 
 	claims, claims_ok := token.Claims.(*msclaims_t)
 
 	if !claims_ok {
-		wstr(w, 400, "Error: Cannot unpack claims")
+		wstr(w, 400, "Cannot unpack claims")
 		return
 	}
 
@@ -140,10 +140,10 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 
 	access_token, err := getAccessToken(authorization_code)
 	if err != nil {
-		wstr(w, 500, "Error: Unable to fetch access token")
+		wstr(w, 500, "Unable to fetch access token")
 		return
 	}
-	
+
 	// TODO: validate access token
 
 	department, err := getDepartment(*(access_token.Content))
@@ -156,7 +156,14 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		department = "Staff"
 	} else if department == "Y9" || department == "Y10" || department == "Y11" || department == "Y12" {
 	} else {
-		wstr(w, 403, fmt.Sprintf("Error: Your department \"%s\" is unknown.\nWe currently only allow Y9, Y10, Y11, Y12, and the CCA office."))
+		wstr(
+			w,
+			403,
+			fmt.Sprintf(
+				"Your department \"%s\" is unknown.\nWe currently only allow Y9, Y10, Y11, Y12, and the CCA office.",
+				department,
+			),
+		)
 		return
 	}
 
@@ -193,16 +200,12 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 					claims.Oid,
 				)
 				if err != nil {
-					w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-					w.WriteHeader(500)
-					w.Write([]byte(fmt.Sprintf("Error\nDatabase error while updating your account.\n%s\n", err)))
+					wstr(w, 500, "Database error while updating account.")
 					return
 				}
 			}
 		} else {
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.WriteHeader(500)
-			w.Write([]byte(fmt.Sprintf("Error\nDatabase error while attempting to insert account info.\n%s\n", err)))
+			wstr(w, 500, "Database error while writing account info.")
 			return
 		}
 	}
@@ -217,14 +220,10 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.WriteHeader(500)
-			w.Write([]byte(fmt.Sprintf("Error\nCookie collision! Could you try signing in again?\n%s\n", err)))
+			wstr(w, 500, "Cookie collision. Try signing in again.")
 			return
 		} else {
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.WriteHeader(500)
-			w.Write([]byte(fmt.Sprintf("Error\nDatabase error while attempting to insert session info.\n%s\n", err)))
+			wstr(w, 500, "Database error while inserting session.")
 			return
 		}
 	}
@@ -245,14 +244,14 @@ func setupJwks() error {
 func getDepartment(access_token string) (string, error) {
 	req, err := http.NewRequest("GET", "https://graph.microsoft.com/v1.0/me?$select=department", nil)
 	if err != nil {
-		return "", errors.New("Error: Cannot make the Graph API request")
+		return "", errors.New("Cannot make the Graph API request")
 	}
 	req.Header.Set("Authorization", "Bearer "+access_token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", errors.New("Error: Graph API request failed")
+		return "", errors.New("Graph API request failed")
 	}
 	defer resp.Body.Close()
 
@@ -263,11 +262,11 @@ func getDepartment(access_token string) (string, error) {
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&departmentWrap)
 	if err != nil {
-		return "", errors.New("Error: Department unmarshaling failed")
+		return "", errors.New("Department unmarshaling failed")
 	}
 
 	if departmentWrap.Department == nil {
-		return "", errors.New("Error: Department pointer is nil")
+		return "", errors.New("Department pointer is nil")
 	}
 
 	return *(departmentWrap.Department), nil

@@ -90,7 +90,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		map[string]interface{}{
 			"open": true,
 			"user": map[string]interface{}{
-				"Name": name,
+				"Name":       name,
 				"Department": department,
 			},
 		},
