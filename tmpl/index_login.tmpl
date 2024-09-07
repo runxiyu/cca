@@ -1,0 +1,49 @@
+{{- define "index_login" -}}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>
+			Authentication required &ndash; CCA Selection System
+		</title>
+		<link rel="stylesheet" href="/static/style.css" />
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<style>
+			#login-box {
+				margin: auto;
+				max-width: 30rem;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<div class="header-content">
+				<div class="header-left">
+					<h1><a id="site-title" href="/">CCA Selection System</a></h1>
+				</div>
+				<div class="header-middle">
+				</div>
+				<div class="header-right">
+					<p>Unauthenticated</p>
+				</div>
+			</div>
+		</header>
+		<main>
+			<p>
+			{{- .notes -}}
+			</p>
+			<div id="login-box">
+				<p>
+					You have not authenticated. You must sign in to use this service.
+				</p>
+				<p>
+					You may authenticate with your school-issued Microsoft account. Please note that this process likely requires running proprietary JavaScript issued by Microsoft.
+				</p>
+				<p>
+					<a class="btn btn-primary" href="{{- .authUrl -}}">Sign in with Microsoft</a>
+				</p>
+			</div>
+		</main>
+	</body>
+</html>
+{{- end -}}
