@@ -38,71 +38,14 @@
 				<div class="header-middle">
 				</div>
 				<div class="header-right">
-					<p>{{- .user.Name -}}</p>
+					<p>{{- .user.Name }} ({{ .user.Department -}})</p>
 				</div>
 			</div>
 		</header>
-		<main class="tp-columns">
-			<div class="tp-columns">
-				<div id="yours">
-					<table class="wide">
-						<tr>
-							<th colspan=3>Your Works</th>
-						</tr>
-						<tr>
-							<th class="min" scope="col">ID</th>
-							<th class="min" scope="col">Flags</th>
-							<th scope="col">Title</th>
-						</tr>
-						{{- range .works }}
-						<tr>
-							<th scope="row" class="min">{{ .id }}</th>
-							<td class="min flags">{{- if .public -}}<abbr title="Public">P</abbr>{{- else -}}<abbr title="Private">x</abbr>{{- end -}}{{- if .active -}}<abbr title="Active">!</abbr>{{- else -}}<abbr title="Inactive">-</abbr>{{- end -}}{{- if .anonymous -}}<abbr title="Anonymous">*</abbr>{{- else -}}<abbr title="Non-anonymous">@</abbr>{{- end -}}</td>
-							<td><a href="./works/{{- .id -}}">{{- .title -}}</a></td>
-						</tr>
-						{{ end -}}
-						<tr>
-							<th colspan="3">
-								<div class="flex-justify">
-									<a class="btn-primary btn" href="./works/new">New</a>
-								</div>
-							</th>
-						</tr>
-					</table>
-				</div>
-				<div id="others">
-					<table class="wide">
-						<tr>
-							<th colspan=3>Active Works from Others</th>
-						</tr>
-						<tr>
-							<th class="min" scope="col">ID</th>
-							<th class="min" scope="col">Author</th>
-							<th scope="col">Title</th>
-						</tr>
-						{{- /*
-						{% for w in wothers %}
-						<tr>
-							<th scope="row" class="min">{{ w.id }}</th>
-							{% if w.anonymous %}
-							<td class="min anonymous">Anonymous</td>
-							{% else %}
-							<td class="min"><a href="{{ url_for(".user", oid=w.user.oid) }}">{{ w.user.name }}</a></td>
-							{% endif %}
-							<td><a href="{{ url_for(".work", id=w.id) }}">{{ w.title }}</a></td>
-						</tr>
-						{% endfor %}
-						*/ -}}
-						<tr>
-							<th colspan="3">
-								<div class="flex-justify">
-									<a class="btn-primary btn" href="{{- /* url_for(".list_") */ -}}">List all</a>
-								</div>
-							</th>
-						</tr>
-					</table>
-				</div>
-			</div>
+		<main>
+		<p>
+		Okay I haven&rsquo;t written the web page yet.
+		</p>
 		</main>
 	</body>
 </html>

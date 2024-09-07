@@ -63,7 +63,8 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 	var name string
-	err = db.QueryRow(context.Background(), "SELECT name FROM users WHERE id = $1", userid).Scan(&name)
+	var department string
+	err = db.QueryRow(context.Background(), "SELECT name, department FROM users WHERE id = $1", userid).Scan(&name, &department)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -89,6 +90,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		map[string]interface{}{
 			"user": map[string]interface{}{
 				"Name": name,
+				"Department": department,
 			},
 		},
 	)

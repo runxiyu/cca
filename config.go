@@ -55,6 +55,8 @@ var configWithPointers struct {
 		Client    *string `scfg:"client"`
 		Authorize *string `scfg:"authorize"`
 		Jwks      *string `scfg:"jwks"`
+		Token     *string `scfg:"token"`
+		Secret    *string `scfg:"secret"`
 	} `scfg:"auth"`
 }
 
@@ -76,6 +78,8 @@ var config struct {
 		Client    string
 		Authorize string
 		Jwks      string
+		Token     string
+		Secret    string
 	}
 }
 
@@ -106,6 +110,8 @@ func fetchConfig(path string) error {
 	config.Auth.Client = *(configWithPointers.Auth.Client)
 	config.Auth.Authorize = *(configWithPointers.Auth.Authorize)
 	config.Auth.Jwks = *(configWithPointers.Auth.Jwks)
+	config.Auth.Token = *(configWithPointers.Auth.Token)
+	config.Auth.Secret = *(configWithPointers.Auth.Secret)
 
 	return nil
 }

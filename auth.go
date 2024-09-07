@@ -32,9 +32,13 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	// "io"
 	"net/http"
+	"net/url"
+	"time"
 
 	"github.com/MicahParks/keyfunc/v3"
 	"github.com/golang-jwt/jwt/v5"
@@ -46,6 +50,7 @@ var myKeyfunc keyfunc.Keyfunc
 type msclaims_t struct {
 	Name  string `json:"name"`  /* Scope: profile */
 	Email string `json:"email"` /* Scope: email   */
+	Oid   string `json:"oid"`   /* Scope: profile */
 	jwt.RegisteredClaims
 }
 
@@ -59,7 +64,7 @@ func generate_authorization_url() string {
 	 */
 	nonce := random(30)
 	return fmt.Sprintf(
-		"https://login.microsoftonline.com/ddd3d26c-b197-4d00-a32d-1ffd84c0c295/oauth2/authorize?client_id=%s&response_type=id_token&redirect_uri=%s/auth&response_mode=form_post&scope=openid+profile+email&nonce=%s",
+		"https://login.microsoftonline.com/ddd3d26c-b197-4d00-a32d-1ffd84c0c295/oauth2/authorize?client_id=%s&response_type=id_token%%20code&redirect_uri=%s%%2Fauth&response_mode=form_post&scope=openid+profile+email+User.Read&nonce=%s", // hybrid auth flow
 		config.Auth.Client,
 		config.Url,
 		nonce,
@@ -131,6 +136,30 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	authorization_code := req.PostFormValue("code")
+
+	access_token, err := getAccessToken(authorization_code)
+	if err != nil {
+		wstr(w, 500, "Error: Unable to fetch access token")
+		return
+	}
+	
+	// TODO: validate access token
+
+	department, err := getDepartment(*(access_token.Content))
+	if err != nil {
+		wstr(w, 500, err.Error())
+		return
+	}
+
+	if department == "SJ Co-Curricular Activities Office 松江课外项目办公室" {
+		department = "CCA Staff"
+	} else if department == "Y9" || department == "Y10" || department == "Y11" || department == "Y12" {
+	} else {
+		wstr(w, 403, fmt.Sprintf("Error: Your department \"%s\" is unknown.\nWe currently only allow Y9, Y10, Y11, Y12, and the CCA office."))
+		return
+	}
+
 	cookie_value := random(20)
 
 	cookie := http.Cookie{
@@ -142,14 +171,14 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	}
 
 	http.SetCookie(w, &cookie)
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
 	_, err = db.Exec(
 		context.Background(),
-		"INSERT INTO users (id, name, email) VALUES ($1, $2, $3)",
-		claims.Subject,
+		"INSERT INTO users (id, name, email, department) VALUES ($1, $2, $3, $4)",
+		claims.Oid,
 		claims.Name,
 		claims.Email,
+		department,
 	)
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -157,10 +186,11 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 			if pgErr.Code == "23505" {
 				_, err := db.Exec(
 					context.Background(),
-					"UPDATE users SET (name, email) = ($1, $2) WHERE id = $3",
+					"UPDATE users SET (name, email, department) = ($1, $2, $3) WHERE id = $4",
 					claims.Name,
 					claims.Email,
-					claims.Subject,
+					department,
+					claims.Oid,
 				)
 				if err != nil {
 					w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -180,7 +210,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	_, err = db.Exec(
 		context.Background(),
 		"INSERT INTO sessions(userid, cookie, expr) VALUES ($1, $2, $3)",
-		claims.Subject,
+		claims.Oid,
 		cookie_value,
 		1881839332, /* TODO */
 	)
@@ -201,8 +231,6 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 
 	http.Redirect(w, req, "/", 303)
 
-	return
-
 }
 
 func setupJwks() error {
@@ -212,4 +240,69 @@ func setupJwks() error {
 		return err
 	}
 	return nil
+}
+
+func getDepartment(access_token string) (string, error) {
+	req, err := http.NewRequest("GET", "https://graph.microsoft.com/v1.0/me?$select=department", nil)
+	if err != nil {
+		return "", errors.New("Error: Cannot make the Graph API request")
+	}
+	req.Header.Set("Authorization", "Bearer "+access_token)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", errors.New("Error: Graph API request failed")
+	}
+	defer resp.Body.Close()
+
+	var departmentWrap struct {
+		Department *string `json:"department"`
+	}
+
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&departmentWrap)
+	if err != nil {
+		return "", errors.New("Error: Department unmarshaling failed")
+	}
+
+	if departmentWrap.Department == nil {
+		return "", errors.New("Error: Department pointer is nil")
+	}
+
+	return *(departmentWrap.Department), nil
+}
+
+type access_token_t struct {
+	OriginalExpiresIn *int `json:"expires_in"` // When the access token is obtained
+	Expiration        time.Time
+	Content           *string `json:"access_token"`
+}
+
+func getAccessToken(authorization_code string) (access_token_t, error) {
+	var access_token access_token_t
+	t := time.Now()
+	v := url.Values{}
+	v.Set("client_id", config.Auth.Client)
+	v.Set("scope", "https://graph.microsoft.com/User.Read")
+	v.Set("code", authorization_code)
+	v.Set("redirect_uri", config.Url+"/auth")
+	v.Set("grant_type", "authorization_code")
+	v.Set("client_secret", config.Auth.Secret)
+	resp, err := http.PostForm(config.Auth.Token, v)
+	if err != nil {
+		return access_token, err
+	}
+
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&access_token)
+	if err != nil {
+		return access_token, err
+	}
+	if access_token.Content == nil || access_token.OriginalExpiresIn == nil {
+		return access_token, errors.New("Insufficient fields")
+	}
+	access_token.Expiration = t.Add(time.Duration(*(access_token.OriginalExpiresIn)) * time.Second)
+
+	return access_token, nil
 }

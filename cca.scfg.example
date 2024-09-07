@@ -54,6 +54,12 @@ auth {
 	# What is the OAUTH 2.0 authorize endpoint?
 	authorize https://login.microsoftonline.com/ddd3d26c-b197-4d00-a32d-1ffd84c0c295/oauth2/v2.0/authorize
 
+	# What is the OAUTH 2.0 token endpoint?
+	token https://login.microsoftonline.com/ddd3d26c-b197-4d00-a32d-1ffd84c0c295/oauth2/v2.0/token
+
 	# What is the URL to the JSON Web Key Set?
 	jwks https://login.microsoftonline.com/common/discovery/keys
+
+	# What is the client secret? Certificates are not supported yet.
+	secret something
 }
