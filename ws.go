@@ -37,24 +37,24 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func splitMsg(b []byte) ([][]byte) {
-	mar := make([][]byte, 0, 4)
+func splitMsg(b []byte) ([]string) {
+	mar := make([]string, 0, 4)
 	elem := make([]byte, 0, 5)
 	for i, c := range b {
 		switch c {
 		case ' ':
 			if b[i+1] == ':' {
-				mar = append(mar, elem)
-				mar = append(mar, b[i+2:])
+				mar = append(mar, string(elem))
+				mar = append(mar, string(b[i+2:]))
 				goto endl
 			}
-			mar = append(mar, elem)
+			mar = append(mar, string(elem))
 			elem = make([]byte, 0, 5)
 		default:
 			elem = append(elem, c)
 		}
 	}
-	mar = append(mar, elem)
+	mar = append(mar, string(elem))
 endl:
 	return mar
 }
@@ -80,7 +80,9 @@ func handleConn(ctx context.Context, c *websocket.Conn, session string) error {
 
 		mar := splitMsg(b)
 
-		_ = mar
+		switch mar[0] {
+		case "HELLO":
+		}
 	}
 
 	// err = c.Write(ctx, typ, b)
