@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
-	"errors"
 	"net/http"
 
 	"github.com/coder/websocket"
