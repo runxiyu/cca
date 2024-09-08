@@ -64,3 +64,9 @@ const socket = new WebSocket("ws://localhost:5555/ws")
 socket.addEventListener("open", function() {
 	connect(socket, function() {})
 })
+
+document.querySelectorAll(".coursecheckbox").forEach(c => {
+	c.addEventListener("input", () => {
+		socket.send(`C ${c.id} :${c.checked}`)
+	})
+})
