@@ -23,6 +23,8 @@
 	--danger: #d32535;
 	--danger-contrast: #ffffff;
 	--anchor-underline-color: lightgray;
+	--white: #ffffff;
+	--white-contrast: #222222;
 }
 
 .greyedout {
@@ -187,7 +189,7 @@ tr:nth-child(odd) td {
   background-color: var(--rowbg-odd);
 }
 
-.btn-primary, input[type=submit]:not(.btn-danger) {
+.btn-primary {
 	background: var(--theme);
 	color: var(--theme-contrast);
 	border: var(--border) 1px solid;
@@ -199,6 +201,12 @@ tr:nth-child(odd) td {
 	color: var(--danger-contrast);
 	border: var(--border) 1px solid;
 	font-weight: bold;
+}
+
+.btn-white {
+	background: var(--white);
+	color: var(--white-contrast);
+	border: var(--border) 1px solid;
 }
 
 .btn-normal, input[type=file]::file-selector-button {
@@ -233,7 +241,7 @@ textarea {
 	background-color: var(--boxbg);
 	resize: vertical;
 }
-textarea, input[type=text] {
+textarea, input[type=text], input[type=password] {
 	font-family: sans-serif;
 	font-size: smaller;
 	background-color: var(--boxbg);
@@ -245,7 +253,7 @@ textarea, input[type=text] {
 td.tdinput {
 	padding: 0rem !important;
 }
-td.tdinput textarea, td.tdinput input[type=text] {
+td.tdinput textarea, td.tdinput input[type=text], td.tdinput input[type=password] {
 	background-color: transparent !important;
 }
 
