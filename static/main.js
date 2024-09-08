@@ -40,8 +40,10 @@ var connect = function(socket, callback) {
 		switch (mar[0]) {
 			case "A": // authenticated
 				socket.send("A") // confirm authenticated
+				break
 			case "U": // unauthenticated
 				alert(`Your session is broken or has expired. You are unauthenticated and the server will reject your commands.`)
+				break
 			default:
 				alert(`Invalid command ${mar[0]} received from socket. Something is wrong.`)
 		}
@@ -55,6 +57,3 @@ const socket = new WebSocket("ws://localhost:5555/ws")
 socket.addEventListener("open", function() {
 	connect(socket, function() {})
 })
-
-
-
