@@ -37,6 +37,28 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func splitMsg(b []byte) ([][]byte) {
+	mar := make([][]byte, 0, 4)
+	elem := make([]byte, 0, 5)
+	for i, c := range b {
+		switch c {
+		case ' ':
+			if b[i+1] == ':' {
+				mar = append(mar, elem)
+				mar = append(mar, b[i+2:])
+				goto endl
+			}
+			mar = append(mar, elem)
+			elem = make([]byte, 0, 5)
+		default:
+			elem = append(elem, c)
+		}
+	}
+	mar = append(mar, elem)
+endl:
+	return mar
+}
+
 func handleConn(ctx context.Context, c *websocket.Conn, session string) error {
 	var userid string
 	var expr int
@@ -50,13 +72,15 @@ func handleConn(ctx context.Context, c *websocket.Conn, session string) error {
 	}
 
 	for {
-		typ, b, err := c.Read(ctx)
+		_, b, err := c.Read(ctx)
 		if err != nil {
 			return err
 		}
+		fmt.Printf("%s %s\n", session, string(b))
 
-		fmt.Println(string(b))
-		_ = typ
+		mar := splitMsg(b)
+
+		_ = mar
 	}
 
 	// err = c.Write(ctx, typ, b)

@@ -51,6 +51,9 @@ var connect = function(socket, callback) {
 			case "U": // unauthenticated
 				alert(`Your session is broken or has expired. You are unauthenticated and the server will reject your commands.`)
 				break
+			case "E": // unexpected error
+				alert(`The server reported an unexpected error, "${mar[1]}". The system might be in an inconsistent state.`)
+				break
 			default:
 				alert(`Invalid command ${mar[0]} received from socket. Something is wrong.`)
 		}
