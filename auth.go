@@ -101,7 +101,11 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 			wstr(w, 400, fmt.Sprintf("%s", returned_error))
 			return
 		} else {
-			wstr(w, 400, fmt.Sprintf("%s: %s", returned_error, returned_error_description))
+			wstr(w, 400, fmt.Sprintf(
+				"%s: %s",
+				returned_error,
+				returned_error_description,
+			))
 			return
 		}
 	}
@@ -163,9 +167,11 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if department == "SJ Co-Curricular Activities Office 松江课外项目办公室" || department == "High School Teaching & Learning 高中教学部门" {
+	if department == "SJ Co-Curricular Activities Office 松江课外项目办公室" ||
+		department == "High School Teaching & Learning 高中教学部门" {
 		department = "Staff"
-	} else if department == "Y9" || department == "Y10" || department == "Y11" || department == "Y12" {
+	} else if department == "Y9" || department == "Y10" ||
+		department == "Y11" || department == "Y12" {
 	} else {
 		wstr(
 			w,

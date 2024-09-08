@@ -57,10 +57,18 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 
 	session_cookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
-		c.Write(req.Context(), websocket.MessageText, []byte("U"))
+		c.Write(
+			req.Context(),
+			websocket.MessageText,
+			[]byte("U"),
+		)
 		return
 	} else if err != nil {
-		c.Write(req.Context(), websocket.MessageText, []byte("E :Error fetching cookie"))
+		c.Write(
+			req.Context(),
+			websocket.MessageText,
+			[]byte("E :Error fetching cookie"),
+		)
 		return
 	}
 
@@ -105,7 +113,11 @@ endl:
 func handleConn(ctx context.Context, c *websocket.Conn, session string) error {
 	var userid string
 	var expr int
-	err := db.QueryRow(context.Background(), "SELECT userid, expr FROM sessions WHERE cookie = $1", session).Scan(&userid, &expr)
+	err := db.QueryRow(
+		context.Background(),
+		"SELECT userid, expr FROM sessions WHERE cookie = $1",
+		session,
+	).Scan(&userid, &expr)
 	if errors.Is(err, pgx.ErrNoRows) {
 		c.Write(ctx, websocket.MessageText, []byte("U"))
 		return err

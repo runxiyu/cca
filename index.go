@@ -45,7 +45,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 	}
 
 	var userid string
-	err = db.QueryRow(context.Background(), "SELECT userid FROM sessions WHERE cookie = $1", session_cookie.Value).Scan(&userid)
+	err = db.QueryRow(
+		context.Background(),
+		"SELECT userid FROM sessions WHERE cookie = $1",
+		session_cookie.Value,
+	).Scan(&userid)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			err = tmpl.ExecuteTemplate(
@@ -74,7 +78,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 
 	var name string
 	var department string
-	err = db.QueryRow(context.Background(), "SELECT name, department FROM users WHERE id = $1", userid).Scan(&name, &department)
+	err = db.QueryRow(
+		context.Background(),
+		"SELECT name, department FROM users WHERE id = $1",
+		userid,
+	).Scan(&name, &department)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
