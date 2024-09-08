@@ -29,6 +29,12 @@
 var connect = function(socket, callback) {
 	var _handle = event => {
 		let msg = new String(event?.data)
+
+		/*
+		 * Standard IRC Message format parsing without IRCv3 tags or prefixes.
+		 * It's a simple enough protocol format suitable for our use-case.
+		 * No need for protobuf or anything else nontrivial.
+		 */
 		let mar = msg.split(" ")
 		for (let i = 0; i < mar.length; i++) {
 			if (mar[i].startsWith(":")) {
@@ -37,6 +43,7 @@ var connect = function(socket, callback) {
 				break
 			}
 		}
+
 		switch (mar[0]) {
 			case "A": // authenticated
 				socket.send("A") // confirm authenticated
