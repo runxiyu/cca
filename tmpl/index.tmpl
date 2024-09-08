@@ -67,9 +67,6 @@
 		<main class="script-required">
 		{{- if .open }}
 		<div id="alreadyopen">
-			<div class="search">
-				<input type="text" id="search" placeholder="Search..." />
-			</div>
 			<table>
 				<thead>
 					<tr>
@@ -84,6 +81,11 @@ Max: maximum number of students this CCA takes">Slots</acronym></th>
 						<th scope="col">Type</th>
 						<th scope="col">Teacher</th>
 						<th scope="col">Location</th>
+					</tr>
+					<tr>
+						<td colspan="7" class="tdinput">
+							<input type="text" id="search" placeholder="Search..." />
+						</td>
 					</tr>
 				</thead>
 				<tbody>
