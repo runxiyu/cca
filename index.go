@@ -93,6 +93,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 				"Name":       name,
 				"Department": department,
 			},
+			"courses": courses,
 		},
 	)
 	if err != nil {

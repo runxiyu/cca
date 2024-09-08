@@ -63,6 +63,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	log.Println("Setting up courses")
+	err = setupCourses()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if config.Static {
 		log.Println("Registering static handle")
 		fs := http.FileServer(http.Dir("./static"))
