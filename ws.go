@@ -13,7 +13,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		Subprotocols: []string{"cca1"},
 	})
 	if err != nil {
-		log.Printf("%v", err)
+		w.Write([]byte("This endpoint only supports valid WebSocket connections."))
 		return
 	}
 	defer c.CloseNow()
