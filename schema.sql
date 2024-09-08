@@ -1,5 +1,5 @@
 CREATE TABLE courses (
-	id INTEGER NOT NULL,
+	id INTEGER PRIMARY KEY,
 	nmax INTEGER NOT NULL,
 	title TEXT,
 	ctype TEXT,
@@ -13,8 +13,8 @@ CREATE TABLE users (
 	department TEXT
 );
 CREATE TABLE sessions (
-	userid TEXT NOT NULL,
 	cookie TEXT PRIMARY KEY NOT NULL,
+	userid TEXT NOT NULL,
 	expr INTEGER NOT NULL,
 	FOREIGN KEY(userid) REFERENCES users(id)
 );
