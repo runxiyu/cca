@@ -67,6 +67,20 @@ socket.addEventListener("open", function() {
 
 document.querySelectorAll(".coursecheckbox").forEach(c => {
 	c.addEventListener("input", () => {
-		socket.send(`C ${c.id} :${c.checked}`)
+		if (c.id.slice(0, 4) !== "tick") {
+			alert(`${c.id} is not in the correct format.`)
+			return
+		}
+		switch (c.checked) {
+			case true:
+				socket.send(`Y ${c.id.slice(4)}`)
+				break
+			case false:
+				socket.send(`N ${c.id.slice(4)}`)
+				break
+			default:
+				alert(`${c.id}'s "checked" attribute is ${c.checked} which is invalid.`)
+				return
+		}
 	})
 })
