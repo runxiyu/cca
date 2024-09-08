@@ -67,6 +67,9 @@
 		<main class="script-required">
 		{{- if .open }}
 		<div id="alreadyopen">
+			<div class="search">
+				<input type="text" id="search" placeholder="Search..." />
+			</div>
 			<table>
 				<thead>
 					<tr>
@@ -84,8 +87,8 @@ Max: maximum number of students this CCA takes">Slots</acronym></th>
 					</tr>
 				</thead>
 				<tbody>
-					{{ range .courses }}
-					<tr id="course{{.Id}}">
+					{{- range .courses }}
+					<tr class="courseitem" id="course{{.Id}}">
 						<th scope="row">{{.Id}}</th>
 						<td><input type="checkbox" id="tick{{.Id}}" name="tick{{.Id}}", value="tick{{.Id}}"></input></td>
 						<td><span id="confirmed{{.Id}}">{{.Confirmed}}</span>/<span id="selected{{.Id}}">{{.Selected}}</span>/<span id="max{{.Id}}">{{.Max}}</span></td>
@@ -94,7 +97,7 @@ Max: maximum number of students this CCA takes">Slots</acronym></th>
 						<td>{{.Teacher}}</td>
 						<td>{{.Location}}</td>
 					</tr>
-					{{ end }}
+					{{- end }}
 				</tbody>
 			</table>
 		</div>
@@ -111,6 +114,18 @@ Max: maximum number of students this CCA takes">Slots</acronym></th>
 		{{ end -}}
 		</main>
 		<script src="static/main.js"></script>
+		<script>
+			document.addEventListener("DOMContentLoaded", () => {
+				const search = document.getElementById("search")
+				search.addEventListener("input", () => {
+					const s = search.value.toLowerCase().trim().normalize('NFD')
+					document.querySelectorAll(".courseitem").forEach(c => {
+						const m = c.textContent.toLowerCase().normalize('NFD').includes(s)
+						c.hidden = (!m) && (s.length > 0)
+					})
+				})
+			})
+		</script>
 	</body>
 </html>
 {{- end -}}
