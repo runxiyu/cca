@@ -47,6 +47,12 @@ import (
 
 var myKeyfunc keyfunc.Keyfunc
 
+/*
+ * These are the claims in the JSON Web Token received from the client, after
+ * it redirects from the authorize endpoint. Some of these fields must be
+ * explicitly selected in the Azure app registration and might appear as
+ * zero strings if it hasn't been configured correctly.
+ */
 type msclaims_t struct {
 	Name  string `json:"name"`  /* Scope: profile */
 	Email string `json:"email"` /* Scope: email   */
@@ -71,6 +77,11 @@ func generate_authorization_url() string {
 	)
 }
 
+/*
+ * Handles redirects to the /auth endpoint from the authorize endpoint.
+ * Expects JSON Web Keys to be already set up correctly; if myKeyfunc is null,
+ * a null pointer is dereferenced and the thread panics.
+ */
 func handleAuth(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
 		wstr(w, 405, "Only POST is supported on the authentication endpoint")
@@ -232,6 +243,9 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 
 }
 
+/*
+ * Setting up JSON Web Keys. Note that myKeyfunc is a global variable.
+ */
 func setupJwks() error {
 	var err error
 	myKeyfunc, err = keyfunc.NewDefault([]string{config.Auth.Jwks})
@@ -241,8 +255,20 @@ func setupJwks() error {
 	return nil
 }
 
+/*
+ * Fetch the department name of the user, mostly to identify which grade
+ * a student is in. This expects an access_token obtained from the OAUTH 2.0
+ * token endpoint obtained via an authorization code. It might also be able
+ * to use this as part of a hybrid flow that directly provides access tokens,
+ * but this flow seems to be only usable for single-page applications according
+ * to the Azure portal.
+ */
 func getDepartment(access_token string) (string, error) {
-	req, err := http.NewRequest("GET", "https://graph.microsoft.com/v1.0/me?$select=department", nil)
+	req, err := http.NewRequest(
+		"GET",
+		"https://graph.microsoft.com/v1.0/me?$select=department",
+		nil,
+	)
 	if err != nil {
 		return "", errors.New("Cannot make the Graph API request")
 	}
@@ -266,18 +292,30 @@ func getDepartment(access_token string) (string, error) {
 	}
 
 	if departmentWrap.Department == nil {
+		/*
+		 * This is probably because the response does not contain a
+		 * "department" field, which hopefully doesn't occur as we
+		 * have specified $select=department in the OData query.
+		 */
 		return "", errors.New("Department pointer is nil")
 	}
 
 	return *(departmentWrap.Department), nil
 }
 
+/*
+ * TODO: Access token expiration is not checked anywhere.
+ */
 type access_token_t struct {
-	OriginalExpiresIn *int `json:"expires_in"` // When the access token is obtained
+	OriginalExpiresIn *int `json:"expires_in"` /* Original time to expiration */
 	Expiration        time.Time
 	Content           *string `json:"access_token"`
 }
 
+/*
+ * Obtain an access token from the token endpoint with an existing
+ * authorization code.
+ */
 func getAccessToken(authorization_code string) (access_token_t, error) {
 	var access_token access_token_t
 	t := time.Now()

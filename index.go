@@ -10,6 +10,10 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+/*
+ * Serve the index page. Also handles the login page in case the user doesn't
+ * have any valid login cookies.
+ */
 func handleIndex(w http.ResponseWriter, req *http.Request) {
 	session_cookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
@@ -18,6 +22,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			"index_login",
 			map[string]string{
 				"authUrl": generate_authorization_url(),
+				/*
+				 * We directly generate the login URL here
+				 * instead of doing so in a redirect to save
+				 * requests.
+				 */
 			},
 		)
 		if err != nil {
@@ -34,9 +43,9 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		)))
 		return
 	}
+
 	var userid string
-	var expr int
-	err = db.QueryRow(context.Background(), "SELECT userid, expr FROM sessions WHERE cookie = $1", session_cookie.Value).Scan(&userid, &expr)
+	err = db.QueryRow(context.Background(), "SELECT userid FROM sessions WHERE cookie = $1", session_cookie.Value).Scan(&userid)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			err = tmpl.ExecuteTemplate(
@@ -62,6 +71,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}
+
 	var name string
 	var department string
 	err = db.QueryRow(context.Background(), "SELECT name, department FROM users WHERE id = $1", userid).Scan(&name, &department)

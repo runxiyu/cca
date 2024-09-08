@@ -9,6 +9,10 @@ import (
 
 var db *pgxpool.Pool
 
+/*
+ * This must be run during setup, before the database is accessed by any
+ * means. Otherwise, db would be a null pointer.
+ */
 func setupDatabase() error {
 	var err error
 	if config.Db.Type != "postgres" {

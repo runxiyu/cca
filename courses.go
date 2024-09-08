@@ -19,14 +19,30 @@ type course_t struct {
 }
 
 const (
-	sport    coursetype_t = "Sport"
-	nonsport coursetype_t = "Non-sport"
+	sport      coursetype_t = "Sport"
+	enrichment coursetype_t = "Enrichment"
+	culture    coursetype_t = "Culture"
 )
 
 var courses []course_t
 
+/*
+ * TODO: revamp this.
+ * This RWMutex is only for massive modifications of the course struct, since
+ * locking it on every write would be inefficient; in normal operation the only
+ * write that could occur to the courses struct is changing the Confirmed and
+ * Selected numbers, which should be handled with either atomics compare and
+ * swap, or a small RWMutex exclusive to that course. More idiomatic Go style
+ * would suggest putting course handling code in a separate goroutine but that
+ * seems needlessly inefficient in a highly concurrent application.
+ */
 var coursesLock sync.RWMutex
 
+/*
+ * Read course information from the database. This should be called during
+ * setup. Failure to do so before accessing course information may lead to
+ * a null pointer dereference.
+ */
 func setupCourses() error {
 	coursesLock.Lock()
 	defer coursesLock.Unlock()

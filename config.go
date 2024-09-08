@@ -37,6 +37,14 @@ import (
 	"git.sr.ht/~emersion/go-scfg"
 )
 
+/*
+ * We use two structs. The first has all of its values as pointers, and scfg
+ * unmarshals the configuration to it. Then we take each value, dereference
+ * it, and throw it into a normal config struct without pointers.
+ * This means that any missing configuration options will simply cause a
+ * segmentation fault.
+ */
+
 var configWithPointers struct {
 	Url    *string `scfg:"url"`
 	Prod   *bool   `scfg:"prod"`
@@ -94,10 +102,6 @@ func fetchConfig(path string) error {
 		return err
 	}
 
-	/*
-	 * TODO: We segfault when there are missing configuration options.
-	 * There should be better ways to handle this.
-	 */
 	config.Url = *(configWithPointers.Url)
 	config.Prod = *(configWithPointers.Prod)
 	config.Tmpl = *(configWithPointers.Tmpl)

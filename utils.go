@@ -36,6 +36,10 @@ import (
 	"net/http"
 )
 
+/*
+ * Write a string to a http.ResponseWriter, setting the Content-Type and status
+ * code.
+ */
 func wstr(w http.ResponseWriter, code int, msg string) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(code)

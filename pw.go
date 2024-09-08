@@ -4,6 +4,10 @@ import (
 	"net/http"
 )
 
+/*
+ * Password-handling is currently unimplemented, but a stub function is here
+ * for easy implementation when that's needed.
+ */
 func handlePw(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
 		wstr(w, 405, "Only POST is supported on the password login endpoint")
