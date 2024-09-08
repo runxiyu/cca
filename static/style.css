@@ -256,6 +256,12 @@ td.tdinput {
 td.tdinput textarea, td.tdinput input[type=text], td.tdinput input[type=password] {
 	background-color: transparent !important;
 }
+th.tdinput {
+	padding: 0rem !important;
+}
+th.tdinput textarea, th.tdinput input[type=text], th.tdinput input[type=password] {
+	background-color: transparent !important;
+}
 
 .multicols {
 	display: flex;
