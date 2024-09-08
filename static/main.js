@@ -84,3 +84,7 @@ document.querySelectorAll(".coursecheckbox").forEach(c => {
 		}
 	})
 })
+
+document.getElementById("confirmbutton").addEventListener("click", () => {
+	socket.send(`C`)
+})
