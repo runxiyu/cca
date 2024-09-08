@@ -27,14 +27,15 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 }
 
 func handleConn(ctx context.Context, c *websocket.Conn) error {
-	typ, b, err := c.Read(ctx)
-	if err != nil {
-		return err
+	for {
+		typ, b, err := c.Read(ctx)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(string(b))
+		_ = typ
 	}
-
-	fmt.Println(string(b))
-
-	_ = typ
 
 	// err = c.Write(ctx, typ, b)
 	// if err != nil {
