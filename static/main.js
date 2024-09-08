@@ -57,7 +57,7 @@ var connect = function(socket, callback) {
 	}
 	socket.addEventListener("message", _handle)
 	// TODO: Authenticate or something?
-	socket.send("BLOOP")
+	socket.send("HELLO")
 }
 
 const socket = new WebSocket("ws://localhost:5555/ws")
