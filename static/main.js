@@ -43,15 +43,18 @@ var connect = function(socket, callback) {
 			case "U": // unauthenticated
 				alert(`Your session is broken or has expired. You are unauthenticated and the server will reject your commands.`)
 			default:
-				alert(`Invalid command ${mar[0]} received from socket. Something is wrong. Perhaps you cached a very old version of the JavaScript?`)
+				alert(`Invalid command ${mar[0]} received from socket. Something is wrong.`)
 		}
-	};
-	socket.addEventListener("message", _handle);
+	}
+	socket.addEventListener("message", _handle)
 	// TODO: Authenticate or something?
-	socket.send("BLOOP");
-};
+	socket.send("BLOOP")
+}
 
-const socket = new WebSocket("http://localhost:5555/ws");
+const socket = new WebSocket("ws://localhost:5555/ws")
 socket.addEventListener("open", function() {
-	connect(socket, function() {});
-});
+	connect(socket, function() {})
+})
+
+
+
