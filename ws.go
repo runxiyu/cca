@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -31,10 +32,14 @@ func handleConn(ctx context.Context, c *websocket.Conn) error {
 		return err
 	}
 
-	err = c.Write(ctx, typ, b)
-	if err != nil {
-		return err
-	}
+	fmt.Println(string(b))
+
+	_ = typ
+
+	// err = c.Write(ctx, typ, b)
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
