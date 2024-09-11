@@ -1,0 +1,26 @@
+Fields to export
+================
+
+It doesn't really matter how staff enter course registrations into the system,
+as currently they just fill things in to the Schoolsbuddy web interface. We
+could do better by simply allowing them to upload a CSV/Excel file (or offering
+a Web interface if really needed).
+
+However, it does matter how we format the information going out of the system,
+as that needs to be imported into PowerSchool. The sample provided by the CCA
+department includes the following needed fields (the others are not needed):
+
+    Student Last Name (e.g. "YU")
+    Student First Name (e.g. "Runxi (Runxi 于润熙)")
+    SIS/MIS ID2 (the student number without a preceding "s")
+    Grade/Year (a two-digit integer)
+    Group/Activity (a string ending in " (SJ-Sn)" where n is the season number)
+    Day ("Mon" or "Tue")
+    Container (such as "SJ Season 1 2024-2025 CCA3 & CCA4")
+
+It shall be noted that the first and last name in PowerSchool format cannot be
+easily obtained from the Microsoft Graph interface. I suspect that a Microsoft
+Active Directory name such as "Runxi Yu 于润熙" would also work, but I could
+also work with a separate student database table.
+
+vim: tw=80
