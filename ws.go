@@ -126,6 +126,7 @@ func handleConn(ctx context.Context, c *websocket.Conn, session string) error {
 		return err
 	}
 
+	/* TODO: Select from this and a broadcast channel */
 	for {
 		_, b, err := c.Read(ctx)
 		if err != nil {
