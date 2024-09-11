@@ -206,20 +206,18 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	)
 	if err != nil {
 		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			if pgErr.Code == "23505" {
-				_, err := db.Exec(
-					context.Background(),
-					"UPDATE users SET (name, email, department) = ($1, $2, $3) WHERE id = $4",
-					claims.Name,
-					claims.Email,
-					department,
-					claims.Oid,
-				)
-				if err != nil {
-					wstr(w, 500, "Database error while updating account.")
-					return
-				}
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			_, err := db.Exec(
+				context.Background(),
+				"UPDATE users SET (name, email, department) = ($1, $2, $3) WHERE id = $4",
+				claims.Name,
+				claims.Email,
+				department,
+				claims.Oid,
+			)
+			if err != nil {
+				wstr(w, 500, "Database error while updating account.")
+				return
 			}
 		} else {
 			wstr(w, 500, "Database error while writing account info.")
