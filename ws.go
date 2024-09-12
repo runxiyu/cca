@@ -79,7 +79,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	}
 	defer c.CloseNow()
 
-	session_cookie, err := req.Cookie("session")
+	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
 		c.Write(
 			req.Context(),
@@ -96,7 +96,35 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = handleConn(req.Context(), c, session_cookie.Value)
+	var userid string
+	var expr int
+
+	err = db.QueryRow(
+		context.Background(),
+		"SELECT userid, expr FROM sessions WHERE cookie = $1",
+		sessionCookie.Value,
+	).Scan(&userid, &expr)
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		c.Write(
+			req.Context(),
+			websocket.MessageText,
+			[]byte("U"),
+		)
+	} else if err != nil {
+		c.Write(
+			req.Context(),
+			websocket.MessageText,
+			[]byte("E :Database error"),
+		)
+	}
+
+	err = handleConn(
+		req.Context(),
+		c,
+		sessionCookie.Value,
+		userid,
+	)
 	if err != nil {
 		log.Printf("%v", err)
 		return
@@ -137,24 +165,15 @@ type errbytes_t struct {
 }
 
 /*
- * The actual logic in handling the connection.
+ * The actual logic in handling the connection, after authentication has been
+ * completed.
  */
-func handleConn(ctx context.Context, c *websocket.Conn, session string) error {
-	var userid string
-	var expr int
-	err := db.QueryRow(
-		context.Background(),
-		"SELECT userid, expr FROM sessions WHERE cookie = $1",
-		session,
-	).Scan(&userid, &expr)
-	if errors.Is(err, pgx.ErrNoRows) {
-		c.Write(ctx, websocket.MessageText, []byte("U"))
-		return err
-	} else if err != nil {
-		c.Write(ctx, websocket.MessageText, []byte("E :Database error"))
-		return err
-	}
-
+func handleConn(
+	ctx context.Context,
+	c *websocket.Conn,
+	session string,
+	userid string,
+) error {
 	/* TODO: Select from this and a broadcast channel */
 	recv := make(chan *errbytes_t)
 	go func() {
