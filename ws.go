@@ -28,7 +28,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 /*
  * The message format is a WebSocket message separated with spaces.
  * The contents of each field could contain anything other than spaces,
@@ -46,7 +45,7 @@
  * It is essentially an RFC 1459 IRC message without trailing CR-LF and
  * without prefixes. See section 2.3.1 of RFC 1459 for an approximate
  * BNF representation.
- * 
+ *
  * The reason this was chosen instead of using protobuf etc. is that it
  * is simple to parse without external libraries, and it also happens to
  * be a format I'm very familiar with, having extensively worked with the
@@ -133,7 +132,7 @@ endl:
 }
 
 type errbytes_t struct {
-	err error
+	err   error
 	bytes *[]byte
 }
 
