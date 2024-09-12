@@ -67,7 +67,8 @@ import (
 
 /*
  * Handle requests to the WebSocket endpoint and establish a connection.
- * The connection is really handled in handleConn.
+ * Authentication is handled here, but afterwards, the connection is really
+ * handled in handleConn.
  */
 func handleWs(w http.ResponseWriter, req *http.Request) {
 	c, err := websocket.Accept(w, req, &websocket.AcceptOptions{
