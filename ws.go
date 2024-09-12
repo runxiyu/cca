@@ -58,7 +58,7 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
+	// "fmt"
 	"log"
 	"net/http"
 
@@ -110,15 +110,15 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
  * spaces, and an argument that begins with a ':' causes the rest of the
  * line to be treated as a single argument.
  */
-func splitMsg(b []byte) []string {
+func splitMsg(b *[]byte) []string {
 	mar := make([]string, 0, 4)
 	elem := make([]byte, 0, 5)
-	for i, c := range b {
+	for i, c := range *b {
 		switch c {
 		case ' ':
-			if b[i+1] == ':' {
+			if (*b)[i+1] == ':' {
 				mar = append(mar, string(elem))
-				mar = append(mar, string(b[i+2:]))
+				mar = append(mar, string((*b)[i+2:]))
 				goto endl
 			}
 			mar = append(mar, string(elem))
@@ -130,6 +130,11 @@ func splitMsg(b []byte) []string {
 	mar = append(mar, string(elem))
 endl:
 	return mar
+}
+
+type errbytes_t struct {
+	err error
+	bytes *[]byte
 }
 
 /*
@@ -152,17 +157,31 @@ func handleConn(ctx context.Context, c *websocket.Conn, session string) error {
 	}
 
 	/* TODO: Select from this and a broadcast channel */
-	for {
-		_, b, err := c.Read(ctx)
-		if err != nil {
-			return err
+	recv := make(chan *errbytes_t)
+	go func() {
+		for {
+			_, b, err := c.Read(ctx)
+			if err != nil {
+				recv <- &errbytes_t{err: err, bytes: nil}
+				return
+			}
+			recv <- &errbytes_t{err: nil, bytes: &b}
 		}
-		fmt.Printf("%s %s\n", session, string(b))
-
-		mar := splitMsg(b)
+	}()
+	for {
+		var mar []string
+		select {
+		case errbytes := <-recv:
+			if (*errbytes).err != nil {
+				return (*errbytes).err
+			}
+			mar = splitMsg((*errbytes).bytes)
+		}
 
 		switch mar[0] {
 		case "HELLO":
+		default:
+			log.Printf("Unknown %s\n", mar)
 		}
 	}
 
