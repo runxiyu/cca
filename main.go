@@ -69,6 +69,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	log.Println("Setting up WebSocket connection pool")
+	err = setupChanPool()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if config.Static {
 		log.Println("Registering static handle")
 		fs := http.FileServer(http.Dir("./static"))

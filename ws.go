@@ -165,6 +165,12 @@ type errbytes_t struct {
 	bytes *[]byte
 }
 
+var chanPool [](*websocket.Conn)
+
+func setupChanPool() {
+	chanPool = make([](*websocket.Conn))
+}
+
 /*
  * The actual logic in handling the connection, after authentication has been
  * completed.
@@ -175,7 +181,11 @@ func handleConn(
 	session string,
 	userid string,
 ) error {
-	/* TODO: Select from this and a broadcast channel */
+	/* TODO */
+
+	send := make(chan string)
+	chanPool = append(chanPool, send)
+
 	recv := make(chan *errbytes_t)
 	go func() {
 		for {
@@ -193,8 +203,14 @@ func handleConn(
 		case errbytes := <-recv:
 			if (*errbytes).err != nil {
 				return (*errbytes).err
+				// TODO: remember to delete it!
 			}
 			mar = splitMsg((*errbytes).bytes)
+		case gonnasend := <-send:
+			err = c.Write(ctx, websocket.MessageText, []byte(gonnasend))
+			if err != nil {
+				return err
+			}
 		}
 
 		switch mar[0] {
@@ -204,10 +220,6 @@ func handleConn(
 		}
 	}
 
-	// err = c.Write(ctx, typ, b)
-	// if err != nil {
-	// 	return err
-	// }
 
 	return nil
 }
