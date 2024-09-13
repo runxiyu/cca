@@ -165,10 +165,11 @@ type errbytes_t struct {
 	bytes *[]byte
 }
 
-var chanPool [](*websocket.Conn)
+var chanPool [](chan string)
 
-func setupChanPool() {
-	chanPool = make([](*websocket.Conn))
+func setupChanPool() error {
+	chanPool = make([](chan string), 0)
+	return nil
 }
 
 /*
@@ -207,7 +208,7 @@ func handleConn(
 			}
 			mar = splitMsg((*errbytes).bytes)
 		case gonnasend := <-send:
-			err = c.Write(ctx, websocket.MessageText, []byte(gonnasend))
+			err := c.Write(ctx, websocket.MessageText, []byte(gonnasend))
 			if err != nil {
 				return err
 			}
