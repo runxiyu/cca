@@ -65,68 +65,89 @@
 			</main>
 		</noscript>
 		<main class="script-required">
-		{{- if .open }}
-		<div id="alreadyopen">
-			<table>
-				<thead>
-					<tr>
-						<th scope="col">ID</th>
-						<th scope="col">Tick</th>
-						<th scope="col"><acronym title="Confirmed/Selected/Max
-
-Confirmed: chose here and secured their slot by submitting
-Selected: chose here but hasn&rsquo;t submitted yet
-Max: maximum number of students this CCA takes">Slots</acronym></th>
-						<th scope="col">Name</th>
-						<th scope="col">Type</th>
-						<th scope="col">Teacher</th>
-						<th scope="col">Location</th>
-					</tr>
-					<tr>
-						<th colspan="7" class="tdinput">
-							<input type="text" id="search" placeholder="Search..." />
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					{{- range .courses }}
-					<tr class="courseitem" id="course{{.Id}}">
-						<th scope="row">{{.Id}}</th>
-						<td><input class="coursecheckbox" type="checkbox" id="tick{{.Id}}" name="tick{{.Id}}", value="tick{{.Id}}"></input></td>
-						<td><span id="confirmed{{.Id}}">{{.Confirmed}}</span>/<span id="selected{{.Id}}">{{.Selected}}</span>/<span id="max{{.Id}}">{{.Max}}</span></td>
-						<td>{{.Title}}</td>
-						<td id="type{{.Id}}">{{.Type}}</td>
-						<td>{{.Teacher}}</td>
-						<td>{{.Location}}</td>
-					</tr>
-					{{- end }}
-				</tbody>
-				<tfoot>
-					<tr>
-						<td class="th-like" colspan="7">
-							<div class="flex-justify">
-								<div class="left">
-								</div>
-								<div class="right">
-									<button id="confirmbutton" class="btn-primary btn">Confirm</button>
-								</div>
-							</div>
-						</td>
-					</tr>
-				</tfoot>
-			</table>
-		</div>
-		{{ else }}
-		<div id="notopenyet">
-			<p>
-			CCA selections are not currently open.
-			</p>
-			<!-- TODO: Open/not-open should be handled in JS and WS -->
-			<p>
-			Please contact <a href="mailto:sj-cca@ykpaoschool.cn">the CCA department</a> for CCA selection issues or <a href="mailto:s22537@stu.ykpaoschool.cn">Runxi Yu</a> for website issues.
-			</p>
-		</div>
-		{{ end -}}
+			<div class="before-connection">
+				<p>
+				Attempting to establish WebSocket connection.
+				</p>
+				<p>
+				If this message does not disappear soon, it means that one of the following conditions are true:
+				</p>
+				<ul>
+					<li>
+						Your browser does not <a href="https://caniuse.com/websockets">support WebSocket</a>, or they are being blocked.
+					</li>
+					<li>
+						The server is overloaded or encountered an error.
+					</li>
+					<li>
+						The network is over-saturated, or you just have a bad network.
+					</li>
+				</ul>
+			</div>
+			<div class="need-connection">
+				{{- if .open }}
+				<div id="alreadyopen">
+					<table>
+						<thead>
+							<tr>
+								<th scope="col">ID</th>
+								<th scope="col">Tick</th>
+								<th scope="col"><acronym title="Confirmed/Selected/Max
+		
+		Confirmed: chose here and secured their slot by submitting
+		Selected: chose here but hasn&rsquo;t submitted yet
+		Max: maximum number of students this CCA takes">Slots</acronym></th>
+								<th scope="col">Name</th>
+								<th scope="col">Type</th>
+								<th scope="col">Teacher</th>
+								<th scope="col">Location</th>
+							</tr>
+							<tr>
+								<th colspan="7" class="tdinput">
+									<input type="text" id="search" placeholder="Search..." />
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							{{- range .courses }}
+							<tr class="courseitem" id="course{{.Id}}">
+								<th scope="row">{{.Id}}</th>
+								<td><input class="coursecheckbox" type="checkbox" id="tick{{.Id}}" name="tick{{.Id}}", value="tick{{.Id}}"></input></td>
+								<td><span id="confirmed{{.Id}}">{{.Confirmed}}</span>/<span id="selected{{.Id}}">{{.Selected}}</span>/<span id="max{{.Id}}">{{.Max}}</span></td>
+								<td>{{.Title}}</td>
+								<td id="type{{.Id}}">{{.Type}}</td>
+								<td>{{.Teacher}}</td>
+								<td>{{.Location}}</td>
+							</tr>
+							{{- end }}
+						</tbody>
+						<tfoot>
+							<tr>
+								<td class="th-like" colspan="7">
+									<div class="flex-justify">
+										<div class="left">
+										</div>
+										<div class="right">
+											<button id="confirmbutton" class="btn-primary btn">Confirm</button>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+				{{ else }}
+				<div id="notopenyet">
+					<p>
+					CCA selections are not currently open.
+					</p>
+					<!-- TODO: Open/not-open should be handled in JS and WS -->
+					<p>
+					Please contact <a href="mailto:sj-cca@ykpaoschool.cn">the CCA department</a> for CCA selection issues or <a href="mailto:s22537@stu.ykpaoschool.cn">Runxi Yu</a> for website issues.
+					</p>
+				</div>
+				{{ end -}}
+			</div>
 		</main>
 		<script src="static/main.js"></script>
 		<script>

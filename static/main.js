@@ -48,18 +48,25 @@ var connect = function(socket, callback) {
 			case "A": // authenticated
 				socket.send("A") // confirm authenticated
 				break
-			case "U": // unauthenticated
-				alert(`Your session is broken or has expired. You are unauthenticated and the server will reject your commands.`)
-				break
 			case "E": // unexpected error
 				alert(`The server reported an unexpected error, "${mar[1]}". The system might be in an inconsistent state.`)
+				break
+			case "HI":
+				document.querySelectorAll(".need-connection").forEach(c => {
+					c.style.display = "block";
+				})
+				document.querySelectorAll(".before-connection").forEach(c => {
+					c.style.display = "none";
+				})
+				break
+			case "U": // unauthenticated
+				alert(`Your session is broken or has expired. You are unauthenticated and the server will reject your commands.`)
 				break
 			default:
 				alert(`Invalid command ${mar[0]} received from socket. Something is wrong.`)
 		}
 	}
 	socket.addEventListener("message", _handle)
-	// TODO: Authenticate or something?
 	socket.send("HELLO")
 }
 

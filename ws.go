@@ -57,7 +57,7 @@ package main
 import (
 	"context"
 	"errors"
-	// "fmt"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -80,6 +80,13 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	}
 	defer c.CloseNow()
 
+	/*
+	 * Here we fetch the cookie from the HTTP headers. On browser's I've
+	 * tested, creating WebSocket connections with JavaScript still passes
+	 * httponly cookies in the upgrade request. I'm not sure if this is
+	 * true for all browsers and it wasn't simple to find a spec for this.
+	 * TODO
+	 */
 	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
 		c.Write(
@@ -105,12 +112,11 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		"SELECT userid, expr FROM sessions WHERE cookie = $1",
 		sessionCookie.Value,
 	).Scan(&userid, &expr)
-
 	if errors.Is(err, pgx.ErrNoRows) {
 		c.Write(
 			req.Context(),
 			websocket.MessageText,
-			[]byte("U"),
+			[]byte("U"), /* Unauthenticated */
 		)
 	} else if err != nil {
 		c.Write(
@@ -120,6 +126,17 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		)
 	}
 
+	/*
+	 * Now that we have an authenticated request, this WebSocket connection
+	 * may be simply associated with the session and userid.
+	 * TODO: There are various race conditions that could occur if one user
+	 * creates multiple connections, with the same or different session
+	 * cookies. The last situation could occur in normal use when a user
+	 * opens multiple instances of the page in one browser, and is not
+	 * unique to custom clients or malicious users. Some effort must be
+	 * taken to ensure that each user may only have one connection at a
+	 * time.
+	 */
 	err = handleConn(
 		req.Context(),
 		c,
@@ -182,11 +199,28 @@ func handleConn(
 	session string,
 	userid string,
 ) error {
-	/* TODO */
-
+	/*
+	 * TODO: Remember to delete the "send" channel from "chanPool", so that
+	 * it could be garbage collected, and so the broadcast routine won't
+	 * send to it. This should be done in a "defer" statement following the
+	 * append. It is not presently clear how this should be implemented, as
+	 * there is no simple way to remove an element from a slice. We could
+	 * create a new slice with the contents of the existing slice but that
+	 * would be pretty heavy; we could also set elements to nil (and
+	 * perhaps reuse nil slots in the future) while being sure to use
+	 * atomic indexes (and perhaps using a map instead of a slice); we
+	 * could also handle chanPool in a separate goroutine.
+	 */
 	send := make(chan string)
 	chanPool = append(chanPool, send)
 
+	/*
+	 * Later we need to select from recv and send and perform the
+	 * corresponding action. But we can't just select from c.Read because
+	 * the function blocks. Therefore, we must spawn a goroutine that
+	 * blocks on c.Read and send what it receives to a channel "recv"; and
+	 * then we can select from that channel.
+	 */
 	recv := make(chan *errbytes_t)
 	go func() {
 		for {
@@ -198,29 +232,31 @@ func handleConn(
 			recv <- &errbytes_t{err: nil, bytes: &b}
 		}
 	}()
+
 	for {
 		var mar []string
 		select {
-		case errbytes := <-recv:
-			if (*errbytes).err != nil {
-				return (*errbytes).err
-				// TODO: remember to delete it!
-			}
-			mar = splitMsg((*errbytes).bytes)
 		case gonnasend := <-send:
 			err := c.Write(ctx, websocket.MessageText, []byte(gonnasend))
 			if err != nil {
 				return err
 			}
-		}
-
-		switch mar[0] {
-		case "HELLO":
-		default:
-			log.Printf("Unknown %s\n", mar)
+			continue
+		case errbytes := <-recv:
+			if (*errbytes).err != nil {
+				return (*errbytes).err
+			}
+			mar = splitMsg((*errbytes).bytes)
+			switch mar[0] {
+			case "HELLO":
+				c.Write(ctx, websocket.MessageText, []byte("HI"))
+			default:
+				c.Write(
+					ctx,
+					websocket.MessageText,
+					[]byte(fmt.Sprintf("E :Unknown command %s", mar[0])),
+				)
+			}
 		}
 	}
-
-
-	return nil
 }

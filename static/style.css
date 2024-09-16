@@ -356,3 +356,10 @@ section {
 .just-margin-top {
 	margin-top: 1rem;
 }
+
+.need-connection {
+	display: none;
+}
+
+.before-connection {
+}
