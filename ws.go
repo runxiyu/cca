@@ -119,12 +119,14 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 			websocket.MessageText,
 			[]byte("U"), /* Unauthenticated */
 		)
+		return
 	} else if err != nil {
 		c.Write(
 			req.Context(),
 			websocket.MessageText,
 			[]byte("E :Database error"),
 		)
+		return
 	}
 
 	/*
