@@ -186,7 +186,7 @@ type errbytes_t struct {
 }
 
 var chanPool [](*chan string)
-var chanPoolLock *sync.RWMutex
+var chanPoolLock sync.RWMutex
 
 func setupChanPool() error {
 	chanPool = make([](*chan string), 0)
