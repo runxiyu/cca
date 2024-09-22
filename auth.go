@@ -98,7 +98,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	if returned_error != "" {
 		returned_error_description := req.PostFormValue("error_description")
 		if returned_error_description == "" {
-			wstr(w, 400, fmt.Sprintf("%s", returned_error))
+			wstr(w, 400, returned_error)
 			return
 		} else {
 			wstr(w, 400, fmt.Sprintf(
