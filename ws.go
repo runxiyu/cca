@@ -60,6 +60,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/coder/websocket"
 	"github.com/jackc/pgx/v5"
@@ -182,10 +183,11 @@ type errbytes_t struct {
 	bytes *[]byte
 }
 
-var chanPool [](chan string)
+var chanPool [](*chan string)
+var chanPoolLock *sync.RWMutex
 
 func setupChanPool() error {
-	chanPool = make([](chan string), 0)
+	chanPool = make([](*chan string), 0)
 	return nil
 }
 
@@ -200,19 +202,26 @@ func handleConn(
 	userid string,
 ) error {
 	/*
-	 * TODO: Remember to delete the "send" channel from "chanPool", so that
-	 * it could be garbage collected, and so the broadcast routine won't
-	 * send to it. This should be done in a "defer" statement following the
-	 * append. It is not presently clear how this should be implemented, as
-	 * there is no simple way to remove an element from a slice. We could
-	 * create a new slice with the contents of the existing slice but that
-	 * would be pretty heavy; we could also set elements to nil (and
-	 * perhaps reuse nil slots in the future) while being sure to use
-	 * atomic indexes (and perhaps using a map instead of a slice); we
-	 * could also handle chanPool in a separate goroutine.
+	 * TODO: Potential race conditions here when deleting chanPool?
 	 */
 	send := make(chan string)
-	chanPool = append(chanPool, send)
+	chanPoolLock.Lock()
+	func() {
+		defer chanPoolLock.Unlock()
+		chanPool = append(chanPool, &send)
+	}()
+	defer func() {
+		chanPoolLock.Lock()
+		defer chanPoolLock.Unlock()
+		for k, v := range chanPool {
+			if v == &send {
+				chanPool[k] = nil
+				log.Printf("Purging channel %v\n", &send)
+				return
+			}
+		}
+		log.Printf("WARNING: channel %v to be purged but not found in slice\n", &send)
+	}()
 
 	/*
 	 * Later we need to select from recv and send and perform the
