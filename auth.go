@@ -159,8 +159,6 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// TODO: validate access token
-
 	department, err := getDepartment(*(access_token.Content))
 	if err != nil {
 		wstr(w, 500, err.Error())
@@ -192,6 +190,11 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   config.Prod,
+		/*
+		 * TODO: Cookies should also have an expiration; cookies
+		 * without expiration don't even persist across browser
+		 * sessions in most browsers.
+		 */
 	}
 
 	http.SetCookie(w, &cookie)

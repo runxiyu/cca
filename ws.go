@@ -81,11 +81,11 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	defer c.CloseNow()
 
 	/*
-	 * Here we fetch the cookie from the HTTP headers. On browser's I've
-	 * tested, creating WebSocket connections with JavaScript still passes
-	 * httponly cookies in the upgrade request. I'm not sure if this is
-	 * true for all browsers and it wasn't simple to find a spec for this.
-	 * TODO
+	 * TODO: Here we fetch the cookie from the HTTP headers. On browser's
+	 * I've tested, creating WebSocket connections with JavaScript still
+	 * passes httponly cookies in the upgrade request. I'm not sure if this
+	 * is true for all browsers and it wasn't simple to find a spec for
+	 * this.
 	 */
 	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
