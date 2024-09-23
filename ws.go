@@ -76,10 +76,12 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		Subprotocols: []string{"cca1"},
 	})
 	if err != nil {
-		w.Write([]byte("This endpoint only supports valid WebSocket connections."))
+		wstr(w, 400, "This endpoint only supports valid WebSocket connections.")
 		return
 	}
-	defer c.CloseNow()
+	defer func() {
+		_ = c.CloseNow()
+	}()
 
 	/*
 	 * TODO: Here we fetch the cookie from the HTTP headers. On browser's
@@ -90,18 +92,24 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	 */
 	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
-		c.Write(
+		err := c.Write(
 			req.Context(),
 			websocket.MessageText,
 			[]byte("U"),
 		)
+		if err != nil {
+			log.Println(err)
+		}
 		return
 	} else if err != nil {
-		c.Write(
+		err := c.Write(
 			req.Context(),
 			websocket.MessageText,
 			[]byte("E :Error fetching cookie"),
 		)
+		if err != nil {
+			log.Println(err)
+		}
 		return
 	}
 
@@ -114,18 +122,24 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		sessionCookie.Value,
 	).Scan(&userid, &expr)
 	if errors.Is(err, pgx.ErrNoRows) {
-		c.Write(
+		err := c.Write(
 			req.Context(),
 			websocket.MessageText,
 			[]byte("U"), /* Unauthenticated */
 		)
+		if err != nil {
+			log.Println(err)
+		}
 		return
 	} else if err != nil {
-		c.Write(
+		err := c.Write(
 			req.Context(),
 			websocket.MessageText,
 			[]byte("E :Database error"),
 		)
+		if err != nil {
+			log.Println(err)
+		}
 		return
 	}
 
@@ -261,13 +275,19 @@ func handleConn(
 			mar = splitMsg((*errbytes).bytes)
 			switch mar[0] {
 			case "HELLO":
-				c.Write(ctx, websocket.MessageText, []byte("HI"))
+				err := c.Write(ctx, websocket.MessageText, []byte("HI"))
+				if err != nil {
+					return err
+				}
 			default:
-				c.Write(
+				err := c.Write(
 					ctx,
 					websocket.MessageText,
 					[]byte(fmt.Sprintf("E :Unknown command %s", mar[0])),
 				)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

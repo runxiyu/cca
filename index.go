@@ -70,12 +70,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		}
 		return
 	} else if err != nil {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(400)
-		w.Write([]byte(fmt.Sprintf(
-			"Error\n" +
-				"Unable to check cookie.",
-		)))
+		wstr(w, 400, "Error: Unable to check cookie.")
 		return
 	}
 
@@ -106,12 +101,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			}
 			return
 		} else {
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.WriteHeader(500)
-			w.Write([]byte(fmt.Sprintf(
-				"Error\nUnexpected database error.\n%s\n",
-				err,
-			)))
+			wstr(w, 500, fmt.Sprintf("Error: Unexpected database error: %s", err))
 			return
 		}
 	}
@@ -125,20 +115,10 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 	).Scan(&name, &department)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.WriteHeader(500)
-			w.Write([]byte(fmt.Sprintf(
-				"Error\nYour user doesn't exist. (This looks like a data integrity error.)\n%s\n",
-				err,
-			)))
+			wstr(w, 500, "Error: User does not exist (database error?)")
 			return
 		} else {
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.WriteHeader(500)
-			w.Write([]byte(fmt.Sprintf(
-				"Error\nUnexpected database error.\n%s\n",
-				err,
-			)))
+			wstr(w, 500, "Error: Unexpected database error")
 			return
 		}
 	}
@@ -155,11 +135,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		},
 	)
 	if err != nil {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(500)
-		w.Write([]byte(fmt.Sprintf(
-			"Error\nUnexpected template error.\n%s\n",
-			err,
-		)))
+		log.Println(err)
+		return
 	}
 }
