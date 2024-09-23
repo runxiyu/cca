@@ -27,10 +27,6 @@
 	--white-contrast: #222222;
 }
 
-.greyedout {
-	color: var(--greyedout) !important;
-}
-
 html {
 	font-family: system-ui, sans-serif;
 	line-height: 1.2;
@@ -316,50 +312,21 @@ article.work-text {
 	margin-bottom: 1.5rem;
 }
 
-form.dialogue {
-	background-color: var(--boxbg);
-	border: 2px solid var(--border);
-	font-size: 90%;
-	border-collapse: collapse;
-	padding: 0rem 0.5rem;
-	max-width: 20rem;
-}
-
-table#flashes {
-	margin-bottom: 0rem;
-}
-
-#main-actions {
-	margin-top: 1.5rem;
-}
-
-section {
-	margin-top: 1rem;
-	margin-bottom: 1rem;
-}
-
-.inline {
-	display: inline-block;
-}
-
-.flex-children-top {
-	display: flex;
-	gap: 1rem;
-	align-items: top;
-}
-.flex-children-top > * {
-	vertical-align: top;
-	display: block;
-	flex: none;
-}
-
 .just-margin-top {
 	margin-top: 1rem;
 }
 
+/*
+ * .need-connection is the content that should actually display when we are
+ * connected via WebSocket. The JavaScript would change display from none to
+ * block when fully connected to WebSocket.
+ */
 .need-connection {
 	display: none;
 }
-
+/*
+ * .before-connection displays the pre-connection message, and the JavaScript
+ * does the exact opposite.
+ */
 .before-connection {
 }
