@@ -210,7 +210,8 @@ func handleConn(
 	chanPoolLock.Lock()
 	func() {
 		defer chanPoolLock.Unlock()
-		chanPool = append(chanPool, &send)
+		chanPool = append(chanPool, &send)			
+		log.Printf("Channel %v added to pool for session %s, userid %s\n", &send, session, userid)
 	}()
 	defer func() {
 		chanPoolLock.Lock()
@@ -218,11 +219,11 @@ func handleConn(
 		for k, v := range chanPool {
 			if v == &send {
 				chanPool[k] = nil
-				log.Printf("Purging channel %v\n", &send)
+				log.Printf("Purging channel %v for session %s userid %s, from pool\n", &send, session, userid)
 				return
 			}
 		}
-		log.Printf("WARNING: channel %v to be purged but not found in slice\n", &send)
+		log.Printf("WARNING: channel %v to be purged but not found in pool\n", &send)
 	}()
 
 	/*
