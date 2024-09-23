@@ -48,11 +48,13 @@ type course_t struct {
 	Location  string
 }
 
-const (
-	sport      coursetype_t = "Sport"
-	enrichment coursetype_t = "Enrichment"
-	culture    coursetype_t = "Culture"
-)
+/*
+ * const (
+ * 	sport      coursetype_t = "Sport"
+ * 	enrichment coursetype_t = "Enrichment"
+ * 	culture    coursetype_t = "Culture"
+ * )
+ */
 
 var courses []course_t
 
