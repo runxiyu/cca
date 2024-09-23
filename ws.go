@@ -210,7 +210,7 @@ func handleConn(
 	chanPoolLock.Lock()
 	func() {
 		defer chanPoolLock.Unlock()
-		chanPool = append(chanPool, &send)			
+		chanPool = append(chanPool, &send)
 		log.Printf("Channel %v added to pool for session %s, userid %s\n", &send, session, userid)
 	}()
 	defer func() {

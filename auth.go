@@ -60,7 +60,7 @@ type msclaims_t struct {
 	jwt.RegisteredClaims
 }
 
-func generate_authorization_url() string {
+func generate_authorization_url() (string, error) {
 	/*
 	 * TODO: Handle nonces and anti-replay. Incremental nonces would be
 	 * nice on memory and speed (depending on how maps are implemented in
@@ -68,13 +68,16 @@ func generate_authorization_url() string {
 	 * hacky atomics or having a multiple goroutines to handle
 	 * authentication, neither of which are desirable.
 	 */
-	nonce := random(30)
+	nonce, err := random(20)
+	if err != nil {
+		return "", err
+	}
 	return fmt.Sprintf(
 		"https://login.microsoftonline.com/ddd3d26c-b197-4d00-a32d-1ffd84c0c295/oauth2/authorize?client_id=%s&response_type=id_token%%20code&redirect_uri=%s%%2Fauth&response_mode=form_post&scope=openid+profile+email+User.Read&nonce=%s", // hybrid auth flow
 		config.Auth.Client,
 		config.Url,
 		nonce,
-	)
+	), nil
 }
 
 /*
@@ -182,7 +185,11 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	cookie_value := random(20)
+	cookie_value, err := random(20)
+	if err != nil {
+		wstr(w, 500, err.Error())
+		return
+	}
 
 	cookie := http.Cookie{
 		Name:     "session",

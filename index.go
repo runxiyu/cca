@@ -47,11 +47,16 @@ import (
 func handleIndex(w http.ResponseWriter, req *http.Request) {
 	session_cookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
+		authUrl, err := generate_authorization_url()
+		if err != nil {
+			wstr(w, 500, "Cannot generate authorization URL")
+			return
+		}
 		err = tmpl.ExecuteTemplate(
 			w,
 			"index_login",
 			map[string]string{
-				"authUrl": generate_authorization_url(),
+				"authUrl": authUrl,
 				/*
 				 * We directly generate the login URL here
 				 * instead of doing so in a redirect to save
@@ -82,11 +87,16 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 	).Scan(&userid)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
+			authUrl, err := generate_authorization_url()
+			if err != nil {
+				wstr(w, 500, "Cannot generate authorization URL")
+				return
+			}
 			err = tmpl.ExecuteTemplate(
 				w,
 				"index_login",
 				map[string]interface{}{
-					"authUrl": generate_authorization_url(),
+					"authUrl": authUrl,
 					"notes":   []string{"Technically you have a session cookie, but it seems invalid."},
 				},
 			)
