@@ -33,8 +33,8 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"net/http"
 	"log"
+	"net/http"
 )
 
 /*
@@ -44,7 +44,7 @@ import (
 func wstr(w http.ResponseWriter, code int, msg string) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(code)
-	_, err := w.Write([]byte(msg)) 
+	_, err := w.Write([]byte(msg))
 	if err != nil {
 		log.Println(err)
 	}
