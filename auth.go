@@ -344,6 +344,7 @@ func getAccessToken(authorizationCode string) (accessTokenT, error) {
 	if err != nil {
 		return accessToken, err
 	}
+	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&accessToken)
