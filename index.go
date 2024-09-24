@@ -45,18 +45,18 @@ import (
  * have any valid login cookies.
  */
 func handleIndex(w http.ResponseWriter, req *http.Request) {
-	session_cookie, err := req.Cookie("session")
+	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
-		authUrl, err := generate_authorization_url()
+		authURL, err := generateAuthorizationURL()
 		if err != nil {
-			wstr(w, 500, "Cannot generate authorization URL")
+			wstr(w, http.StatusInternalServerError, "Cannot generate authorization URL")
 			return
 		}
 		err = tmpl.ExecuteTemplate(
 			w,
 			"index_login",
 			map[string]string{
-				"authUrl": authUrl,
+				"authURL": authURL,
 				/*
 				 * We directly generate the login URL here
 				 * instead of doing so in a redirect to save
@@ -70,7 +70,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		}
 		return
 	} else if err != nil {
-		wstr(w, 400, "Error: Unable to check cookie.")
+		wstr(w, http.StatusBadRequest, "Error: Unable to check cookie.")
 		return
 	}
 
@@ -78,20 +78,20 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 	err = db.QueryRow(
 		context.Background(),
 		"SELECT userid FROM sessions WHERE cookie = $1",
-		session_cookie.Value,
+		sessionCookie.Value,
 	).Scan(&userid)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			authUrl, err := generate_authorization_url()
+			authURL, err := generateAuthorizationURL()
 			if err != nil {
-				wstr(w, 500, "Cannot generate authorization URL")
+				wstr(w, http.StatusInternalServerError, "Cannot generate authorization URL")
 				return
 			}
 			err = tmpl.ExecuteTemplate(
 				w,
 				"index_login",
 				map[string]interface{}{
-					"authUrl": authUrl,
+					"authURL": authURL,
 					"notes":   []string{"Technically you have a session cookie, but it seems invalid."},
 				},
 			)
@@ -100,10 +100,9 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 				return
 			}
 			return
-		} else {
-			wstr(w, 500, fmt.Sprintf("Error: Unexpected database error: %s", err))
-			return
 		}
+		wstr(w, http.StatusInternalServerError, fmt.Sprintf("Error: Unexpected database error: %s", err))
+		return
 	}
 
 	var name string
@@ -115,12 +114,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 	).Scan(&name, &department)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			wstr(w, 500, "Error: User does not exist (database error?)")
-			return
-		} else {
-			wstr(w, 500, "Error: Unexpected database error")
+			wstr(w, http.StatusInternalServerError, "Error: User does not exist (database error?)")
 			return
 		}
+		wstr(w, http.StatusInternalServerError, "Error: Unexpected database error")
+		return
 	}
 	err = tmpl.ExecuteTemplate(
 		w,

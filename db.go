@@ -39,15 +39,17 @@ import (
 
 var db *pgxpool.Pool
 
+var errUnsupportedDatabaseType = errors.New("unsupported db type")
+
 /*
  * This must be run during setup, before the database is accessed by any
  * means. Otherwise, db would be a null pointer.
  */
 func setupDatabase() error {
 	var err error
-	if config.Db.Type != "postgres" {
-		return errors.New("At the moment, the only supported database type is postgres")
+	if config.DB.Type != "postgres" {
+		return errUnsupportedDatabaseType
 	}
-	db, err = pgxpool.New(context.Background(), config.Db.Conn)
+	db, err = pgxpool.New(context.Background(), config.DB.Conn)
 	return err
 }

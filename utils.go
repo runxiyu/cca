@@ -52,13 +52,13 @@ func wstr(w http.ResponseWriter, code int, msg string) {
 
 /*
  * Generate a random url-safe string.
- * Note that the "len" parameter specifies the number of bytes taken from the
+ * Note that the "sz" parameter specifies the number of bytes taken from the
  * random source divided by three and does NOT represent the length of the
  * encoded string. It's divided by three because we're using base64 and it's
  * ideal to ensure that the entropy remains consistent throughout the string.
  */
-func random(len int) (string, error) {
-	r := make([]byte, 3*len)
+func random(sz int) (string, error) {
+	r := make([]byte, 3*sz)
 	_, err := rand.Read(r)
 	if err != nil {
 		return "", err

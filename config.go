@@ -46,7 +46,7 @@ import (
  */
 
 var configWithPointers struct {
-	Url    *string `scfg:"url"`
+	URL    *string `scfg:"url"`
 	Prod   *bool   `scfg:"prod"`
 	Tmpl   *string `scfg:"tmpl"`
 	Static *bool   `scfg:"static"`
@@ -55,7 +55,7 @@ var configWithPointers struct {
 		Net   *string `scfg:"net"`
 		Addr  *string `scfg:"addr"`
 	} `scfg:"listen"`
-	Db struct {
+	DB struct {
 		Type *string `scfg:"type"`
 		Conn *string `scfg:"conn"`
 	} `scfg:"db"`
@@ -69,7 +69,7 @@ var configWithPointers struct {
 }
 
 var config struct {
-	Url    string
+	URL    string
 	Prod   bool
 	Tmpl   string
 	Static bool
@@ -78,7 +78,7 @@ var config struct {
 		Net   string
 		Addr  string
 	}
-	Db struct {
+	DB struct {
 		Type string
 		Conn string
 	}
@@ -102,15 +102,15 @@ func fetchConfig(path string) error {
 		return err
 	}
 
-	config.Url = *(configWithPointers.Url)
+	config.URL = *(configWithPointers.URL)
 	config.Prod = *(configWithPointers.Prod)
 	config.Tmpl = *(configWithPointers.Tmpl)
 	config.Static = *(configWithPointers.Static)
 	config.Listen.Proto = *(configWithPointers.Listen.Proto)
 	config.Listen.Net = *(configWithPointers.Listen.Net)
 	config.Listen.Addr = *(configWithPointers.Listen.Addr)
-	config.Db.Type = *(configWithPointers.Db.Type)
-	config.Db.Conn = *(configWithPointers.Db.Conn)
+	config.DB.Type = *(configWithPointers.DB.Type)
+	config.DB.Conn = *(configWithPointers.DB.Conn)
 	config.Auth.Client = *(configWithPointers.Auth.Client)
 	config.Auth.Authorize = *(configWithPointers.Auth.Authorize)
 	config.Auth.Jwks = *(configWithPointers.Auth.Jwks)

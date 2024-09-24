@@ -35,28 +35,28 @@ import (
 	"sync"
 )
 
-type coursetype_t string
+type coursetypeT string
 
-type course_t struct {
-	Id        int
+type courseT struct {
+	ID        int
 	Confirmed int
 	Selected  int
 	Max       int
 	Title     string
-	Type      coursetype_t
+	Type      coursetypeT
 	Teacher   string
 	Location  string
 }
 
 /*
  * const (
- * 	sport      coursetype_t = "Sport"
- * 	enrichment coursetype_t = "Enrichment"
- * 	culture    coursetype_t = "Culture"
+ * 	sport      coursetypeT = "Sport"
+ * 	enrichment coursetypeT = "Enrichment"
+ * 	culture    coursetypeT = "Culture"
  * )
  */
 
-var courses []course_t
+var courses []courseT
 
 /*
  * TODO: revamp this.
@@ -79,7 +79,7 @@ func setupCourses() error {
 	coursesLock.Lock()
 	defer coursesLock.Unlock()
 
-	courses = make([]course_t, 0, 64)
+	courses = make([]courseT, 0, 64)
 
 	rows, err := db.Query(
 		context.Background(),
@@ -97,9 +97,9 @@ func setupCourses() error {
 			}
 			break
 		}
-		currentCourse := course_t{}
+		currentCourse := courseT{} //exhaustruct:ignore
 		err = rows.Scan(
-			&currentCourse.Id,
+			&currentCourse.ID,
 			&currentCourse.Max,
 			&currentCourse.Title,
 			&currentCourse.Type,

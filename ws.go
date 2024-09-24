@@ -57,7 +57,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -72,11 +71,16 @@ import (
  * handled in handleConn.
  */
 func handleWs(w http.ResponseWriter, req *http.Request) {
-	c, err := websocket.Accept(w, req, &websocket.AcceptOptions{
+	wsOptions := &websocket.AcceptOptions{
 		Subprotocols: []string{"cca1"},
-	})
+	} //exhaustruct:ignore
+	c, err := websocket.Accept(
+		w,
+		req,
+		wsOptions,
+	)
 	if err != nil {
-		wstr(w, 400, "This endpoint only supports valid WebSocket connections.")
+		wstr(w, http.StatusBadRequest, "This endpoint only supports valid WebSocket connections.")
 		return
 	}
 	defer func() {
@@ -194,13 +198,15 @@ endl:
 	return mar
 }
 
-type errbytes_t struct {
+type errbytesT struct {
 	err   error
 	bytes *[]byte
 }
 
-var chanPool [](*chan string)
-var chanPoolLock sync.RWMutex
+var (
+	chanPool     [](*chan string)
+	chanPoolLock sync.RWMutex
+)
 
 func setupChanPool() error {
 	chanPool = make([](*chan string), 0)
@@ -247,15 +253,15 @@ func handleConn(
 	 * blocks on c.Read and send what it receives to a channel "recv"; and
 	 * then we can select from that channel.
 	 */
-	recv := make(chan *errbytes_t)
+	recv := make(chan *errbytesT)
 	go func() {
 		for {
 			_, b, err := c.Read(ctx)
 			if err != nil {
-				recv <- &errbytes_t{err: err, bytes: nil}
+				recv <- &errbytesT{err: err, bytes: nil}
 				return
 			}
-			recv <- &errbytes_t{err: nil, bytes: &b}
+			recv <- &errbytesT{err: nil, bytes: &b}
 		}
 	}()
 
@@ -269,10 +275,10 @@ func handleConn(
 			}
 			continue
 		case errbytes := <-recv:
-			if (*errbytes).err != nil {
-				return (*errbytes).err
+			if errbytes.err != nil {
+				return errbytes.err
 			}
-			mar = splitMsg((*errbytes).bytes)
+			mar = splitMsg(errbytes.bytes)
 			switch mar[0] {
 			case "HELLO":
 				err := c.Write(ctx, websocket.MessageText, []byte("HI"))
@@ -283,7 +289,7 @@ func handleConn(
 				err := c.Write(
 					ctx,
 					websocket.MessageText,
-					[]byte(fmt.Sprintf("E :Unknown command %s", mar[0])),
+					[]byte("E :Unknown command "+mar[0]),
 				)
 				if err != nil {
 					return err

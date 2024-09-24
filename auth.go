@@ -35,7 +35,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	// "io"
 	"net/http"
 	"net/url"
 	"time"
@@ -47,20 +46,24 @@ import (
 
 var myKeyfunc keyfunc.Keyfunc
 
+var errInsufficientFields = errors.New("insufficient fields")
+
+const tokenLength = 20
+
 /*
  * These are the claims in the JSON Web Token received from the client, after
  * it redirects from the authorize endpoint. Some of these fields must be
  * explicitly selected in the Azure app registration and might appear as
  * zero strings if it hasn't been configured correctly.
  */
-type msclaims_t struct {
+type msclaimsT struct {
 	Name  string `json:"name"`  /* Scope: profile */
 	Email string `json:"email"` /* Scope: email   */
 	Oid   string `json:"oid"`   /* Scope: profile */
 	jwt.RegisteredClaims
 }
 
-func generate_authorization_url() (string, error) {
+func generateAuthorizationURL() (string, error) {
 	/*
 	 * TODO: Handle nonces and anti-replay. Incremental nonces would be
 	 * nice on memory and speed (depending on how maps are implemented in
@@ -68,14 +71,14 @@ func generate_authorization_url() (string, error) {
 	 * hacky atomics or having a multiple goroutines to handle
 	 * authentication, neither of which are desirable.
 	 */
-	nonce, err := random(20)
+	nonce, err := random(tokenLength)
 	if err != nil {
 		return "", err
 	}
 	return fmt.Sprintf(
 		"https://login.microsoftonline.com/ddd3d26c-b197-4d00-a32d-1ffd84c0c295/oauth2/authorize?client_id=%s&response_type=id_token%%20code&redirect_uri=%s%%2Fauth&response_mode=form_post&scope=openid+profile+email+User.Read&nonce=%s", // hybrid auth flow
 		config.Auth.Client,
-		config.Url,
+		config.URL,
 		nonce,
 	), nil
 }
@@ -86,46 +89,46 @@ func generate_authorization_url() (string, error) {
  * a null pointer is dereferenced and the thread panics.
  */
 func handleAuth(w http.ResponseWriter, req *http.Request) {
-	if req.Method != "POST" {
-		wstr(w, 405, "Only POST is supported on the authentication endpoint")
+	if req.Method != http.MethodPost {
+		wstr(w, http.StatusMethodNotAllowed, "Only POST is supported on the authentication endpoint")
 		return
 	}
 
 	err := req.ParseForm()
 	if err != nil {
-		wstr(w, 400, "Malformed form data")
+		wstr(w, http.StatusBadRequest, "Malformed form data")
 		return
 	}
 
-	returned_error := req.PostFormValue("error")
-	if returned_error != "" {
-		returned_error_description := req.PostFormValue("error_description")
-		if returned_error_description == "" {
-			wstr(w, 400, returned_error)
-			return
-		} else {
-			wstr(w, 400, fmt.Sprintf(
-				"%s: %s",
-				returned_error,
-				returned_error_description,
-			))
+	returnedError := req.PostFormValue("error")
+	if returnedError != "" {
+		returnedErrorDescription := req.PostFormValue("error_description")
+		if returnedErrorDescription == "" {
+			wstr(w, http.StatusBadRequest, returnedError)
 			return
 		}
-	}
-
-	id_token_string := req.PostFormValue("id_token")
-	if id_token_string == "" {
-		wstr(w, 400, "Missing id_token")
+		wstr(w, http.StatusBadRequest, fmt.Sprintf(
+			"%s: %s",
+			returnedError,
+			returnedErrorDescription,
+		))
 		return
 	}
 
+	idTokenString := req.PostFormValue("id_token")
+	if idTokenString == "" {
+		wstr(w, http.StatusBadRequest, "Missing id_token")
+		return
+	}
+
+	claimsTemplate := &msclaimsT{} //exhaustruct:ignore
 	token, err := jwt.ParseWithClaims(
-		id_token_string,
-		&msclaims_t{},
+		idTokenString,
+		claimsTemplate,
 		myKeyfunc.Keyfunc,
 	)
 	if err != nil {
-		wstr(w, 400, "Cannot parse claims")
+		wstr(w, http.StatusBadRequest, "Cannot parse claims")
 		return
 	}
 
@@ -133,50 +136,49 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	case token.Valid:
 		break
 	case errors.Is(err, jwt.ErrTokenMalformed):
-		wstr(w, 400, "Malformed JWT token")
+		wstr(w, http.StatusBadRequest, "Malformed JWT token")
 		return
 	case errors.Is(err, jwt.ErrTokenSignatureInvalid):
-		wstr(w, 400, "Invalid JWS signature")
+		wstr(w, http.StatusBadRequest, "Invalid JWS signature")
 		return
 	case errors.Is(err, jwt.ErrTokenExpired) ||
 		errors.Is(err, jwt.ErrTokenNotValidYet):
-		wstr(w, 400, "JWT token expired or not yet valid")
+		wstr(w, http.StatusBadRequest, "JWT token expired or not yet valid")
 		return
 	default:
-		wstr(w, 400, "Unhandled JWT token error")
+		wstr(w, http.StatusBadRequest, "Unhandled JWT token error")
 		return
 	}
 
-	claims, claims_ok := token.Claims.(*msclaims_t)
+	claims, claimsOk := token.Claims.(*msclaimsT)
 
-	if !claims_ok {
-		wstr(w, 400, "Cannot unpack claims")
+	if !claimsOk {
+		wstr(w, http.StatusBadRequest, "Cannot unpack claims")
 		return
 	}
 
-	authorization_code := req.PostFormValue("code")
+	authorizationCode := req.PostFormValue("code")
 
-	access_token, err := getAccessToken(authorization_code)
+	accessToken, err := getAccessToken(authorizationCode)
 	if err != nil {
-		wstr(w, 500, "Unable to fetch access token")
+		wstr(w, http.StatusInternalServerError, "Unable to fetch access token")
 		return
 	}
 
-	department, err := getDepartment(*(access_token.Content))
+	department, err := getDepartment(*(accessToken.Content))
 	if err != nil {
-		wstr(w, 500, err.Error())
+		wstr(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if department == "SJ Co-Curricular Activities Office 松江课外项目办公室" ||
-		department == "High School Teaching & Learning 高中教学部门" {
+	switch {
+	case department == "SJ Co-Curricular Activities Office 松江课外项目办公室" || department == "High School Teaching & Learning 高中教学部门":
 		department = "Staff"
-	} else if department == "Y9" || department == "Y10" ||
-		department == "Y11" || department == "Y12" {
-	} else {
+	case department == "Y9" || department == "Y10" || department == "Y11" || department == "Y12":
+	default:
 		wstr(
 			w,
-			403,
+			http.StatusForbidden,
 			fmt.Sprintf(
 				"Your department \"%s\" is unknown.\nWe currently only allow Y9, Y10, Y11, Y12, and the CCA office.",
 				department,
@@ -185,15 +187,15 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	cookie_value, err := random(20)
+	cookieValue, err := random(tokenLength)
 	if err != nil {
-		wstr(w, 500, err.Error())
+		wstr(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	cookie := http.Cookie{
 		Name:     "session",
-		Value:    cookie_value,
+		Value:    cookieValue,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   config.Prod,
@@ -202,7 +204,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		 * without expiration don't even persist across browser
 		 * sessions in most browsers.
 		 */
-	}
+	} //exhaustruct:ignore
 
 	http.SetCookie(w, &cookie)
 
@@ -226,11 +228,11 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 				claims.Oid,
 			)
 			if err != nil {
-				wstr(w, 500, "Database error while updating account.")
+				wstr(w, http.StatusInternalServerError, "Database error while updating account.")
 				return
 			}
 		} else {
-			wstr(w, 500, "Database error while writing account info.")
+			wstr(w, http.StatusInternalServerError, "Database error while writing account info.")
 			return
 		}
 	}
@@ -239,22 +241,20 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		context.Background(),
 		"INSERT INTO sessions(userid, cookie, expr) VALUES ($1, $2, $3)",
 		claims.Oid,
-		cookie_value,
+		cookieValue,
 		1881839332, /* TODO */
 	)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			wstr(w, 500, "Cookie collision. Try signing in again.")
-			return
-		} else {
-			wstr(w, 500, "Database error while inserting session.")
+			wstr(w, http.StatusInternalServerError, "Cookie collision. Try signing in again.")
 			return
 		}
+		wstr(w, http.StatusInternalServerError, "Database error while inserting session.")
+		return
 	}
 
-	http.Redirect(w, req, "/", 303)
-
+	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
 
 /*
@@ -271,27 +271,27 @@ func setupJwks() error {
 
 /*
  * Fetch the department name of the user, mostly to identify which grade
- * a student is in. This expects an access_token obtained from the OAUTH 2.0
+ * a student is in. This expects an accessToken obtained from the OAUTH 2.0
  * token endpoint obtained via an authorization code. It might also be able
  * to use this as part of a hybrid flow that directly provides access tokens,
  * but this flow seems to be only usable for single-page applications according
  * to the Azure portal.
  */
-func getDepartment(access_token string) (string, error) {
+func getDepartment(accessToken string) (string, error) {
 	req, err := http.NewRequest(
-		"GET",
+		http.MethodGet,
 		"https://graph.microsoft.com/v1.0/me?$select=department",
 		nil,
 	)
 	if err != nil {
-		return "", errors.New("Cannot make the Graph API request")
+		return "", err
 	}
-	req.Header.Set("Authorization", "Bearer "+access_token)
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 
-	client := &http.Client{}
+	client := &http.Client{} //exhaustruct:ignore
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", errors.New("Graph API request failed")
+		return "", err
 	}
 	defer resp.Body.Close()
 
@@ -302,7 +302,7 @@ func getDepartment(access_token string) (string, error) {
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&departmentWrap)
 	if err != nil {
-		return "", errors.New("Department unmarshaling failed")
+		return "", err
 	}
 
 	if departmentWrap.Department == nil {
@@ -311,7 +311,7 @@ func getDepartment(access_token string) (string, error) {
 		 * "department" field, which hopefully doesn't occur as we
 		 * have specified $select=department in the OData query.
 		 */
-		return "", errors.New("Department pointer is nil")
+		return "", errInsufficientFields
 	}
 
 	return *(departmentWrap.Department), nil
@@ -320,40 +320,40 @@ func getDepartment(access_token string) (string, error) {
 /*
  * TODO: Access token expiration is not checked anywhere.
  */
-type access_token_t struct {
+type accessTokenT struct {
 	OriginalExpiresIn *int `json:"expires_in"` /* Original time to expiration */
 	Expiration        time.Time
-	Content           *string `json:"access_token"`
+	Content           *string `json:"accessToken"`
 }
 
 /*
  * Obtain an access token from the token endpoint with an existing
  * authorization code.
  */
-func getAccessToken(authorization_code string) (access_token_t, error) {
-	var access_token access_token_t
+func getAccessToken(authorizationCode string) (accessTokenT, error) {
+	var accessToken accessTokenT
 	t := time.Now()
 	v := url.Values{}
 	v.Set("client_id", config.Auth.Client)
 	v.Set("scope", "https://graph.microsoft.com/User.Read")
-	v.Set("code", authorization_code)
-	v.Set("redirect_uri", config.Url+"/auth")
-	v.Set("grant_type", "authorization_code")
+	v.Set("code", authorizationCode)
+	v.Set("redirect_uri", config.URL+"/auth")
+	v.Set("grant_type", "authorizationCode")
 	v.Set("client_secret", config.Auth.Secret)
 	resp, err := http.PostForm(config.Auth.Token, v)
 	if err != nil {
-		return access_token, err
+		return accessToken, err
 	}
 
 	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&access_token)
+	err = decoder.Decode(&accessToken)
 	if err != nil {
-		return access_token, err
+		return accessToken, err
 	}
-	if access_token.Content == nil || access_token.OriginalExpiresIn == nil {
-		return access_token, errors.New("Insufficient fields")
+	if accessToken.Content == nil || accessToken.OriginalExpiresIn == nil {
+		return accessToken, errInsufficientFields
 	}
-	access_token.Expiration = t.Add(time.Duration(*(access_token.OriginalExpiresIn)) * time.Second)
+	accessToken.Expiration = t.Add(time.Duration(*(accessToken.OriginalExpiresIn)) * time.Second)
 
-	return access_token, nil
+	return accessToken, nil
 }

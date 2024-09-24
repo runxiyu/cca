@@ -39,14 +39,14 @@ import (
  * for easy implementation when that's needed.
  */
 func handlePw(w http.ResponseWriter, req *http.Request) {
-	if req.Method != "POST" {
-		wstr(w, 405, "Only POST is supported on the password login endpoint")
+	if req.Method != http.MethodPost {
+		wstr(w, http.StatusMethodNotAllowed, "Only POST is supported on the password login endpoint")
 		return
 	}
 
 	err := req.ParseForm()
 	if err != nil {
-		wstr(w, 400, "Malformed form data")
+		wstr(w, http.StatusBadRequest, "Malformed form data")
 		return
 	}
 
@@ -54,9 +54,9 @@ func handlePw(w http.ResponseWriter, req *http.Request) {
 	password := req.PostFormValue("passwordinput")
 
 	if username == "" || password == "" {
-		wstr(w, 400, "Empty username or password field")
+		wstr(w, http.StatusBadRequest, "Empty username or password field")
 		return
 	}
 
-	wstr(w, 401, "Authentication failed")
+	wstr(w, http.StatusUnauthorized, "Authentication failed")
 }
