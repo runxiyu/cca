@@ -205,6 +205,15 @@ type errbytesT struct {
 
 var (
 	chanPool     [](*chan string)
+	/*
+	 * Often times we need to perform large operations on chanPool, such as
+	 * searching it and setting a channel to nil, adding channels, etc.
+	 * It is a TODO to analyze the behavior of chanPool operations in detail
+	 * and see whether some other synchronization mechanism might be more
+	 * appropriate. (I think currently we don't even need a lock at all
+	 * because the only write operations are appending to the slice and
+	 * setting one to nil?)
+	 */
 	chanPoolLock sync.RWMutex
 )
 
