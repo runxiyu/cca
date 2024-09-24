@@ -27,7 +27,7 @@
  */
 
 var connect = function(socket) {
-	var _handle = event => {
+	var _handleMessage = event => {
 		let msg = new String(event?.data)
 
 		/*
@@ -66,7 +66,16 @@ var connect = function(socket) {
 			alert(`Invalid command ${ mar[ 0 ] } received from socket. Something is wrong.`)
 		}
 	}
-	socket.addEventListener("message", _handle)
+	socket.addEventListener("message", _handleMessage)
+	var _handleClose = event => {
+		document.querySelectorAll(".need-connection").forEach(c => {
+			c.style.display = "none"
+		})
+		document.querySelectorAll(".broken-connection").forEach(c => {
+			c.style.display = "block"
+		})
+	}
+	socket.addEventListener("close", _handleClose)
 	socket.send("HELLO")
 }
 

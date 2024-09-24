@@ -64,6 +64,25 @@
 					</li>
 				</ul>
 			</div>
+			<div class="broken-connection" style="margin: auto; max-width: 30rem; border: solid 2px var(--border); background-color: var(--boxbg); padding: 0rem 1rem;">
+				<p>
+				Your WebSocket connection has been closed. This means that one of the following occured:
+				</p>
+				<ul>
+					<li>
+						The network is over-saturated and connections cannot be maintained.
+					</li>
+					<li>
+						There was an internal server error that closed your connection.
+					</li>
+					<li>
+						There was an error in the JavaScript running on your browser.
+					</li>
+				</ul>
+				<p>
+				<a href="javascript:window.location.reload(true)" class="btn btn-primary">Reconnect</a>
+				</p>
+			</div>
 			<div class="need-connection">
 				{{- if .open }}
 				<div id="alreadyopen">

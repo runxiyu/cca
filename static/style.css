@@ -47,6 +47,10 @@ body {
 	min-height: 100vh; /* FIXME: why is this even here */
 }
 
+main {
+	margin: 1rem;
+}
+
 /*
  * Should probably not use <hr />'s in normal use...
  */
@@ -319,4 +323,11 @@ pre {
  * does the exact opposite.
  */
 .before-connection {
+}
+/*
+ * .broken-connection displays a message telling users to refresh the page,
+ * after their WebSocket connection breaks.
+ */
+.broken-connection {
+	display: none;
 }
