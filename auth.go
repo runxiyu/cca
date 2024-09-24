@@ -338,7 +338,7 @@ func getAccessToken(authorizationCode string) (accessTokenT, error) {
 	v.Set("scope", "https://graph.microsoft.com/User.Read")
 	v.Set("code", authorizationCode)
 	v.Set("redirect_uri", config.URL+"/auth")
-	v.Set("grant_type", "authorizationCode")
+	v.Set("grant_type", "authorization_code")
 	v.Set("client_secret", config.Auth.Secret)
 	resp, err := http.PostForm(config.Auth.Token, v)
 	if err != nil {
