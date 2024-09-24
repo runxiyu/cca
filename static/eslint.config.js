@@ -63,13 +63,11 @@ export default [
 			"space-in-parens": [ "error", "never" ],
 			"keyword-spacing": [ 2 ],
 			"template-curly-spacing": [ "error", "always" ],
-			semi: [ "error", "always" ],
+			semi: [ "error", "never" ],
 			"semi-spacing": [
 				"error",
 				{
-	
-					// Because of the `for ( ; ...)` requirement
-					// before: true,
+					before: false,
 					after: true
 				}
 			],
