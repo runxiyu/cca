@@ -47,8 +47,12 @@ body {
 	min-height: 100vh; /* FIXME: why is this even here */
 }
 
-main {
-	margin: 1rem;
+main, body > section {
+	margin: 1rem auto;
+	padding-left: 1rem;
+	padding-right: 1rem;
+	max-width: 60rem;
+	min-height: 100vh;
 }
 
 /*
@@ -118,8 +122,8 @@ header a {
 	color: var(--theme-contrast);
 }
 .header-content {
-	padding-left: 1em;
-	padding-right: 1em;
+	padding-left: 1rem;
+	padding-right: 1rem;
 	max-width: 60rem;
 	display: flex;
 	justify-content: space-between;
