@@ -323,7 +323,7 @@ func getDepartment(accessToken string) (string, error) {
 type accessTokenT struct {
 	OriginalExpiresIn *int `json:"expires_in"` /* Original time to expiration */
 	Expiration        time.Time
-	Content           *string `json:"accessToken"`
+	Content           *string `json:"access_token"`
 }
 
 /*
