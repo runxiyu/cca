@@ -7,8 +7,9 @@ steps:
       event: [push, tag, manual]
     image: alpine:edge
     commands:
-      - apk add --no-cache go make
+      - apk add --no-cache go make golangci-lint
       - make
+      - sh ./scripts/lint.sh
   - name: release
     when:
       branch: [master]
