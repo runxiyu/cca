@@ -4,7 +4,7 @@ steps:
   - name: build
     when:
       branch: [master]
-      event: [push, manual]
+      event: [push, tag, manual]
     image: alpine:edge
     commands:
       - apk add --no-cache go make
@@ -12,7 +12,7 @@ steps:
   - name: release
     when:
       branch: [master]
-      event: [push, manual]
+      event: [tag]
     image: woodpeckerci/plugin-release
     settings:
       files:
