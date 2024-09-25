@@ -63,3 +63,23 @@ auth {
 	# What is the client secret? Certificates are not supported yet.
 	secret something
 }
+
+# The following block contains some tweaks for performance.
+perf {
+	# What is the initial cap for the courses slice? You should set this to
+	# a little more than the expected number of courses.
+	courses_cap 64
+
+	# How many arguments' space should we initially allocate for each
+	# message?
+	msg_args_cap 4
+
+	# How many bytes should we initially allocate for each argument in a
+	# message?
+	msg_bytes_cap 5
+
+	# How long should we wait to complete reading HTTP headers, before we
+	# time out? Note that a large value may cause the server to be
+	# vulnerable to Slow Loris attacks.
+	read_header_timeout 5
+}

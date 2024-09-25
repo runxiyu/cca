@@ -80,7 +80,7 @@ func setupCourses() error {
 	coursesLock.Lock()
 	defer coursesLock.Unlock()
 
-	courses = make([]courseT, 0, 64)
+	courses = make([]courseT, 0, config.Perf.CoursesCap)
 
 	rows, err := db.Query(
 		context.Background(),

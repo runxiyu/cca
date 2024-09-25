@@ -178,8 +178,8 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
  * line to be treated as a single argument.
  */
 func splitMsg(b *[]byte) []string {
-	mar := make([]string, 0, 4)
-	elem := make([]byte, 0, 5)
+	mar := make([]string, 0, config.Perf.MessageArgumentsCap)
+	elem := make([]byte, 0, config.Perf.MessageBytesCap)
 	for i, c := range *b {
 		switch c {
 		case ' ':
@@ -189,7 +189,7 @@ func splitMsg(b *[]byte) []string {
 				goto endl
 			}
 			mar = append(mar, string(elem))
-			elem = make([]byte, 0, 5)
+			elem = make([]byte, 0, config.Perf.MessageBytesCap)
 		default:
 			elem = append(elem, c)
 		}
