@@ -204,7 +204,7 @@ type errbytesT struct {
 }
 
 var (
-	chanPool     [](*chan string)
+	chanPool [](*chan string)
 	/*
 	 * Often times we need to perform large operations on chanPool, such as
 	 * searching it and setting a channel to nil, adding channels, etc.
