@@ -1,6 +1,6 @@
 # YKPS CCA Selection System (WIP)
 
-![Woodpecker CI Badge](https://ci.codeberg.org/api/badges/13763/status.svg)
+[![Woodpecker CI](https://ci.codeberg.org/api/badges/13763/status.svg)](https://ci.codeberg.org/repos/13763)
 
 **Note:** This is my internal assessment for the IB Diploma Programme's
 Computer Science (Higher Level) course.
