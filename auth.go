@@ -165,7 +165,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	department, err := getDepartment(*(accessToken.Content))
+	department, err := getDepartment(req.Context(), *(accessToken.Content))
 	if err != nil {
 		wstr(w, http.StatusInternalServerError, err.Error())
 		return
@@ -209,7 +209,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	http.SetCookie(w, &cookie)
 
 	_, err = db.Exec(
-		context.Background(),
+		req.Context(),
 		"INSERT INTO users (id, name, email, department) VALUES ($1, $2, $3, $4)",
 		claims.Oid,
 		claims.Name,
@@ -220,7 +220,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			_, err := db.Exec(
-				context.Background(),
+				req.Context(),
 				"UPDATE users SET (name, email, department) = ($1, $2, $3) WHERE id = $4",
 				claims.Name,
 				claims.Email,
@@ -238,7 +238,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	}
 
 	_, err = db.Exec(
-		context.Background(),
+		req.Context(),
 		"INSERT INTO sessions(userid, cookie, expr) VALUES ($1, $2, $3)",
 		claims.Oid,
 		cookieValue,
@@ -277,8 +277,9 @@ func setupJwks() error {
  * but this flow seems to be only usable for single-page applications according
  * to the Azure portal.
  */
-func getDepartment(accessToken string) (string, error) {
-	req, err := http.NewRequest(
+func getDepartment(ctx context.Context, accessToken string) (string, error) {
+	req, err := http.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		"https://graph.microsoft.com/v1.0/me?$select=department",
 		nil,

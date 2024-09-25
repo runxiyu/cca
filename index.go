@@ -31,7 +31,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -76,7 +75,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 
 	var userid string
 	err = db.QueryRow(
-		context.Background(),
+		req.Context(),
 		"SELECT userid FROM sessions WHERE cookie = $1",
 		sessionCookie.Value,
 	).Scan(&userid)
@@ -108,7 +107,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 	var name string
 	var department string
 	err = db.QueryRow(
-		context.Background(),
+		req.Context(),
 		"SELECT name, department FROM users WHERE id = $1",
 		userid,
 	).Scan(&name, &department)

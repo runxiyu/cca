@@ -121,7 +121,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	var expr int
 
 	err = db.QueryRow(
-		context.Background(),
+		req.Context(),
 		"SELECT userid, expr FROM sessions WHERE cookie = $1",
 		sessionCookie.Value,
 	).Scan(&userid, &expr)
