@@ -32,6 +32,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 
 	"git.sr.ht/~emersion/go-scfg"
@@ -94,12 +95,12 @@ var config struct {
 func fetchConfig(path string) error {
 	f, err := os.Open(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("error opening configuration file: %w", err)
 	}
 
 	err = scfg.NewDecoder(bufio.NewReader(f)).Decode(&configWithPointers)
 	if err != nil {
-		return err
+		return fmt.Errorf("error decoding configuration file: %w", err)
 	}
 
 	config.URL = *(configWithPointers.URL)

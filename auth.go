@@ -265,7 +265,7 @@ func setupJwks() error {
 	var err error
 	myKeyfunc, err = keyfunc.NewDefault([]string{config.Auth.Jwks})
 	if err != nil {
-		return err
+		return fmt.Errorf("error setting up jwks: %w", err)
 	}
 	return nil
 }
@@ -286,14 +286,14 @@ func getDepartment(ctx context.Context, accessToken string) (string, error) {
 		nil,
 	)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error getting department: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 
 	client := &http.Client{} //exhaustruct:ignore
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error getting department: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -304,7 +304,7 @@ func getDepartment(ctx context.Context, accessToken string) (string, error) {
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&departmentWrap)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error getting department: %w", err)
 	}
 
 	if departmentWrap.Department == nil {
@@ -313,7 +313,7 @@ func getDepartment(ctx context.Context, accessToken string) (string, error) {
 		 * "department" field, which hopefully doesn't occur as we
 		 * have specified $select=department in the OData query.
 		 */
-		return "", errInsufficientFields
+		return "", fmt.Errorf("error getting department: %w", errInsufficientFields)
 	}
 
 	return *(departmentWrap.Department), nil
@@ -344,21 +344,21 @@ func getAccessToken(ctx context.Context, authorizationCode string) (accessTokenT
 	v.Set("client_secret", config.Auth.Secret)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, config.Auth.Token, strings.NewReader(v.Encode()))
 	if err != nil {
-		return accessToken, err
+		return accessToken, fmt.Errorf("error making access token request: %w", err)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return accessToken, err
+		return accessToken, fmt.Errorf("error requesting access token: %w", err)
 	}
 	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&accessToken)
 	if err != nil {
-		return accessToken, err
+		return accessToken, fmt.Errorf("error decoding access token: %w", err)
 	}
 	if accessToken.Content == nil || accessToken.OriginalExpiresIn == nil {
-		return accessToken, errInsufficientFields
+		return accessToken, fmt.Errorf("error decoding access token: %w", errInsufficientFields)
 	}
 	accessToken.Expiration = t.Add(time.Duration(*(accessToken.OriginalExpiresIn)) * time.Second)
 

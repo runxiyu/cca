@@ -57,6 +57,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -280,7 +281,7 @@ func handleConn(
 		case gonnasend := <-send:
 			err := c.Write(ctx, websocket.MessageText, []byte(gonnasend))
 			if err != nil {
-				return err
+				return fmt.Errorf("error sending to websocket from send channel: %w", err)
 			}
 			continue
 		case errbytes := <-recv:
@@ -292,7 +293,7 @@ func handleConn(
 			case "HELLO":
 				err := c.Write(ctx, websocket.MessageText, []byte("HI"))
 				if err != nil {
-					return err
+					return fmt.Errorf("error replying to HELLO: %w", err)
 				}
 			default:
 				err := c.Write(
@@ -301,7 +302,7 @@ func handleConn(
 					[]byte("E :Unknown command "+mar[0]),
 				)
 				if err != nil {
-					return err
+					return fmt.Errorf("error replying to unknown command: %w", err)
 				}
 			}
 		}

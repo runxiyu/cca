@@ -33,6 +33,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -51,5 +52,5 @@ func setupDatabase() error {
 		return errUnsupportedDatabaseType
 	}
 	db, err = pgxpool.New(context.Background(), config.DB.Conn)
-	return err
+	return fmt.Errorf("error opening database: %w", err)
 }

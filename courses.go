@@ -32,6 +32,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"sync"
 )
 
@@ -86,14 +87,14 @@ func setupCourses() error {
 		"SELECT id, nmax, title, ctype, teacher, location FROM courses",
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("error fetching courses: %w", err)
 	}
 
 	for {
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				return err
+				return fmt.Errorf("error fetching courses: %w", err)
 			}
 			break
 		}
@@ -107,7 +108,7 @@ func setupCourses() error {
 			&currentCourse.Location,
 		)
 		if err != nil {
-			return err
+			return fmt.Errorf("error fetching courses: %w", err)
 		}
 		courses = append(courses, currentCourse)
 	}
