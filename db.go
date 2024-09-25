@@ -52,5 +52,8 @@ func setupDatabase() error {
 		return errUnsupportedDatabaseType
 	}
 	db, err = pgxpool.New(context.Background(), config.DB.Conn)
-	return fmt.Errorf("error opening database: %w", err)
+	if err != nil {
+		return fmt.Errorf("error opening database: %w", err)
+	}
+	return nil
 }
