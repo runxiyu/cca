@@ -37,6 +37,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/MicahParks/keyfunc/v3"
@@ -159,7 +160,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 
 	authorizationCode := req.PostFormValue("code")
 
-	accessToken, err := getAccessToken(authorizationCode)
+	accessToken, err := getAccessToken(req.Context(), authorizationCode)
 	if err != nil {
 		wstr(w, http.StatusInternalServerError, "Unable to fetch access token")
 		return
@@ -331,7 +332,7 @@ type accessTokenT struct {
  * Obtain an access token from the token endpoint with an existing
  * authorization code.
  */
-func getAccessToken(authorizationCode string) (accessTokenT, error) {
+func getAccessToken(ctx context.Context, authorizationCode string) (accessTokenT, error) {
 	var accessToken accessTokenT
 	t := time.Now()
 	v := url.Values{}
@@ -341,7 +342,11 @@ func getAccessToken(authorizationCode string) (accessTokenT, error) {
 	v.Set("redirect_uri", config.URL+"/auth")
 	v.Set("grant_type", "authorization_code")
 	v.Set("client_secret", config.Auth.Secret)
-	resp, err := http.PostForm(config.Auth.Token, v)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, config.Auth.Token, strings.NewReader(v.Encode()))
+	if err != nil {
+		return accessToken, err
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return accessToken, err
 	}
