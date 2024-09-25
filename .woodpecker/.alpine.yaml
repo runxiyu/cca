@@ -9,3 +9,17 @@ steps:
     commands:
       - apk add --no-cache go make
       - make
+  release:
+    when:
+      branch: [master]
+      event: [push, manual]
+    image: woodpeckerci/plugin-release
+    settings:
+      files:
+        - 'cca'
+      api_key:
+        from_secret: $FORGEJO_API_KEY
+    secrets: [ FORGEJO_API_KEY ]
+    
+
+# vim: ts=2 sw=2 expandtab
