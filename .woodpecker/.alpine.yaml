@@ -1,0 +1,11 @@
+skip_clone: false
+
+steps:
+  build:
+    when:
+      branch: [master]
+      event: [push, manual]
+    image: alpine
+    commands:
+      - apk add --no-cache go make
+      - make
