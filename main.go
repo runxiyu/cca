@@ -36,7 +36,6 @@ import (
 	"net"
 	"net/http"
 	"net/http/fcgi"
-	"time"
 )
 
 var tmpl *template.Template
@@ -100,10 +99,7 @@ func main() {
 
 	if config.Listen.Proto == "http" {
 		log.Println("Serving http")
-		srv := &http.Server{
-			ReadHeaderTimeout: 5 * time.Second,
-		} //exhaustruct:ignore
-		err = srv.ListenAndServe()
+		err = http.Serve(l, nil)
 	} else if config.Listen.Proto == "fcgi" {
 		log.Println("Serving fcgi")
 		err = fcgi.Serve(l, nil)
