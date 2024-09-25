@@ -1,6 +1,7 @@
 # YKPS CCA Selection System (WIP)
 
-[![Woodpecker CI](https://ci.codeberg.org/api/badges/13763/status.svg)](https://ci.codeberg.org/repos/13763)
+[![Codeberg CI](https://ci.codeberg.org/api/badges/13763/status.svg)](https://ci.codeberg.org/repos/13763)
+[![GitHub CI](https://github.com/runxiyu/cca/actions/workflows/go.yml/badge.svg)](https://github.com/runxiyu/cca/actions/workflows/go.yml)
 
 **Note:** This is my internal assessment for the IB Diploma Programme's
 Computer Science (Higher Level) course.
