@@ -18,5 +18,4 @@ steps:
       files:
         - 'cca'
       api_key:
-        from_secret: $FORGEJO_API_KEY
-    secrets: [ FORGEJO_API_KEY ]
+        from_secret: FORGEJO_API_KEY
