@@ -68,7 +68,6 @@ var configWithPointers struct {
 		Secret    *string `scfg:"secret"`
 	} `scfg:"auth"`
 	Perf struct {
-		CoursesCap          *int `scfg:"courses_cap"`
 		MessageArgumentsCap *int `scfg:"msg_args_cap"`
 		MessageBytesCap     *int `scfg:"msg_bytes_cap"`
 		ReadHeaderTimeout   *int `scfg:"read_header_timeout"`
@@ -97,7 +96,6 @@ var config struct {
 		Secret    string
 	}
 	Perf struct {
-		CoursesCap          int
 		MessageArgumentsCap int
 		MessageBytesCap     int
 		ReadHeaderTimeout   int
@@ -129,7 +127,6 @@ func fetchConfig(path string) error {
 	config.Auth.Jwks = *(configWithPointers.Auth.Jwks)
 	config.Auth.Token = *(configWithPointers.Auth.Token)
 	config.Auth.Secret = *(configWithPointers.Auth.Secret)
-	config.Perf.CoursesCap = *(configWithPointers.Perf.CoursesCap)
 	config.Perf.MessageArgumentsCap = *(configWithPointers.Perf.MessageArgumentsCap)
 	config.Perf.MessageBytesCap = *(configWithPointers.Perf.MessageBytesCap)
 	config.Perf.ReadHeaderTimeout = *(configWithPointers.Perf.ReadHeaderTimeout)

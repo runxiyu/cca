@@ -66,10 +66,6 @@ auth {
 
 # The following block contains some tweaks for performance.
 perf {
-	# What is the initial cap for the courses slice? You should set this to
-	# a little more than the expected number of courses.
-	courses_cap 64
-
 	# How many arguments' space should we initially allocate for each
 	# message?
 	msg_args_cap 4

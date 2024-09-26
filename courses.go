@@ -57,7 +57,7 @@ type courseT struct {
  * )
  */
 
-var courses []courseT
+var courses map[int]courseT
 
 /*
  * TODO: revamp this.
@@ -80,7 +80,7 @@ func setupCourses() error {
 	coursesLock.Lock()
 	defer coursesLock.Unlock()
 
-	courses = make([]courseT, 0, config.Perf.CoursesCap)
+	courses = make(map[int]courseT)
 
 	rows, err := db.Query(
 		context.Background(),
@@ -110,7 +110,7 @@ func setupCourses() error {
 		if err != nil {
 			return fmt.Errorf("error fetching courses: %w", err)
 		}
-		courses = append(courses, currentCourse)
+		courses[currentCourse.ID] = currentCourse
 	}
 
 	return nil
