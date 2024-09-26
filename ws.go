@@ -214,6 +214,8 @@ var (
 )
 
 func setupChanPool() error {
+	chanPoolLock.Lock()
+	defer chanPoolLock.Unlock()
 	chanPool = make(map[string](*chan string))
 	return nil
 }
