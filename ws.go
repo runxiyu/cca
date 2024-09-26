@@ -205,21 +205,16 @@ type errbytesT struct {
 }
 
 var (
-	chanPool [](*chan string)
+	chanPool map[string](*chan string)
 	/*
-	 * Often times we need to perform large operations on chanPool, such as
-	 * searching it and setting a channel to nil, adding channels, etc.
-	 * It is a TODO to analyze the behavior of chanPool operations in detail
-	 * and see whether some other synchronization mechanism might be more
-	 * appropriate. (I think currently we don't even need a lock at all
-	 * because the only write operations are appending to the slice and
-	 * setting one to nil?)
+	 * Normal Go maps are not thread safe, so we protect large chanPool
+	 * operations such as addition and deletion under a RWMutex.
 	 */
 	chanPoolLock sync.RWMutex
 )
 
 func setupChanPool() error {
-	chanPool = make([](*chan string), 0)
+	chanPool = make(map[string](*chan string))
 	return nil
 }
 
@@ -234,26 +229,20 @@ func handleConn(
 	userid string,
 ) error {
 	/*
-	 * TODO: Potential race conditions here when deleting chanPool?
+	 * TODO: Check for potential race conditions in chanPool handling
 	 */
 	send := make(chan string)
 	chanPoolLock.Lock()
 	func() {
 		defer chanPoolLock.Unlock()
-		chanPool = append(chanPool, &send)
+		chanPool[session] = &send
 		log.Printf("Channel %v added to pool for session %s, userid %s\n", &send, session, userid)
 	}()
 	defer func() {
 		chanPoolLock.Lock()
 		defer chanPoolLock.Unlock()
-		for k, v := range chanPool {
-			if v == &send {
-				chanPool[k] = nil
-				log.Printf("Purging channel %v for session %s userid %s, from pool\n", &send, session, userid)
-				return
-			}
-		}
-		log.Printf("WARNING: channel %v to be purged but not found in pool\n", &send)
+		delete(chanPool, session)
+		log.Printf("Purging channel %v for session %s userid %s, from pool\n", &send, session, userid)
 	}()
 
 	/*
