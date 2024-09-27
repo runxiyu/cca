@@ -1,3 +1,13 @@
 user_handbook.html
 admin_handbook.html
 developer_handbook.html
+user_handbook.pdf
+admin_handbook.pdf
+developer_handbook.pdf
+*.aux
+*.cp
+*.cps
+*.log
+*.toc
+*.vr
+*.vrs
