@@ -335,3 +335,6 @@ pre {
 .broken-connection {
 	display: none;
 }
+.script-required {
+	display: none;
+}

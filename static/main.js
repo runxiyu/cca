@@ -107,3 +107,10 @@ document.querySelectorAll(".coursecheckbox").forEach(c => {
 document.getElementById("confirmbutton").addEventListener("click", () => {
 	socket.send("C")
 })
+
+document.querySelectorAll(".script-required").forEach(c => {
+	c.style.display = "block"
+})
+document.querySelectorAll(".script-unavailable").forEach(c => {
+	c.style.display = "none"
+})
