@@ -68,7 +68,7 @@ var connect = function(socket) {
 		}
 	}
 	socket.addEventListener("message", _handleMessage)
-	var _handleClose = event => {
+	var _handleClose = _event => {
 		document.querySelectorAll(".need-connection").forEach(c => {
 			c.style.display = "none"
 		})
