@@ -1,21 +1,31 @@
 export default [
 	{
+		files: ["*.js"],
+		languageOptions: {
+			globals: {
+				document: "readonly",
+				alert: "readonly",
+				WebSocket: "readonly"
+			}
+		}
+	},
+	{
 		rules: {
 			indent: ["error", "tab"],
 			"no-negated-in-lhs": "error",
-			"no-cond-assign": [ "error", "except-parens" ],
-			curly: [ "error", "all" ],
-			"object-curly-spacing": [ "error", "always" ],
-			"computed-property-spacing": [ "error", "never" ],
-			"array-bracket-spacing": [ "error", "never" ],
-			eqeqeq: [ "error", "smart" ],
+			"no-cond-assign": ["error", "except-parens"],
+			curly: ["error", "all"],
+			"object-curly-spacing": ["error", "always"],
+			"computed-property-spacing": ["error", "never"],
+			"array-bracket-spacing": ["error", "never"],
+			eqeqeq: ["error", "smart"],
 			"no-unused-expressions": "error",
 			"no-sequences": "error",
 			"no-nested-ternary": "error",
 			"no-unreachable": "error",
-			"wrap-iife": [ "error", "inside" ],
+			"wrap-iife": ["error", "inside"],
 			"no-caller": "error",
-			quotes: [ "error", "double" ],
+			quotes: ["error", "double"],
 			"no-undef": "error",
 			"no-unused-vars": [
 				"error",
@@ -24,8 +34,8 @@ export default [
 					argsIgnorePattern: "^_"
 				}
 			],
-			"operator-linebreak": [ "error", "after" ],
-			"comma-style": [ "error", "last" ],
+			"operator-linebreak": ["error", "after"],
+			"comma-style": ["error", "last"],
 			camelcase: [
 				"error",
 				{
@@ -51,7 +61,7 @@ export default [
 			"no-trailing-spaces": "error",
 			"no-irregular-whitespace": "error",
 			"no-multi-str": "error",
-			"comma-dangle": [ "error", "never" ],
+			"comma-dangle": ["error", "never"],
 			"comma-spacing": [
 				"error",
 				{
@@ -59,11 +69,11 @@ export default [
 					after: true
 				}
 			],
-			"space-before-blocks": [ "error", "always" ],
-			"space-in-parens": [ "error", "never" ],
-			"keyword-spacing": [ 2 ],
-			"template-curly-spacing": [ "error", "always" ],
-			semi: [ "error", "never" ],
+			"space-before-blocks": ["error", "always"],
+			"space-in-parens": ["error", "never"],
+			"keyword-spacing": [2],
+			"template-curly-spacing": ["error", "always"],
+			semi: ["error", "never"],
 			"semi-spacing": [
 				"error",
 				{
@@ -80,10 +90,10 @@ export default [
 					beforeLineComment: true
 				}
 			],
-			"linebreak-style": [ "error", "unix" ],
+			"linebreak-style": ["error", "unix"],
 			"no-with": "error",
 			"brace-style": "error",
-			"space-before-function-paren": [ "error", "never" ],
+			"space-before-function-paren": ["error", "never"],
 			"no-loop-func": "error",
 			"no-spaced-func": "error",
 			"key-spacing": [
@@ -103,4 +113,4 @@ export default [
 			"no-multiple-empty-lines": 2
 		}
 	}
-];
+]
