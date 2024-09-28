@@ -47,6 +47,7 @@ type courseT struct {
 	Type      coursetypeT
 	Teacher   string
 	Location  string
+	Lock      sync.RWMutex
 }
 
 /*
@@ -57,17 +58,23 @@ type courseT struct {
  * )
  */
 
-var courses map[int]courseT
+/*
+ * The courses are simply stored in a map indexed by the course ID, although
+ * the course struct itself also contains an ID field. A lock is embedded
+ * inside the struct; we use a lock here instead of a pointer to a lock as
+ * it would be easy to forget to initialize the lock when creating the
+ * struct. However, this means that the struct could not be copied (though
+ * this should only ever happen during creation anyways), therefore we use a
+ * pointer to the struct as the value of the map, instead of the struct itself.
+ */
+var courses map[int](*courseT)
 
 /*
- * TODO: revamp this.
  * This RWMutex is only for massive modifications of the course struct, since
  * locking it on every write would be inefficient; in normal operation the only
  * write that could occur to the courses struct is changing the Confirmed and
- * Selected numbers, which should be handled with either atomics compare and
- * swap, or a small RWMutex exclusive to that course. More idiomatic Go style
- * would suggest putting course handling code in a separate goroutine but that
- * seems needlessly inefficient in a highly concurrent application.
+ * Selected numbers, which should be handled with the small RWMutex within the
+ * course struct.
  */
 var coursesLock sync.RWMutex
 
@@ -80,7 +87,7 @@ func setupCourses() error {
 	coursesLock.Lock()
 	defer coursesLock.Unlock()
 
-	courses = make(map[int]courseT)
+	courses = make(map[int](*courseT))
 
 	rows, err := db.Query(
 		context.Background(),
@@ -110,7 +117,7 @@ func setupCourses() error {
 		if err != nil {
 			return fmt.Errorf("error fetching courses: %w", err)
 		}
-		courses[currentCourse.ID] = currentCourse
+		courses[currentCourse.ID] = &currentCourse
 	}
 
 	return nil
