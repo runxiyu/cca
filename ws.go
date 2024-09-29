@@ -199,6 +199,18 @@ endl:
 	return mar
 }
 
+func protocolError(ctx context.Context, conn *websocket.Conn, e string) error {
+	err := conn.Write(ctx, websocket.MessageText, []byte("E :"+e))
+	if err != nil {
+		return fmt.Errorf("error reporting protocol violation: %w", err)
+	}
+	err = conn.Close(websocket.StatusProtocolError, e)
+	if err != nil {
+		return fmt.Errorf("error closing websocket: %w", err)
+	}
+	return nil
+}
+
 type errbytesT struct {
 	err   error
 	bytes *[]byte
@@ -288,39 +300,14 @@ func handleConn(
 				}
 			case "Y":
 				if len(mar) != 2 {
-					err := c.Write(ctx, websocket.MessageText, []byte("E :Invalid number of arguments for Y"))
-					if err != nil {
-						return fmt.Errorf("error replying to Y: %w", err)
-					}
-					err = c.Close(websocket.StatusProtocolError, "")
-					if err != nil {
-						return fmt.Errorf("error closing websocket: %w", err)
-					}
+					return protocolError(ctx, c, "Invalid number of arguments for Y")
 				}
 			case "N":
 				if len(mar) != 2 {
-					err := c.Write(ctx, websocket.MessageText, []byte("E :Invalid number of arguments for N"))
-					if err != nil {
-						return fmt.Errorf("error replying to N: %w", err)
-					}
-					err = c.Close(websocket.StatusProtocolError, "")
-					if err != nil {
-						return fmt.Errorf("error closing websocket: %w", err)
-					}
+					return protocolError(ctx, c, "Invalid number of arguments for N")
 				}
 			default:
-				err := c.Write(
-					ctx,
-					websocket.MessageText,
-					[]byte("E :Unknown command "+mar[0]),
-				)
-				if err != nil {
-					return fmt.Errorf("error replying to unknown command: %w", err)
-				}
-				err = c.Close(websocket.StatusProtocolError, "")
-				if err != nil {
-					return fmt.Errorf("error closing websocket: %w", err)
-				}
+				return protocolError(ctx, c, "Unknown command "+mar[0])
 			}
 		}
 	}
