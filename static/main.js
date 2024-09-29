@@ -45,7 +45,7 @@ var connect = function(socket) {
 		}
 
 		switch (mar[0]) {
-		case "E": // unexpected error
+		case "E": /* unexpected error */
 			alert(`The server reported an unexpected error, "${ mar[1] }". The system might be in an inconsistent state.`)
 			break
 		case "HI":
@@ -56,7 +56,7 @@ var connect = function(socket) {
 				c.style.display = "none"
 			})
 			break
-		case "U": // unauthenticated
+		case "U": /* unauthenticated */
 			/* TODO: replace this with a box on screen */
 			alert("Your session is broken or has expired. You are unauthenticated and the server will reject your commands.")
 			break
