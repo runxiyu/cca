@@ -60,6 +60,9 @@ var connect = function(socket) {
 			/* TODO: replace this with a box on screen */
 			alert("Your session is broken or has expired. You are unauthenticated and the server will reject your commands.")
 			break
+		case "N":
+			document.getElementById(`selected${ mar[1] }`).textContent = mar[2]
+			break
 		case "R": /* course selection rejected */
 			/* TODO */
 			alert("Your course selection was rejected, but Runxi is too lazy to write the code.")
