@@ -93,15 +93,17 @@ document.querySelectorAll(".coursecheckbox").forEach(c => {
 		}
 		switch (c.checked) {
 		case true:
+			c.indeterminate = true
 			socket.send(`Y ${ c.id.slice(4) }`)
 			break
 		case false:
+			c.indeterminate = false
 			socket.send(`N ${ c.id.slice(4) }`)
 			break
 		default:
 			alert(`${ c.id }'s "checked" attribute is ${ c.checked } which is invalid.`)
-			return
 		}
+		return false
 	})
 })
 
