@@ -1,4 +1,3 @@
 #!/bin/sh
 
-./scripts/lint.sh
-./scripts/eslint.sh
+./scripts/lint.sh && ./scripts/eslint.sh
