@@ -76,8 +76,19 @@ func generateAuthorizationURL() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	/*
+	 * Note that here we use a hybrid authentication flow to obtain an
+	 * id_token for authentication and an authorization code. The
+	 * authorization code may be used like any other; i.e., it may be used
+	 * to obtain an access token directly, or the refresh token may be used
+	 * to gain persistent access to the upstream API. Sometimes I wish that
+	 * the JWT in id_token could have more claims. The only reason we
+	 * presently use a hybrid flow is to use the authorization code to
+	 * obtain an access code to call the user info endpoint to fetch the
+	 * user's department information.
+	 */
 	return fmt.Sprintf(
-		"https://login.microsoftonline.com/ddd3d26c-b197-4d00-a32d-1ffd84c0c295/oauth2/authorize?client_id=%s&response_type=id_token%%20code&redirect_uri=%s%%2Fauth&response_mode=form_post&scope=openid+profile+email+User.Read&nonce=%s", // hybrid auth flow
+		"https://login.microsoftonline.com/ddd3d26c-b197-4d00-a32d-1ffd84c0c295/oauth2/authorize?client_id=%s&response_type=id_token%%20code&redirect_uri=%s%%2Fauth&response_mode=form_post&scope=openid+profile+email+User.Read&nonce=%s",
 		config.Auth.Client,
 		config.URL,
 		nonce,
