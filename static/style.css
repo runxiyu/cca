@@ -46,7 +46,7 @@ body {
 	padding: 0;
 }
 
-main, body > section {
+main, body > section, .reading-width {
 	margin: 1rem auto;
 	padding-left: 1rem;
 	padding-right: 1rem;
