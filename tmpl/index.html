@@ -84,11 +84,10 @@
 							<tr>
 								<th scope="col">ID</th>
 								<th scope="col">Tick</th>
-								<th scope="col"><acronym title="Confirmed/Selected/Max
-		
-		Confirmed: chose here and secured their slot by submitting
-		Selected: chose here but hasn&rsquo;t submitted yet
-		Max: maximum number of students this CCA takes">Slots</acronym></th>
+								<th scope="col"><acronym title="Selected/Max
+
+Selected: the number of people who have already chosen
+Max: maximum number of students this CCA takes"><i>n</i></acronym></th>
 								<th scope="col">Name</th>
 								<th scope="col">Type</th>
 								<th scope="col">Teacher</th>
@@ -105,7 +104,7 @@
 							<tr class="courseitem" id="course{{.ID}}">
 								<th scope="row">{{.ID}}</th>
 								<td><input class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}", value="tick{{.ID}}"></input></td>
-								<td><span id="confirmed{{.ID}}">{{.Confirmed}}</span>/<span id="selected{{.ID}}">{{.Selected}}</span>/<span id="max{{.ID}}">{{.Max}}</span></td>
+								<td><span id="selected{{.ID}}">{{.Selected}}</span>/<span id="max{{.ID}}">{{.Max}}</span></td>
 								<td>{{.Title}}</td>
 								<td id="type{{.ID}}">{{.Type}}</td>
 								<td>{{.Teacher}}</td>
