@@ -294,15 +294,6 @@ a.btn {
 	border: none;
 }
 
-/* 
- * Preformatted text, which probably won't be used much on this site?
- */
-pre {
-	background-color: rgb(240, 240, 240);
-	padding: 0.3rem;
-	overflow-x: scroll;
-}
-
 /*
  * .need-connection is the content that should actually display when we are
  * connected via WebSocket. The JavaScript would change display from none to
