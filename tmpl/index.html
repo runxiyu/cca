@@ -27,8 +27,7 @@
 			This site is still a work in progress and may contain bugs! Please contact <a href="mailto:sj-cca@ykpaoschool.cn">the CCA department</a> for CCA selection issues or <a href="mailto:s22537@stu.ykpaoschool.cn">Runxi Yu</a> for website issues.
 			</p>
 		</div>
-		<main class="script-unavailable">
-			<div class="message-box">
+		<div class="script-unavailable message-box">
 			<p>
 			Unfortunately, JavaScript is required to use this page.
 			</p>
@@ -38,9 +37,8 @@
 			<p>
 			The source code of this site is available in a repository on <a href="https://git.runxiyu.org/ykps/cca.git">git.rx</a>, <a href="https://git.sr.ht/~runxiyu/cca">SourceHut</a>, and <a href="https://github.com/runxiyu/cca">GitHub</a>. You could also read the JavaScript sent to your browser or something. You could also implement a custom client that speaks the WebSocket-based protocol if interested.
 			</p>
-			</div>
-		</main>
-		<main class="script-required">
+		</div>
+		<div class="script-required">
 			<div class="before-connection message-box">
 				<p>
 				Attempting to establish WebSocket connection.
@@ -80,7 +78,7 @@
 				</p>
 			</div>
 			<div class="need-connection">
-				<div id="alreadyopen">
+				<div id="alreadyopen" class="reading-width">
 					<table id="table-of-courses">
 						<thead>
 							<tr>
@@ -135,7 +133,7 @@
 					</div>
 				-->
 			</div>
-		</main>
+		</div>
 		<script src="static/main.js"></script>
 		<script>
 			document.addEventListener("DOMContentLoaded", () => {
