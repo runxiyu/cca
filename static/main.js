@@ -45,9 +45,6 @@ var connect = function(socket) {
 		}
 
 		switch (mar[0]) {
-		case "A": // authenticated
-			socket.send("A") // confirm authenticated
-			break
 		case "E": // unexpected error
 			alert(`The server reported an unexpected error, "${ mar[1] }". The system might be in an inconsistent state.`)
 			break
