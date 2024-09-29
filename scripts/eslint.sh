@@ -4,4 +4,4 @@ set -e
 
 cd static
 
-NPM_CONFIG_REGISTRY=https://registry.npmmirror.com npx eslint .
+NPM_CONFIG_REGISTRY=https://registry.npmmirror.com npx eslint . "$@"
