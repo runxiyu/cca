@@ -60,6 +60,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 
 	"github.com/coder/websocket"
@@ -301,6 +302,36 @@ func handleConn(
 			case "Y":
 				if len(mar) != 2 {
 					return protocolError(ctx, c, "Invalid number of arguments for Y")
+				}
+				_courseID, err := strconv.ParseInt(mar[1], 10, strconv.IntSize)
+				if err != nil {
+					return protocolError(ctx, c, "Course ID must be an integer")
+				}
+				courseID := int(_courseID)
+				course := courses[courseID]
+				ok := false
+				func() {
+					course.SelectedLock.Lock()
+					defer course.SelectedLock.Unlock()
+					if course.Selected < course.Max {
+						course.Selected++
+						/* TODO: Propagate it! */
+						ok = true
+						return
+					}
+					ok = false
+				}()
+				if ok {
+					/* TODO: Add it to the database */
+					err = c.Write(ctx, websocket.MessageText, []byte("Y "+mar[1]))
+					if err != nil {
+						return fmt.Errorf("error affirming course choice: %w", err)
+					}
+				} else {
+					err = c.Write(ctx, websocket.MessageText, []byte("R "+mar[1]))
+					if err != nil {
+						return fmt.Errorf("error rejecting course choice: %w", err)
+					}
 				}
 			case "N":
 				if len(mar) != 2 {
