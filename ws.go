@@ -236,9 +236,12 @@ func setupChanPool() error {
 func propagate(msg string) {
 	chanPoolLock.RLock()
 	defer chanPoolLock.RUnlock()
-	for _, v := range chanPool {
-		*v <- msg
-		/* TODO: This may block */
+	for k, v := range chanPool {
+		select {
+		case *v <- msg:
+		default:
+			log.Println("WARNING: SendQ exceeded for " + k) /* TODO: Handle this better */
+		}
 	}
 	/* TODO: Any possible errors? */
 }
@@ -256,7 +259,7 @@ func handleConn(
 	/*
 	 * TODO: Check for potential race conditions in chanPool handling
 	 */
-	send := make(chan string)
+	send := make(chan string, config.Perf.SendQ)
 	chanPoolLock.Lock()
 	func() {
 		defer chanPoolLock.Unlock()
