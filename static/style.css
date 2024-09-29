@@ -339,3 +339,7 @@ pre {
 table#table-of-courses {
 	width: 100%;
 }
+
+.broken-styling-warning {
+	display: none;
+}
