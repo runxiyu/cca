@@ -22,23 +22,26 @@
 				</div>
 			</div>
 		</header>
+		<section id="wip-notice">
+			<p>
+			This site is still a work in progress and may contain bugs! Please contact <a href="mailto:sj-cca@ykpaoschool.cn">the CCA department</a> for CCA selection issues or <a href="mailto:s22537@stu.ykpaoschool.cn">Runxi Yu</a> for website issues.
+			</p>
+		</section>
 		<main class="script-unavailable">
-			<div style="margin: auto; max-width: 30rem; border: solid 2px var(--border); background-color: var(--boxbg); padding: 0rem 1rem;">
+			<div class="message-box">
 			<p>
 			Unfortunately, JavaScript is required to use this page.
 			</p>
-
 			<p>
 			I completely agree that ordinary websites that provide information should not require JavaScript. However, a CCA selection site is not a normal website. It needs to handle 600 people sending it requests at once; it needs to update the vacancy numbers live; it needs to responsively check for course consistencies; it needs to provide client-side search functionality; etc. These are better handled with client-side scripting, and we extensively use WebSocket for scalable communications (i.e. sending a few bytes as commands instead of a full-blown form or AJAX request).
 			</p>
-
 			<p>
 			The source code of this site is available in a repository on <a href="https://git.runxiyu.org/ykps/cca.git">git.rx</a>, <a href="https://git.sr.ht/~runxiyu/cca">SourceHut</a>, and <a href="https://github.com/runxiyu/cca">GitHub</a>. You could also read the JavaScript sent to your browser or something. You could also implement a custom client that speaks the WebSocket-based protocol if interested.
 			</p>
 			</div>
 		</main>
 		<main class="script-required">
-			<div class="before-connection" style="margin: auto; max-width: 30rem; border: solid 2px var(--border); background-color: var(--boxbg); padding: 0rem 1rem;">
+			<div class="before-connection message-box">
 				<p>
 				Attempting to establish WebSocket connection.
 				</p>
@@ -57,7 +60,7 @@
 					</li>
 				</ul>
 			</div>
-			<div class="broken-connection" style="margin: auto; max-width: 30rem; border: solid 2px var(--border); background-color: var(--boxbg); padding: 0rem 1rem;">
+			<div class="broken-connection message-box">
 				<p>
 				Your WebSocket connection has been closed. This means that one of the following occured:
 				</p>
@@ -77,7 +80,6 @@
 				</p>
 			</div>
 			<div class="need-connection">
-				{{- if .open }}
 				<div id="alreadyopen">
 					<table>
 						<thead>
@@ -127,17 +129,14 @@ Max: maximum number of students this CCA takes"><i>n</i></acronym></th>
 						</tfoot>
 					</table>
 				</div>
-				{{ else }}
-				<div id="notopenyet">
-					<p>
-					CCA selections are not currently open.
-					</p>
-					<!-- TODO: Open/not-open should be handled in JS and WS -->
-					<p>
-					Please contact <a href="mailto:sj-cca@ykpaoschool.cn">the CCA department</a> for CCA selection issues or <a href="mailto:s22537@stu.ykpaoschool.cn">Runxi Yu</a> for website issues.
-					</p>
-				</div>
-				{{ end -}}
+				<!--
+					This should be handled in the JavaScript sometime later.
+					<div id="notopenyet" class="message-box">
+						<p>
+						CCA selections are not currently open.
+						</p>
+					</div>
+				-->
 			</div>
 		</main>
 		<script src="static/main.js"></script>

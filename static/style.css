@@ -44,7 +44,6 @@ html {
 body {
 	margin: 0;
 	padding: 0;
-	min-height: 100vh; /* FIXME: why is this even here */
 }
 
 main, body > section {
@@ -52,7 +51,6 @@ main, body > section {
 	padding-left: 1rem;
 	padding-right: 1rem;
 	max-width: 60rem;
-	min-height: 100vh;
 }
 
 /*
@@ -337,4 +335,12 @@ pre {
 }
 .script-required {
 	display: none;
+}
+
+.message-box {
+	margin: auto;
+	max-width: 30rem;
+	border: solid 2px var(--border);
+	background-color: var(--boxbg);
+	padding: 0rem 1rem;
 }
