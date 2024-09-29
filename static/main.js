@@ -61,9 +61,8 @@ var connect = function(socket) {
 			alert("Your session is broken or has expired. You are unauthenticated and the server will reject your commands.")
 			break
 		case "R": /* course selection rejected */
-			alert("Your course selection was rejected, but Runxi is too lazy to write the code.")
-
 			/* TODO */
+			alert("Your course selection was rejected, but Runxi is too lazy to write the code.")
 			break
 		default:
 			alert(`Invalid command ${ mar[0] } received from socket. Something is wrong.`)
