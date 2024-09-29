@@ -292,12 +292,20 @@ func handleConn(
 					if err != nil {
 						return fmt.Errorf("error replying to Y: %w", err)
 					}
+					err = c.Close(websocket.StatusProtocolError, "")
+					if err != nil {
+						return fmt.Errorf("error closing websocket: %w", err)
+					}
 				}
 			case "N":
 				if len(mar) != 2 {
 					err := c.Write(ctx, websocket.MessageText, []byte("E :Invalid number of arguments for N"))
 					if err != nil {
 						return fmt.Errorf("error replying to N: %w", err)
+					}
+					err = c.Close(websocket.StatusProtocolError, "")
+					if err != nil {
+						return fmt.Errorf("error closing websocket: %w", err)
 					}
 				}
 			default:
@@ -308,6 +316,10 @@ func handleConn(
 				)
 				if err != nil {
 					return fmt.Errorf("error replying to unknown command: %w", err)
+				}
+				err = c.Close(websocket.StatusProtocolError, "")
+				if err != nil {
+					return fmt.Errorf("error closing websocket: %w", err)
 				}
 			}
 		}
