@@ -67,6 +67,10 @@ var connect = function(socket) {
 			/* TODO */
 			alert("Your course selection was rejected, but Runxi is too lazy to write the code.")
 			break
+		case "Y": /* course selection approved */
+			document.getElementById(`tick${ mar[1] }`).indeterminate = false
+			document.getElementById(`tick${ mar[1] }`).checked = true
+			break
 		default:
 			alert(`Invalid command ${ mar[0] } received from socket. Something is wrong.`)
 		}
