@@ -25,8 +25,6 @@
 	--theme-contrast: #ffffff;
 	--boxbg: #ebebeb;
 	--boxfg: #000000;
-	--rowbg-even: #ffffff;
-	--rowbg-odd: #f7f7f7;
 	--danger: #d32535;
 	--danger-contrast: #ffffff;
 	--white: #ffffff;
@@ -186,13 +184,6 @@ th.min, td.min {
 	width: 0;
 	min-width: fit-content;
 	white-space: nowrap;
-}
-tr:nth-child(even) td {
-	background-color: var(--rowbg-even);
-}
-
-tr:nth-child(odd) td {
-	background-color: var(--rowbg-odd);
 }
 
 /*
