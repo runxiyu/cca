@@ -39,15 +39,14 @@ import (
 type coursetypeT string
 
 type courseT struct {
-	ID        int
-	Confirmed int
-	Selected  int
-	Max       int
-	Title     string
-	Type      coursetypeT
-	Teacher   string
-	Location  string
-	Lock      sync.RWMutex
+	ID           int
+	Selected     int
+	SelectedLock sync.RWMutex
+	Max          int
+	Title        string
+	Type         coursetypeT
+	Teacher      string
+	Location     string
 }
 
 /*
@@ -72,9 +71,8 @@ var courses map[int](*courseT)
 /*
  * This RWMutex is only for massive modifications of the course struct, since
  * locking it on every write would be inefficient; in normal operation the only
- * write that could occur to the courses struct is changing the Confirmed and
- * Selected numbers, which should be handled with the small RWMutex within the
- * course struct.
+ * write that could occur to the courses struct is changing the Selected
+ * number, which should be handled with courseT.SelectedLock.
  */
 var coursesLock sync.RWMutex
 
@@ -119,6 +117,8 @@ func setupCourses() error {
 		}
 		courses[currentCourse.ID] = &currentCourse
 	}
+
+	/* TODO: Populate currentCourse.Selected from the database */
 
 	return nil
 }
