@@ -233,6 +233,16 @@ func setupChanPool() error {
 	return nil
 }
 
+func propagate(msg string) {
+	chanPoolLock.RLock()
+	defer chanPoolLock.RUnlock()
+	for _, v := range chanPool {
+		*v <- msg
+		/* TODO: This may block */
+	}
+	/* TODO: Any possible errors? */
+}
+
 /*
  * The actual logic in handling the connection, after authentication has been
  * completed.
@@ -315,7 +325,7 @@ func handleConn(
 					defer course.SelectedLock.Unlock()
 					if course.Selected < course.Max {
 						course.Selected++
-						/* TODO: Propagate it! */
+						propagate(fmt.Sprintf("N %d %d", courseID, course.Selected))
 						ok = true
 						return
 					}
