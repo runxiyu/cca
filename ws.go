@@ -286,6 +286,20 @@ func handleConn(
 				if err != nil {
 					return fmt.Errorf("error replying to HELLO: %w", err)
 				}
+			case "Y":
+				if len(mar) != 2 {
+					err := c.Write(ctx, websocket.MessageText, []byte("E :Invalid number of arguments for Y"))
+					if err != nil {
+						return fmt.Errorf("error replying to Y: %w", err)
+					}
+				}
+			case "N":
+				if len(mar) != 2 {
+					err := c.Write(ctx, websocket.MessageText, []byte("E :Invalid number of arguments for N"))
+					if err != nil {
+						return fmt.Errorf("error replying to N: %w", err)
+					}
+				}
 			default:
 				err := c.Write(
 					ctx,
