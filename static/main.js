@@ -38,6 +38,10 @@ var connect = function(socket) {
 		let mar = msg.split(" ")
 		for (let i = 0; i < mar.length; i++) {
 			if (mar[i].startsWith(":")) {
+				if (i === mar.length - 1) {
+					mar[i] = mar[i].substring(1)
+					break
+				}
 				mar[i] = mar[i].substring(1) + " " + mar.slice(i + 1).join(" ")
 				mar.splice(i + 1)
 				break
