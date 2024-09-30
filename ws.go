@@ -217,13 +217,30 @@ var (
 )
 
 func setupChanPool() error {
-	chanPoolLock.Lock()
+	/*
+	 * It would be unusual for this function to run concurrently with
+	 * anything else that modifies chanPool, so we fail when the lock is
+	 * unsuccessful.
+	 */
+	r := chanPoolLock.TryLock()
+	if !r {
+		return fmt.Errorf("cannot set up chanPool: %w", errUnexpectedRace)
+	}
 	defer chanPoolLock.Unlock()
 	chanPool = make(map[string](*chan string))
 	return nil
 }
 
 func propagate(msg string) {
+	/*
+	 * It is not a mistake that we acquire a read lock instead of a write
+	 * lock here. Channels provide synchronization, and other than using
+	 * the channels, we are simply iterating through chanPoolLock. This is
+	 * unsafe when chanPoolLock's structure is being modified, such as
+	 * when a channel is being added or deleted from the pool; but it's
+	 * fine if other goroutines are simply indexing it and using the
+	 * channels.
+	 */
 	chanPoolLock.RLock()
 	defer chanPoolLock.RUnlock()
 	for k, v := range chanPool {
