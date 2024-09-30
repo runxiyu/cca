@@ -58,7 +58,6 @@
 html {
 	font-family: system-ui, sans-serif;
 	line-height: 1.2;
-	border-color: var(--theme); /* FIXME: what is this */
 	background-color: var(--primary-bg);
 	color: var(--primary-fg);
 }
@@ -76,15 +75,6 @@ footer {
 	padding-left: 1rem;
 	padding-right: 1rem;
 	max-width: 60rem;
-}
-
-/*
- * Should probably not use <hr />'s in normal use...
- */
-hr {
-	background-color: black;
-	border-width: 0;
-	height: 1px;
 }
 
 /*
@@ -311,31 +301,6 @@ a.btn {
 	border: none;
 }
 
-/*
- * .need-connection is the content that should actually display when we are
- * connected via WebSocket. The JavaScript would change display from none to
- * block when fully connected to WebSocket.
- */
-.need-connection {
-	display: none;
-}
-/*
- * .before-connection displays the pre-connection message, and the JavaScript
- * does the exact opposite.
- */
-.before-connection {
-}
-/*
- * .broken-connection displays a message telling users to refresh the page,
- * after their WebSocket connection breaks.
- */
-.broken-connection {
-	display: none;
-}
-.script-required {
-	display: none;
-}
-
 .message-box {
 	margin: auto;
 	max-width: 30rem;
@@ -348,6 +313,37 @@ table#table-of-courses {
 	width: 100%;
 }
 
+/*
+ * .need-connection is the content that should actually display when we are
+ * connected via WebSocket. The JavaScript would change display from none to
+ * block when fully connected to WebSocket.
+ */
+.need-connection {
+	display: none;
+}
+
+/*
+ * Same for script-required, though the JavaScript hides this as soon as it's
+ * loaded.
+ */
+.script-required {
+	display: none;
+}
+
+/*
+ * .broken-connection displays a message telling users to refresh the page,
+ * after their WebSocket connection breaks. It should be hidden by default.
+ */
+.broken-connection {
+	display: none;
+}
+
+/*
+ * This site heavily uses CSS styling to display and hide messages, so by
+ * default we put a big warning about CSS being broken, which disappears
+ * once the main CSS, i.e. this file, is completely loaded. Therefore it's
+ * probably best to put this at the bottom of this file.
+ */
 .broken-styling-warning {
 	display: none;
 }
