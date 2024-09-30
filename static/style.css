@@ -68,7 +68,10 @@ body {
 	padding: 0;
 }
 
-main, body > section, .reading-width, footer {
+main,
+body > section,
+.reading-width,
+footer {
 	margin: 1rem auto;
 	padding-left: 1rem;
 	padding-right: 1rem;
@@ -205,7 +208,9 @@ textarea {
 	background-color: var(--box);
 	resize: vertical;
 }
-textarea, input[type=text], input[type=password] {
+textarea,
+input[type=text],
+input[type=password] {
 	font-family: sans-serif;
 	font-size: smaller;
 	background-color: var(--box);
@@ -250,21 +255,22 @@ th.tdinput input[type=password] {
 	color: var(--white-contrast);
 	border: var(--border) 1px solid;
 }
-.btn-normal, input[type=file]::file-selector-button {
+.btn-normal,
+input[type=file]::file-selector-button {
 	background: var(--box-contrast);
 	border: var(--border) 1px solid !important;
 	color: var(--box-contrast);
 }
-.btn, input[type=submit], input[type=file]::file-selector-button {
+.btn,
+input[type=submit],
+input[type=file]::file-selector-button {
 	display: inline-block;
-	/* width: 100%; */
 	width: auto;
 	min-width: fit-content;
 	border-radius: 0;
 	padding: .1rem .75rem;
 	font-size: 0.9rem;
 	transition: background .1s linear;
-	/* border: none; */
 	cursor: pointer;
 }
 a.btn {
