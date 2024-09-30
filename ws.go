@@ -57,6 +57,14 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+func writeText(ctx context.Context, c *websocket.Conn, msg string) error {
+	err := c.Write(ctx, websocket.MessageText, []byte(msg))
+	if err != nil {
+		return fmt.Errorf("error writing to connection: %w", err)
+	}
+	return nil
+}
+
 /*
  * Handle requests to the WebSocket endpoint and establish a connection.
  * Authentication is handled here, but afterwards, the connection is really
@@ -88,21 +96,13 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	 */
 	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
-		err := c.Write(
-			req.Context(),
-			websocket.MessageText,
-			[]byte("U"),
-		)
+		err := writeText(req.Context(), c, "U")
 		if err != nil {
 			log.Println(err)
 		}
 		return
 	} else if err != nil {
-		err := c.Write(
-			req.Context(),
-			websocket.MessageText,
-			[]byte("E :Error fetching cookie"),
-		)
+		err := writeText(req.Context(), c, "E :Error fetching cookie")
 		if err != nil {
 			log.Println(err)
 		}
@@ -118,21 +118,13 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		sessionCookie.Value,
 	).Scan(&userID, &expr)
 	if errors.Is(err, pgx.ErrNoRows) {
-		err := c.Write(
-			req.Context(),
-			websocket.MessageText,
-			[]byte("U"), /* Unauthenticated */
-		)
+		err := writeText(req.Context(), c, "U")
 		if err != nil {
 			log.Println(err)
 		}
 		return
 	} else if err != nil {
-		err := c.Write(
-			req.Context(),
-			websocket.MessageText,
-			[]byte("E :Database error"),
-		)
+		err := writeText(req.Context(), c, "E :Database error")
 		if err != nil {
 			log.Println(err)
 		}
@@ -191,7 +183,7 @@ endl:
 }
 
 func protocolError(ctx context.Context, conn *websocket.Conn, e string) error {
-	err := conn.Write(ctx, websocket.MessageText, []byte("E :"+e))
+	err := writeText(ctx, conn, "E :"+e)
 	if err != nil {
 		return fmt.Errorf("error reporting protocol violation: %w", err)
 	}
@@ -303,7 +295,7 @@ func handleConn(
 		var mar []string
 		select {
 		case gonnasend := <-send:
-			err := c.Write(ctx, websocket.MessageText, []byte(gonnasend))
+			err := writeText(ctx, c, gonnasend)
 			if err != nil {
 				return fmt.Errorf("error sending to websocket from send channel: %w", err)
 			}
@@ -315,7 +307,7 @@ func handleConn(
 			mar = splitMsg(errbytes.bytes)
 			switch mar[0] {
 			case "HELLO":
-				err := c.Write(ctx, websocket.MessageText, []byte("HI"))
+				err := writeText(ctx, c, "HI")
 				if err != nil {
 					return fmt.Errorf("error replying to HELLO: %w", err)
 				}
@@ -343,12 +335,12 @@ func handleConn(
 				}()
 				if ok {
 					/* TODO: Add it to the database */
-					err = c.Write(ctx, websocket.MessageText, []byte("Y "+mar[1]))
+					err := writeText(ctx, c, "Y "+mar[1])
 					if err != nil {
 						return fmt.Errorf("error affirming course choice: %w", err)
 					}
 				} else {
-					err = c.Write(ctx, websocket.MessageText, []byte(fmt.Sprintf("R %s :Full", mar[1])))
+					err := writeText(ctx, c, "R "+mar[1]+" :Full")
 					if err != nil {
 						return fmt.Errorf("error rejecting course choice: %w", err)
 					}
