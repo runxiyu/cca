@@ -341,7 +341,7 @@ func handleConn(
 						return fmt.Errorf("error affirming course choice: %w", err)
 					}
 				} else {
-					err = c.Write(ctx, websocket.MessageText, []byte("R "+mar[1]))
+					err = c.Write(ctx, websocket.MessageText, []byte(fmt.Sprintf("R %s :Full", mar[1])))
 					if err != nil {
 						return fmt.Errorf("error rejecting course choice: %w", err)
 					}

@@ -64,12 +64,16 @@ var connect = function(socket) {
 			document.getElementById(`selected${ mar[1] }`).textContent = mar[2]
 			break
 		case "R": /* course selection rejected */
-			/* TODO */
-			alert("Your course selection was rejected, but Runxi is too lazy to write the code.")
+			document.getElementById(`coursestatus${ mar[1] }`).textContent = mar[2]
+			document.getElementById(`coursestatus${ mar[1] }`).style.color = "red"
+			document.getElementById(`tick${ mar[1] }`).checked = false
+			document.getElementById(`tick${ mar[1] }`).indeterminate = false
 			break
 		case "Y": /* course selection approved */
-			document.getElementById(`tick${ mar[1] }`).indeterminate = false
+			document.getElementById(`coursestatus${ mar[1] }`).textContent = ""
+			document.getElementById(`coursestatus${ mar[1] }`).style.removeProperty("color")
 			document.getElementById(`tick${ mar[1] }`).checked = true
+			document.getElementById(`tick${ mar[1] }`).indeterminate = false
 			break
 		default:
 			alert(`Invalid command ${ mar[0] } received from socket. Something is wrong.`)
