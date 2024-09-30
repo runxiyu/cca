@@ -1,1 +1,352 @@
-./cover_page.html
+<!DOCTYPE html>
+<!-- 
+  -- Copyright (C) 2024  Runxi Yu <https://runxiyu.org>
+  -- SPDX-License-Identifier: CC0-1.0
+  -- This license header only applies to this cover page.
+  -->
+<!--
+  -- This feels like a very wrong way to do multi-line HTML comments
+  -- Anyways, to anyone reading my actual HTML source: I found the
+  -- template form to be a bit strange in how it uses tables, and it
+  -- really doesn't fit into my model of how the web should work.
+  -- So I took the CSS I use in the actual solution and removed some
+  -- bits, and there you have it...
+  -->
+<html lang="en">
+	<head>
+		<title>Computer Science Solution Cover Page</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+/*
+ * General styling for my websites and stuff.
+ * Well, I guess a reduced version thereof, fit for this cover page.
+ */
+
+:root {
+	--primary-bg: white;
+	--primary-fg: black;
+	--border: #b4b4b4;
+	--greyedout: #b4b4b4;
+	--anchor-underline-color: lightgray;
+
+	--theme: #0062cc;
+	--theme-contrast: #ffffff;
+	--boxbg: #ebebeb;
+	--boxfg: #000000;
+	--rowbg-even: #ffffff;
+	--rowbg-odd: #f7f7f7;
+	--danger: #d32535;
+	--danger-contrast: #ffffff;
+	--white: #ffffff;
+	--white-contrast: #222222;
+}
+
+html {
+	font-family: system-ui, sans-serif;
+	line-height: 1.2;
+	border-color: var(--theme); /* FIXME: don't remember why I put this here */
+	background-color: var(--primary-bg);
+	color: var(--primary-fg);
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	min-height: 100vh;
+}
+
+header, main, body > section {
+	margin: 1rem auto;
+	padding-left: 1rem;
+	padding-right: 1rem;
+	max-width: 60rem;
+	/* min-height: 100vh; */
+}
+
+/*
+ * For accessibility reasons, we still want anchors to be underlined, but
+ * perhaps not as profound of an underline as the default.
+ */
+a {
+	color: var(--theme);
+	text-decoration: underline;
+	text-decoration-color: var(--anchor-underline-color);
+}
+
+/*
+ * The table, the most important element in my site design...
+ */
+table {
+	margin-top: 0.4em;
+	margin-bottom: 0.4em;
+	border-collapse: collapse;
+	border: 2px solid var(--border);
+}
+table.wide {
+	width: 100%;
+}
+th[scope~="row"] {
+	text-align: left;
+}
+td {
+	border: 1px solid;
+	text-align: left;
+	height: 1.25rem;
+	border: 1px solid var(--border);
+	padding: 3px 5px;
+}
+table.fat td {
+	padding: 6px 5px;
+}
+td.th-like, th {
+	background-color: var(--boxbg) !important;
+	border: 1px solid var(--border);
+	font-weight: bold;
+	padding: 3px 5px;
+}
+th.min, td.min {
+	width: 0;
+	min-width: fit-content;
+	white-space: nowrap;
+}
+tr:nth-child(even) td {
+	background-color: var(--rowbg-even);
+}
+
+tr:nth-child(odd) td {
+	background-color: var(--rowbg-odd);
+}
+
+/*
+ * Input elements, which are usually in tables anyway
+ */
+textarea {
+	box-sizing: border-box;
+	background-color: var(--boxbg);
+	resize: vertical;
+}
+textarea, input[type=text], input[type=password] {
+	font-family: sans-serif;
+	font-size: smaller;
+	background-color: var(--boxbg);
+	border: none;
+	padding: 0.3rem;
+	width: 100%;
+	box-sizing: border-box;
+}
+td.tdinput {
+	padding: 0rem !important;
+}
+td.tdinput textarea, td.tdinput input[type=text], td.tdinput input[type=password] {
+	background-color: transparent !important;
+}
+th.tdinput {
+	padding: 0rem !important;
+}
+th.tdinput textarea, th.tdinput input[type=text], th.tdinput input[type=password] {
+	background-color: transparent !important;
+}
+
+/*
+ * Button definitions.
+ *
+ * Each button should contain the .btn class and a .btn-type class, where type
+ * is one of primary, danger, white, and normal.
+ */
+.btn-primary {
+	background: var(--theme);
+	color: var(--theme-contrast);
+	border: var(--border) 1px solid;
+	font-weight: bold;
+}
+.btn-danger {
+	background: var(--danger);
+	color: var(--danger-contrast);
+	border: var(--border) 1px solid;
+	font-weight: bold;
+}
+.btn-white {
+	background: var(--white);
+	color: var(--white-contrast);
+	border: var(--border) 1px solid;
+}
+.btn-normal, input[type=file]::file-selector-button {
+	background: var(--boxbg);
+	border: var(--border) 1px solid !important;
+	color: var(--boxfg);
+}
+.btn, input[type=submit], input[type=file]::file-selector-button {
+	display: inline-block;
+	/* width: 100%; */
+	width: auto;
+	min-width: fit-content;
+	border-radius: 0;
+	padding: .1rem .75rem;
+	font-size: 0.9rem;
+	transition: background .1s linear;
+	/* border: none; */
+	cursor: pointer;
+}
+a.btn {
+	text-decoration: none;
+}
+
+
+/* I need to re-learn how flexbox works */
+
+/*
+ * Multiple columns, flexible wrapping
+ */
+.multicols {
+	display: flex;
+	flex-direction: row;
+	@media(max-width: 50rem) {
+		flex-wrap: wrap;
+		gap: 0rem;
+	}
+	gap: 2rem;
+	align-items: stretch;
+}
+
+.multicols div {
+	min-width: 18em;
+	/* max-width: 40rem; */
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/*
+ * Spanning elements across a flex container with equal space in between
+ */
+.flex-justify {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 0 auto;
+	border: none;
+}
+
+pre {
+	background-color: rgb(240, 240, 240);
+	padding: 0.3rem;
+	overflow-x: scroll;
+}
+</style>
+	</head>
+	<body>
+		<header>
+			<h1>Computer Science Solution Cover Page</h1>
+		</header>
+		<main>
+			<table>
+				<thead>
+					<tr>
+						<th colspan="2">
+							Miscellaneous Information
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th scope="row">
+							Solution Title
+						</th>
+						<td>
+							Co-curricular Activity Selection System
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							Candidate Name
+						</th>
+						<td>
+							Runxi Yu
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							School Number
+						</th>
+						<td>
+							050336
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							Candidate Session Number
+						</th>
+						<td>
+							XXX
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							Client Name
+						</th>
+						<td>
+							<a href="mailto:ryan.funnell@ykpaoschool.cn">
+								Ryan Funnell
+							</a>
+							(Head of Co-curricular Activities)
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							Source Repository
+						</th>
+						<td>
+							<a href="https://git.sr.ht/~runxiyu/cca"><code>https://git.sr.ht/~runxiyu/cca</code></a>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							Ticket Tracker
+						</th>
+						<td>
+							<a href="https://todo.sr.ht/~runxiyu/cca"><code>https://todo.sr.ht/~runxiyu/cca</code></a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<h2>Directions to Access Product</h2>
+			<p>
+			This solution is intended to be deployed in production at YK Pao School on a virtual machine provisioned by the school&rsquo;s IT department. Moderating examiners are requested to contact the candidate and the school&rsquo;s IT department to obtain partial access to the production system through a virtual private network or some other access mechanism.
+			</p>
+			<p>
+			If you are my teacher, you should be able to sign in to the system with your usual Microsoft Entra ID (previously known as Azure Active Directory) credentials. Your account has been granted administrator privileges, with the caveat that everything is read-only to protect the operational security of the production system.
+			</p>
+			<p>
+			A fuller evaluation of the solution may require self-hosting an instance, if the administrative functionality is to be directly assessed. Instructions are available in the <a href="../docs/admin_handbook.html">Admin Handbook</a>, but the process generally just involves compiling the solution, copying the configuration file while making simple changes, and running the service.
+			</p>
+			<p>
+			Users are advised to read the <a href="../docs/user_handbook.html">User Handbook</a>, although the system should be relatively intuitive to most users.
+			</p>
+			<p>
+			An additional <a href="../docs/developer_handbook.html">Developer Handbook</a> is available for future developers who wish to have a more nuanced understanding of the system&rsquo;s design than what Criterion B requires documenting.
+			</p>
+			<h2>Links to Documentation for Assessment Criteria</h2>
+			<ul>
+				<li><a href="./crita_planning.pdf">Criterion A: Planning</a></li>
+				<li><a href="./critb_recordoftasks.pdf">Criterion B: Record of Tasks</a></li>
+				<li><a href="./critb_design.pdf">Criterion B: Design</a></li>
+				<li><a href="./critc_development.pdf">Criterion C: Development</a></li>
+				<li><a href="./critd_functionality.pdf">Criterion D: Functionality</a></li>
+				<li><a href="./crite_evaluation.pdf">Criterion E: Evaluation</a></li>
+				<li><a href="./appendix.pdf">Appendix</a></li>
+			</ul>
+			<h2>Word Count</h2>
+			<p>
+			The word count of IB-required documentation is XXXX words.
+			</p>
+			<p>
+			The handbooks contain additional documentation to assist using the solution in production. Documentation is a critical component of any computer solution.
+			<strong style="color: red;">Should this count towards the documentation word count? If not, is the examiner allowed to read it? If not, should I create a &ldquo;concise&rdquo; version of the handbooks to be used during assessment? If so, where should I put it?</strong>
+			</p>
+			<p>
+			The source code itself is also thoroughly documented in the form of comments, for most non-trivial implementation detail.
+			</p>
+		</main>
+	</body>
+</html>
