@@ -66,12 +66,20 @@ var connect = function(socket) {
 			break
 		case "N":
 			document.getElementById(`selected${ mar[1] }`).textContent = mar[2]
+			if (mar[2] === document.getElementById(`max${ mar[1] }`).textContent && !(document.getElementById(`tick${ mar[1] }`).checked)) {
+				document.getElementById(`tick${ mar[1] }`).disabled = true
+			} else {
+				document.getElementById(`tick${ mar[1] }`).disabled = false
+			}
 			break
 		case "R": /* course selection rejected */
 			document.getElementById(`coursestatus${ mar[1] }`).textContent = mar[2]
 			document.getElementById(`coursestatus${ mar[1] }`).style.color = "red"
 			document.getElementById(`tick${ mar[1] }`).checked = false
 			document.getElementById(`tick${ mar[1] }`).indeterminate = false
+			if (mar[2] === "Full") {
+				document.getElementById(`tick${ mar[1] }`).disabled = true
+			}
 			break
 		case "Y": /* course selection approved */
 			document.getElementById(`coursestatus${ mar[1] }`).textContent = ""
