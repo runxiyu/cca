@@ -41,6 +41,7 @@ var configWithPointers struct {
 	Prod   *bool   `scfg:"prod"`
 	Tmpl   *string `scfg:"tmpl"`
 	Static *bool   `scfg:"static"`
+	Source *string `scfg:"source"`
 	Listen struct {
 		Proto *string `scfg:"proto"`
 		Net   *string `scfg:"net"`
@@ -71,6 +72,7 @@ var config struct {
 	Prod   bool
 	Tmpl   string
 	Static bool
+	Source string
 	Listen struct {
 		Proto string
 		Net   string
@@ -111,6 +113,7 @@ func fetchConfig(path string) error {
 	config.Prod = *(configWithPointers.Prod)
 	config.Tmpl = *(configWithPointers.Tmpl)
 	config.Static = *(configWithPointers.Static)
+	config.Source = *(configWithPointers.Source)
 	config.Listen.Proto = *(configWithPointers.Listen.Proto)
 	config.Listen.Net = *(configWithPointers.Listen.Net)
 	config.Listen.Addr = *(configWithPointers.Listen.Addr)

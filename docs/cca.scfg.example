@@ -19,6 +19,10 @@ tmpl tmpl/*
 # directory.
 static true
 
+# Where could the source code of this instance be found? It is important to
+# keep this up to date to comply with the AGPL.
+source https://git.sr.ht/~runxiyu/cca
+
 listen {
 	# Which protocol are we listening for? This may be set to "http" for
 	# plain HTTP, or "fcgi" for FastCGI. FastCGI is recommended for most

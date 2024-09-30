@@ -55,7 +55,7 @@ body {
 	padding: 0;
 }
 
-main, body > section, .reading-width {
+main, body > section, .reading-width, footer {
 	margin: 1rem auto;
 	padding-left: 1rem;
 	padding-right: 1rem;
@@ -143,19 +143,6 @@ header img {
 }
 header h1 {
 	font-size: 25px; /* TODO: Specifying font sizes in pixels is bad */
-}
-
-/*
- * I would like a footer that sticks to the bottom if the page is too short,
- * but that seems difficult to implement.
- */
-footer {
-	padding-left: 1rem;
-	padding-right: 1rem;
-}
-footer p {
-	margin-top: 0rem;
-	margin-bottom: 1ex;
 }
 
 /*
