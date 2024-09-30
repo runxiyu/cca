@@ -62,6 +62,9 @@ auth {
 
 	# What is the client secret? Certificates are not supported yet.
 	secret something
+	
+	# How long, in seconds, should cookies last?
+	expr 604800
 }
 
 # The following block contains some tweaks for performance.

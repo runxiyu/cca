@@ -205,12 +205,17 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	now := time.Now()
+	expr := now.Add(time.Duration(config.Auth.Expr) * time.Second)
+	exprU := expr.Unix()
+
 	cookie := http.Cookie{
 		Name:     "session",
 		Value:    cookieValue,
 		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 		Secure:   config.Prod,
+		Expires:  expr,
 		/*
 		 * TODO: Cookies should also have an expiration; cookies
 		 * without expiration don't even persist across browser
@@ -228,7 +233,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		claims.Email,
 		department,
 		cookieValue,
-		1881839332, /* TODO */
+		exprU,
 	)
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -240,7 +245,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 				claims.Email,
 				department,
 				cookieValue,
-				1881839332, /* TODO */
+				exprU,
 				claims.Oid,
 			)
 			if err != nil {

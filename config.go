@@ -66,6 +66,7 @@ var configWithPointers struct {
 		Jwks      *string `scfg:"jwks"`
 		Token     *string `scfg:"token"`
 		Secret    *string `scfg:"secret"`
+		Expr      *int    `scfg:"expr"`
 	} `scfg:"auth"`
 	Perf struct {
 		SendQ               *int `scfg:"sendq"`
@@ -95,6 +96,7 @@ var config struct {
 		Jwks      string
 		Token     string
 		Secret    string
+		Expr      int
 	}
 	Perf struct {
 		SendQ               int
@@ -129,6 +131,7 @@ func fetchConfig(path string) error {
 	config.Auth.Jwks = *(configWithPointers.Auth.Jwks)
 	config.Auth.Token = *(configWithPointers.Auth.Token)
 	config.Auth.Secret = *(configWithPointers.Auth.Secret)
+	config.Auth.Expr = *(configWithPointers.Auth.Expr)
 	config.Perf.SendQ = *(configWithPointers.Perf.SendQ)
 	config.Perf.MessageArgumentsCap = *(configWithPointers.Perf.MessageArgumentsCap)
 	config.Perf.MessageBytesCap = *(configWithPointers.Perf.MessageBytesCap)
