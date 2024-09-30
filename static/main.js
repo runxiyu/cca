@@ -16,7 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-var connect = function(socket) {
+const socket = new WebSocket("ws://localhost:5555/ws")
+socket.addEventListener("open", function() {
 	var _handleMessage = event => {
 		let msg = new String(event?.data)
 
@@ -92,11 +93,6 @@ var connect = function(socket) {
 	}
 	socket.addEventListener("close", _handleClose)
 	socket.send("HELLO")
-}
-
-const socket = new WebSocket("ws://localhost:5555/ws")
-socket.addEventListener("open", function() {
-	connect(socket)
 })
 
 document.querySelectorAll(".coursecheckbox").forEach(c => {
