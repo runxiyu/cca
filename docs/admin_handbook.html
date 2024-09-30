@@ -38,11 +38,15 @@
 			The <code>static</code> and <code>tmpl</code> directories must be available to the running program, in addition to a configuration file <code>cca.scfg</code>.
 			</p>
 			<p>
-			Copy <a href="./cca.scfg.example">the example configuration file</a> to <code>cca.scfg</code> in the working directory where you intend to run CCASS. Then, edit it, while paying attention to the following:
+			Copy <a href="./cca.scfg.example">the example configuration file</a> to <code>cca.scfg</code> in the working directory where you intend to run CCASS. Then edit it according to the comments, though you may wish to pay attention to the following:
 			</p>
 			<ul>
-				<li>
-				</li>
+				<li>CCASS supports both the FastCGI and the HTTP protocol, over both WebSocket and TCP listeners. HTTPS is not directly supported, so a reverse proxy or FastCGI server such as <code>relayd</code>, <code>nginx</code>, or OpenBSD <code>httpd</code>, should be used.</li>
+				<li>You must <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade">create an app registration on the Azure portal</a> and complete the corresponding configuration options.</li>
+				<li>You must configure a <a href="https://www.postgresql.org/">PostgreSQL</a> instance and configure CCASS accordingly.</li>
+				<li>In a production setup, it is advisable to serve the <code>static</code> directory directly via a dedicated web server. Although CCASS will serve a static folder within the current directory if it is configured with <code>static true</code>, using your web server to serve static files would lead to better performance and more flexible cache control.</li>
+				<li>In a production setup, HTTPS should be used, and the <code>prod</code> configuration option should be enabled, which causes cookies to be set with the <code>Secure</code> flag.</li>
+				<li><code>perf/sendq</code> should be set to roughly the number of expected students making concurrent choices.</li>
 			</ul>
 		</main>
 	</body>
