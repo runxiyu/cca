@@ -1,0 +1,17 @@
+:root {
+	--theme: #0062cc;
+	--anchor-underline-color: lightgray;
+}
+
+html {
+	font-family: system-ui, sans-serif;
+	padding: 0rem 10px;
+	margin: auto;
+	max-width: 40rem;
+}
+
+a {
+	color: var(--theme);
+	text-decoration: underline;
+	text-decoration-color: var(--anchor-underline-color);
+}
