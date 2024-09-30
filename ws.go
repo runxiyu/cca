@@ -119,14 +119,14 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var userid string
+	var userID string
 	var expr int
 
 	err = db.QueryRow(
 		req.Context(),
-		"SELECT userid, expr FROM sessions WHERE cookie = $1",
+		"SELECT id, expr FROM users WHERE session = $1",
 		sessionCookie.Value,
-	).Scan(&userid, &expr)
+	).Scan(&userID, &expr)
 	if errors.Is(err, pgx.ErrNoRows) {
 		err := c.Write(
 			req.Context(),
@@ -151,7 +151,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 
 	/*
 	 * Now that we have an authenticated request, this WebSocket connection
-	 * may be simply associated with the session and userid.
+	 * may be simply associated with the session and userID.
 	 * TODO: There are various race conditions that could occur if one user
 	 * creates multiple connections, with the same or different session
 	 * cookies. The last situation could occur in normal use when a user
@@ -164,7 +164,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		req.Context(),
 		c,
 		sessionCookie.Value,
-		userid,
+		userID,
 	)
 	if err != nil {
 		log.Printf("%v", err)
@@ -254,7 +254,7 @@ func handleConn(
 	ctx context.Context,
 	c *websocket.Conn,
 	session string,
-	userid string,
+	userID string,
 ) error {
 	/*
 	 * TODO: Check for potential race conditions in chanPool handling
@@ -264,13 +264,13 @@ func handleConn(
 	func() {
 		defer chanPoolLock.Unlock()
 		chanPool[session] = &send
-		log.Printf("Channel %v added to pool for session %s, userid %s\n", &send, session, userid)
+		log.Printf("Channel %v added to pool for session %s, userID %s\n", &send, session, userID)
 	}()
 	defer func() {
 		chanPoolLock.Lock()
 		defer chanPoolLock.Unlock()
 		delete(chanPool, session)
-		log.Printf("Purging channel %v for session %s userid %s, from pool\n", &send, session, userid)
+		log.Printf("Purging channel %v for session %s userID %s, from pool\n", &send, session, userID)
 	}()
 
 	/*

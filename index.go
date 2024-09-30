@@ -73,12 +73,12 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var userid string
+	var userID, userName, userDepartment string
 	err = db.QueryRow(
 		req.Context(),
-		"SELECT userid FROM sessions WHERE cookie = $1",
+		"SELECT id, name, department FROM users WHERE session = $1",
 		sessionCookie.Value,
-	).Scan(&userid)
+	).Scan(&userID, &userName, &userDepartment)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			authURL, err := generateAuthorizationURL()
@@ -91,7 +91,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 				"index_login",
 				map[string]interface{}{
 					"authURL": authURL,
-					"notes":   []string{"Technically you have a session cookie, but it seems invalid."},
+					"notes":   "Your sent an invalid session cookie.",
 				},
 			)
 			if err != nil {
@@ -104,29 +104,14 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var name string
-	var department string
-	err = db.QueryRow(
-		req.Context(),
-		"SELECT name, department FROM users WHERE id = $1",
-		userid,
-	).Scan(&name, &department)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			wstr(w, http.StatusInternalServerError, "Error: User does not exist (database error?)")
-			return
-		}
-		wstr(w, http.StatusInternalServerError, "Error: Unexpected database error")
-		return
-	}
 	err = tmpl.ExecuteTemplate(
 		w,
 		"index",
 		map[string]interface{}{
 			"open": true,
 			"user": map[string]interface{}{
-				"Name":       name,
-				"Department": department,
+				"Name":       userName,
+				"Department": userDepartment,
 			},
 			"courses": courses,
 		},

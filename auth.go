@@ -222,21 +222,25 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 
 	_, err = db.Exec(
 		req.Context(),
-		"INSERT INTO users (id, name, email, department) VALUES ($1, $2, $3, $4)",
+		"INSERT INTO users (id, name, email, department, session, expr) VALUES ($1, $2, $3, $4, $5, $6)",
 		claims.Oid,
 		claims.Name,
 		claims.Email,
 		department,
+		cookieValue,
+		1881839332, /* TODO */
 	)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			_, err := db.Exec(
 				req.Context(),
-				"UPDATE users SET (name, email, department) = ($1, $2, $3) WHERE id = $4",
+				"UPDATE users SET (name, email, department, session, expr) = ($1, $2, $3, $4, $5) WHERE id = $6",
 				claims.Name,
 				claims.Email,
 				department,
+				cookieValue,
+				1881839332, /* TODO */
 				claims.Oid,
 			)
 			if err != nil {
@@ -247,23 +251,6 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 			wstr(w, http.StatusInternalServerError, "Database error while writing account info.")
 			return
 		}
-	}
-
-	_, err = db.Exec(
-		req.Context(),
-		"INSERT INTO sessions(userid, cookie, expr) VALUES ($1, $2, $3)",
-		claims.Oid,
-		cookieValue,
-		1881839332, /* TODO */
-	)
-	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			wstr(w, http.StatusInternalServerError, "Cookie collision. Try signing in again.")
-			return
-		}
-		wstr(w, http.StatusInternalServerError, "Database error while inserting session.")
-		return
 	}
 
 	http.Redirect(w, req, "/", http.StatusSeeOther)
