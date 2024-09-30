@@ -47,7 +47,7 @@ func wstr(w http.ResponseWriter, code int, msg string) {
 	w.WriteHeader(code)
 	_, err := w.Write([]byte(msg))
 	if err != nil {
-		log.Println(err)
+		log.Printf("Error wstr'ing to writer: %v", err)
 	}
 }
 
