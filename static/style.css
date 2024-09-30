@@ -29,9 +29,8 @@
 	--anchor-underline-color: lightgray;
 	--theme: #468a28;
 	--theme-contrast: #ffffff;
-	--boxbg: #ebebeb;
-	--boxbg-contrast: black;
-	--boxfg: #000000;
+	--box: #ebebeb;
+	--box-contrast: black;
 	--danger: #d32535;
 	--danger-contrast: #ffffff;
 	--white: #ffffff;
@@ -47,9 +46,8 @@
 		--anchor-underline-color: #3A3A3A;
 		--theme: #66aa48;
 		--theme-contrast: #ffffff;
-		--boxbg: #333333;
-		--boxbg-contrast: white;
-		--boxfg: #ffffff;
+		--box: #333333;
+		--box-contrast: white;
 		--danger: #d32535;
 		--danger-contrast: #ffffff;
 		--white: #202020;
@@ -188,7 +186,7 @@ table.fat td {
 	padding: 6px 5px;
 }
 td.th-like, th {
-	background-color: var(--boxbg) !important;
+	background-color: var(--box) !important;
 	border: 1px solid var(--border);
 	font-weight: bold;
 	padding: 3px 5px;
@@ -204,14 +202,14 @@ th.min, td.min {
  */
 textarea {
 	box-sizing: border-box;
-	background-color: var(--boxbg);
+	background-color: var(--box);
 	resize: vertical;
 }
 textarea, input[type=text], input[type=password] {
 	font-family: sans-serif;
 	font-size: smaller;
-	background-color: var(--boxbg);
-	color: var(--boxbg-contrast);
+	background-color: var(--box);
+	color: var(--box-contrast);
 	border: none;
 	padding: 0.3rem;
 	width: 100%;
@@ -253,9 +251,9 @@ th.tdinput input[type=password] {
 	border: var(--border) 1px solid;
 }
 .btn-normal, input[type=file]::file-selector-button {
-	background: var(--boxbg);
+	background: var(--box-contrast);
 	border: var(--border) 1px solid !important;
-	color: var(--boxfg);
+	color: var(--box-contrast);
 }
 .btn, input[type=submit], input[type=file]::file-selector-button {
 	display: inline-block;
@@ -336,7 +334,7 @@ a.btn {
 	margin: auto;
 	max-width: 30rem;
 	border: solid 2px var(--border);
-	background-color: var(--boxbg);
+	background-color: var(--box);
 	padding: 0rem 1rem;
 }
 
