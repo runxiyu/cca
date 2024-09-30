@@ -62,7 +62,7 @@ func generateAuthorizationURL() (string, error) {
 	 * hacky atomics or having a multiple goroutines to handle
 	 * authentication, neither of which are desirable.
 	 */
-	nonce, err := random(tokenLength)
+	nonce, err := randomBytes(tokenLength)
 	if err != nil {
 		return "", err
 	}
@@ -189,7 +189,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	cookieValue, err := random(tokenLength)
+	cookieValue, err := randomBytes(tokenLength)
 	if err != nil {
 		wstr(w, http.StatusInternalServerError, err.Error())
 		return
