@@ -106,7 +106,11 @@
 							{{- range .courses }}
 							<tr class="courseitem" id="course{{.ID}}">
 								<th scope="row">{{.ID}}</th>
+								{{ if lt .Selected .Max -}}
 								<td><input class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>
+								{{ else -}}
+								<td><input disabled class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>
+								{{ end -}}
 								<td><span id="selected{{.ID}}">{{.Selected}}</span>/<span id="max{{.ID}}">{{.Max}}</span></td>
 								<td>{{.Title}}</td>
 								<td id="type{{.ID}}">{{.Type}}</td>
