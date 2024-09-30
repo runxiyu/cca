@@ -91,7 +91,7 @@ func main() {
 	if config.Listen.Proto == "http" {
 		log.Println("Serving http")
 		srv := &http.Server{
-			ReadHeaderTimeout: 5 * time.Second,
+			ReadHeaderTimeout: time.Duration(config.Perf.ReadHeaderTimeout) * time.Second,
 		} //exhaustruct:ignore
 		err = srv.Serve(l)
 	} else if config.Listen.Proto == "fcgi" {
