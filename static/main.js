@@ -51,9 +51,11 @@ document.addEventListener("DOMContentLoaded", () => {
 				document.querySelectorAll(".before-connection").forEach(c => {
 					c.style.display = "none"
 				})
-				let courseIDs = mar[1].split(",")
-				for (let i = 0; i < courseIDs.length; i++) {
-					document.getElementById(`tick${ courseIDs[i] }`).checked = true
+				if (mar[1] !== "") {
+					let courseIDs = mar[1].split(",")
+					for (let i = 0; i < courseIDs.length; i++) {
+						document.getElementById(`tick${ courseIDs[i] }`).checked = true
+					}
 				}
 				break
 			case "U": /* unauthenticated */
