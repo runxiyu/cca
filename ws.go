@@ -56,6 +56,7 @@ import (
 
 	"github.com/coder/websocket"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func writeText(ctx context.Context, c *websocket.Conn, msg string) error {
@@ -355,12 +356,19 @@ func handleConn(
 						courseID,
 					)
 					if err != nil {
-						/* TODO: Handle uniqueness constraint as a special case */
-						err := writeText(ctx, c, "R "+mar[1]+" :Database error while inserting course choice")
-						if err != nil {
-							return fmt.Errorf("error rejecting course choice: %w", err)
+						var pgErr *pgconn.PgError
+						if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+							err := writeText(ctx, c, "Y "+mar[1])
+							if err != nil {
+								return fmt.Errorf("error reaffirming course choice: %w", err)
+							}
+						} else {
+							err := writeText(ctx, c, "R "+mar[1]+" :Database error while inserting course choice")
+							if err != nil {
+								return fmt.Errorf("error rejecting course choice: %w", err)
+							}
+							return nil
 						}
-						return nil
 					}
 
 					ok := func() bool {
