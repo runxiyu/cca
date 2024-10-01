@@ -75,7 +75,6 @@ func main() {
 	log.Println("Registering handlers")
 	http.HandleFunc("/{$}", handleIndex)
 	http.HandleFunc("/auth", handleAuth)
-	http.HandleFunc("/pw", handlePw)
 	http.HandleFunc("/ws", handleWs)
 
 	log.Printf(

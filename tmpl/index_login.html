@@ -37,46 +37,8 @@
 					You have not authenticated. You must sign in to use this service.
 				</p>
 				<p>
-					Most users should use &ldquo;Sign in with Microsoft&rdquo;.
-				</p>
-				<p>
 					<a class="btn btn-primary" href="{{- .authURL -}}">Sign in with Microsoft</a>
 				</p>
-				<p>
-					Users who have special access may use password authentication.
-				</p>
-				<form id="form-auto-token" method="POST" action="/pw" enctype="application/x-www-form-urlencoded">
-					<table class="">
-						<tr>
-							<th colspan="2">
-								Password-based authentication form
-							</th>
-						</tr>
-						<tr>
-							<th scope="row">Username</th>
-							<td class="tdinput">
-								<input id="usernameinput" name="usernameinput" placeholder="s12345" type="text" />
-							</td>
-						</tr>
-						<tr>
-							<th scope="row">Password</th>
-							<td class="tdinput">
-								<input id="passwordinput" name="passwordinput" type="password" />
-							</td>
-						</tr>
-						<tr>
-							<td class="th-like" colspan="2">
-								<div class="flex-justify">
-									<div class="left">
-									</div>
-									<div class="right">
-										<input class="btn-white" type="submit" value="Submit" />
-									</div>
-								</div>
-							</td>
-						</tr>
-					</table>
-				</form>
 			</div>
 		</main>
 		<footer>
