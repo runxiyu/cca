@@ -385,6 +385,12 @@ func handleConn(
 					if ok {
 						err := tx.Commit(ctx)
 						if err != nil {
+							go func() { /* Separate goroutine because we don't need a response from this operation */
+								course.SelectedLock.Lock()
+								defer course.SelectedLock.Unlock()
+								course.Selected--
+								propagateIgnoreFailures(fmt.Sprintf("N %d %d", courseID, course.Selected))
+							}()
 							err := writeText(ctx, c, "R "+mar[1]+" :Database error while committing transaction")
 							if err != nil {
 								return fmt.Errorf("error fejecting based on database error: %w", err)
