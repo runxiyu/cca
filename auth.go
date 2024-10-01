@@ -206,11 +206,6 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 		HttpOnly: true,
 		Secure:   config.Prod,
 		Expires:  expr,
-		/*
-		 * TODO: Cookies should also have an expiration; cookies
-		 * without expiration don't even persist across browser
-		 * sessions in most browsers.
-		 */
 	} //exhaustruct:ignore
 
 	http.SetCookie(w, &cookie)

@@ -89,13 +89,6 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		_ = c.CloseNow()
 	}()
 
-	/*
-	 * TODO: Here we fetch the cookie from the HTTP headers. On browser's
-	 * I've tested, creating WebSocket connections with JavaScript still
-	 * passes httponly cookies in the upgrade request. I'm not sure if this
-	 * is true for all browsers and it wasn't simple to find a spec for
-	 * this.
-	 */
 	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
 		err := writeText(req.Context(), c, "U")
@@ -246,10 +239,8 @@ func propagateIgnoreFailures(msg string) {
 		case *v <- msg:
 		default:
 			log.Println("WARNING: SendQ exceeded for " + k)
-			/* TODO: Perhaps it should be retried sometime */
 		}
 	}
-	/* TODO: Any possible errors? */
 }
 
 /*
@@ -262,9 +253,6 @@ func handleConn(
 	session string,
 	userID string,
 ) error {
-	/*
-	 * TODO: Check for potential race conditions in chanPool handling
-	 */
 	send := make(chan string, config.Perf.SendQ)
 	chanPoolLock.Lock()
 	func() {
@@ -347,7 +335,7 @@ func handleConn(
 					}()
 
 					_, err = tx.Exec(
-						ctx, /* TODO: Do we really want this to be in a request context? */
+						ctx,
 						"INSERT INTO choices (seltime, userid, courseid) VALUES ($1, $2, $3)",
 						time.Now().UnixMicro(),
 						userID,
@@ -422,7 +410,7 @@ func handleConn(
 				}()
 
 				ct, err := db.Exec(
-					ctx, /* TODO: Do we really want this to be in a request context? */
+					ctx,
 					"DELETE FROM choices WHERE userid = $1 AND courseid = $2",
 					userID,
 					courseID,
