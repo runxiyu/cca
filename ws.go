@@ -223,7 +223,11 @@ func setupChanPool() error {
 	return nil
 }
 
-func propagate(msg string) {
+/*
+ * Only call this when it is okay for propagation to fail, such as in course
+ * number updates. Failures are currently ignored.
+ */
+func propagateCouldFail(msg string) {
 	/*
 	 * It is not a mistake that we acquire a read lock instead of a write
 	 * lock here. Channels provide synchronization, and other than using
@@ -239,7 +243,8 @@ func propagate(msg string) {
 		select {
 		case *v <- msg:
 		default:
-			log.Println("WARNING: SendQ exceeded for " + k) /* TODO: Handle this better */
+			log.Println("WARNING: SendQ exceeded for " + k)
+			/* TODO: Perhaps it should be retried sometime */
 		}
 	}
 	/* TODO: Any possible errors? */
@@ -327,7 +332,7 @@ func handleConn(
 					defer course.SelectedLock.Unlock()
 					if course.Selected < course.Max {
 						course.Selected++
-						go propagate(fmt.Sprintf("N %d %d", courseID, course.Selected))
+						go propagateCouldFail(fmt.Sprintf("N %d %d", courseID, course.Selected))
 						ok = true
 						return
 					}
