@@ -327,7 +327,7 @@ func handleConn(
 					defer course.SelectedLock.Unlock()
 					if course.Selected < course.Max {
 						course.Selected++
-						propagate(fmt.Sprintf("N %d %d", courseID, course.Selected))
+						go propagate(fmt.Sprintf("N %d %d", courseID, course.Selected))
 						ok = true
 						return
 					}
