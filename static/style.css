@@ -36,6 +36,8 @@
 	--danger-contrast: #ffffff;
 	--white: #ffffff;
 	--white-contrast: #222222;
+	--header-fg: black;
+	--header-bg: #dfdfdf;
 }
 
 @media (prefers-color-scheme: dark)  {
@@ -44,7 +46,7 @@
 		--primary-fg: white;
 		--border: #444444;
 		--greyedout: #444444;
-		--anchor-underline-color: #3A3A3A;
+		--anchor-underline-color: #4A4A4A;
 		--anchor-color: #3092fc;
 		--theme: #0062cc;
 		--theme-contrast: #ffffff;
@@ -54,6 +56,8 @@
 		--danger-contrast: #ffffff;
 		--white: #202020;
 		--white-contrast: #ffffff;
+		--header-fg: white;
+		--header-bg: #3a3a3a;
 	}
 }
 
@@ -122,8 +126,8 @@ header {
 	position: sticky;
 	top: 0;
 	left: 0;
-	color: var(--theme-contrast);
-	background-color: var(--theme);
+	color: var(--header-fg);
+	background-color: var(--header-bg);
 	z-index: 1000;
 	width: 100%;
 }
@@ -134,7 +138,7 @@ header {
  */
 header a {
 	text-decoration: none;
-	color: var(--theme-contrast);
+	color: var(--header-fg);
 }
 .header-content {
 	padding-left: 1rem;
