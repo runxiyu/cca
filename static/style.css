@@ -37,7 +37,7 @@
 	--white: #ffffff;
 	--white-contrast: #222222;
 	--header-fg: black;
-	--header-bg: #dfdfdf;
+	--header-bg: #efefef;
 }
 
 @media (prefers-color-scheme: dark)  {
