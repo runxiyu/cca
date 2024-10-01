@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/coder/websocket"
@@ -33,11 +34,26 @@ import (
 )
 
 func messageHello(ctx context.Context, c *websocket.Conn, mar []string, userID string, session string) error {
-	_, _, _ = mar, userID, session
-	err := writeText(ctx, c, "HI")
+	_, _ = mar, session
+
+	rows, err := db.Query(
+		ctx,
+		"SELECT courseid FROM choices WHERE userid = $1",
+		userID,
+	)
+	if err != nil {
+		return protocolError(ctx, c, "error fetching choices")
+	}
+	courseIDs, err := pgx.CollectRows(rows, pgx.RowTo[string])
+	if err != nil {
+		return protocolError(ctx, c, "error collecting choices")
+	}
+
+	err = writeText(ctx, c, "HI :"+strings.Join(courseIDs, ","))
 	if err != nil {
 		return fmt.Errorf("error replying to HELLO: %w", err)
 	}
+
 	return nil
 }
 

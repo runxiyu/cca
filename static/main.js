@@ -50,6 +50,10 @@ socket.addEventListener("open", function() {
 			document.querySelectorAll(".before-connection").forEach(c => {
 				c.style.display = "none"
 			})
+			let courseIDs = mar[1].split(",")
+			for (let i = 0; i < courseIDs.length; i++) {
+				document.getElementById(`tick${ courseIDs[i] }`).checked = true
+			}
 			break
 		case "U": /* unauthenticated */
 			/* TODO: replace this with a box on screen */
