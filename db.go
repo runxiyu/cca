@@ -32,6 +32,8 @@ var db *pgxpool.Pool
 
 var errUnsupportedDatabaseType = errors.New("unsupported db type")
 
+const pgErrUniqueViolation = "23505"
+
 /*
  * This must be run during setup, before the database is accessed by any
  * means. Otherwise, db would be a null pointer.

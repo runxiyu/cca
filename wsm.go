@@ -95,7 +95,7 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, mar []string, u
 		)
 		if err != nil {
 			var pgErr *pgconn.PgError
-			if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			if errors.As(err, &pgErr) && pgErr.Code == pgErrUniqueViolation {
 				err := writeText(ctx, c, "Y "+mar[1])
 				if err != nil {
 					return fmt.Errorf("error reaffirming course choice: %w", err)

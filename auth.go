@@ -229,7 +229,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	)
 	if err != nil {
 		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+		if errors.As(err, &pgErr) && pgErr.Code == pgErrUniqueViolation {
 			_, err := db.Exec(
 				req.Context(),
 				"UPDATE users SET (name, email, department, session, expr) = ($1, $2, $3, $4, $5) WHERE id = $6",
