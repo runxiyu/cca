@@ -333,22 +333,16 @@ func handleConn(
 					return courses[courseID]
 				}()
 
-				err = func() error {
+				err = func() (returnedError error) { /* Named returns so I could modify them in defer */
 					tx, err := db.Begin(ctx)
 					if err != nil {
-						err := writeText(ctx, c, "R "+mar[1]+" :Database error while beginning transaction")
-						if err != nil {
-							return fmt.Errorf("error rejecting based on database error: %w", err)
-						}
-						return nil
+						return protocolError(ctx, c, "Database error while beginning transaction")
 					}
 					defer func() {
 						err := tx.Rollback(ctx)
 						if err != nil && (!errors.Is(err, pgx.ErrTxClosed)) {
-							err := writeText(ctx, c, "R "+mar[1]+" :Database error while rolling back transaction due to deferred return")
-							if err != nil {
-								log.Printf("error fejecting based on database error: %v", err) /* TODO: Handle this better */
-							}
+							returnedError = protocolError(ctx, c, "Database error while rolling back transaction in defer block")
+							return
 						}
 					}()
 
@@ -367,11 +361,7 @@ func handleConn(
 								return fmt.Errorf("error reaffirming course choice: %w", err)
 							}
 						} else {
-							err := writeText(ctx, c, "R "+mar[1]+" :Database error while inserting course choice")
-							if err != nil {
-								return fmt.Errorf("error rejecting course choice: %w", err)
-							}
-							return nil
+							return protocolError(ctx, c, "Database error while inserting course choice")
 						}
 					}
 
@@ -395,10 +385,7 @@ func handleConn(
 								course.Selected--
 								propagateIgnoreFailures(fmt.Sprintf("N %d %d", courseID, course.Selected))
 							}()
-							err := writeText(ctx, c, "R "+mar[1]+" :Database error while committing transaction")
-							if err != nil {
-								return fmt.Errorf("error fejecting based on database error: %w", err)
-							}
+							return protocolError(ctx, c, "Database error while committing transaction")
 						}
 						err = writeText(ctx, c, "Y "+mar[1])
 						if err != nil {
@@ -407,10 +394,7 @@ func handleConn(
 					} else {
 						err := tx.Rollback(ctx)
 						if err != nil {
-							err := writeText(ctx, c, "R "+mar[1]+" :Database error while rolling back transaction due to course limit")
-							if err != nil {
-								return fmt.Errorf("error fejecting based on database error: %w", err)
-							}
+							return protocolError(ctx, c, "Database error while rolling back transaction due to course limit")
 						}
 						err = writeText(ctx, c, "R "+mar[1]+" :Full")
 						if err != nil {
