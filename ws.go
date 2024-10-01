@@ -360,9 +360,9 @@ func handleConn(
 							if err != nil {
 								return fmt.Errorf("error reaffirming course choice: %w", err)
 							}
-						} else {
-							return protocolError(ctx, c, "Database error while inserting course choice")
+							return nil
 						}
+						return protocolError(ctx, c, "Database error while inserting course choice")
 					}
 
 					ok := func() bool {
