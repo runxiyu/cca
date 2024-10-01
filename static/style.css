@@ -27,7 +27,8 @@
 	--border: #b4b4b4;
 	--greyedout: #b4b4b4;
 	--anchor-underline-color: lightgray;
-	--theme: #468a28;
+	--anchor-color: #0062cc;
+	--theme: #0062cc;
 	--theme-contrast: #ffffff;
 	--box: #ebebeb;
 	--box-contrast: black;
@@ -44,7 +45,8 @@
 		--border: #444444;
 		--greyedout: #444444;
 		--anchor-underline-color: #3A3A3A;
-		--theme: #66aa48;
+		--anchor-color: #3092fc;
+		--theme: #0062cc;
 		--theme-contrast: #ffffff;
 		--box: #333333;
 		--box-contrast: white;
@@ -82,7 +84,7 @@ footer {
  * perhaps not as profound of an underline as the default.
  */
 a {
-	color: var(--theme);
+	color: var(--anchor-color);
 	text-decoration: underline;
 	text-decoration-color: var(--anchor-underline-color);
 }
