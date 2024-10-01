@@ -164,7 +164,7 @@ table {
 	margin-top: 0.4em;
 	margin-bottom: 0.4em;
 	border-collapse: collapse;
-	border: 2px solid var(--border);
+	border: 1px solid var(--border);
 }
 table.wide {
 	width: 100%;
