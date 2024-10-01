@@ -410,6 +410,40 @@ func handleConn(
 				if len(mar) != 2 {
 					return protocolError(ctx, c, "Invalid number of arguments for N")
 				}
+				_courseID, err := strconv.ParseInt(mar[1], 10, strconv.IntSize)
+				if err != nil {
+					return protocolError(ctx, c, "Course ID must be an integer")
+				}
+				courseID := int(_courseID)
+				course := func() *courseT {
+					coursesLock.RLock()
+					defer coursesLock.RUnlock()
+					return courses[courseID]
+				}()
+
+				ct, err := db.Exec(
+					ctx, /* TODO: Do we really want this to be in a request context? */
+					"DELETE FROM choices WHERE userid = $1 AND courseid = $2",
+					userID,
+					courseID,
+				)
+				if err != nil {
+					return protocolError(ctx, c, "Database error while deleting course choice")
+				}
+
+				if ct.RowsAffected() != 0 {
+					go func() { /* Separate goroutine because we don't need a response from this operation */
+						course.SelectedLock.Lock()
+						defer course.SelectedLock.Unlock()
+						course.Selected--
+						propagateIgnoreFailures(fmt.Sprintf("N %d %d", courseID, course.Selected))
+					}()
+				}
+
+				err = writeText(ctx, c, "N "+mar[1])
+				if err != nil {
+					return fmt.Errorf("error replying that course has been deselected: %w", err)
+				}
 			default:
 				return protocolError(ctx, c, "Unknown command "+mar[0])
 			}
