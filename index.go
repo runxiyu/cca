@@ -96,19 +96,23 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = tmpl.ExecuteTemplate(
-		w,
-		"index",
-		map[string]interface{}{
-			"open": true,
-			"user": map[string]interface{}{
-				"Name":       userName,
-				"Department": userDepartment,
+	err = func() error {
+		coursesLock.RLock()
+		defer coursesLock.RUnlock()
+		return tmpl.ExecuteTemplate(
+			w,
+			"index",
+			map[string]interface{}{
+				"open": true,
+				"user": map[string]interface{}{
+					"Name":       userName,
+					"Department": userDepartment,
+				},
+				"courses": courses,
+				"source":  config.Source,
 			},
-			"courses": courses,
-			"source":  config.Source,
-		},
-	)
+		)
+	}()
 	if err != nil {
 		log.Println(err)
 		return

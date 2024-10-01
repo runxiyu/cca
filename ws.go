@@ -327,7 +327,11 @@ func handleConn(
 					return protocolError(ctx, c, "Course ID must be an integer")
 				}
 				courseID := int(_courseID)
-				course := courses[courseID]
+				course := func() *courseT {
+					coursesLock.RLock()
+					defer coursesLock.RUnlock()
+					return courses[courseID]
+				}()
 
 				err = func() error {
 					tx, err := db.Begin(ctx)
