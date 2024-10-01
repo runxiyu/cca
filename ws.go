@@ -125,7 +125,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		}
 		return
 	} else if err != nil {
-		err := writeText(req.Context(), c, "E :Database error")
+		err := writeText(req.Context(), c, "E :Database error while selecting session")
 		if err != nil {
 			log.Println(err)
 		}
@@ -327,60 +327,82 @@ func handleConn(
 				}
 				courseID := int(_courseID)
 				course := courses[courseID]
-				/*
-				 * TODO: Ensure that the user is not already enrolled in this course
-				 * and pay attention to relevant race conditions. It might be useful
-				 * to restructure this part, to begin a transaction that adds the user
-				 * to the database (and check the (currently not existing) uniqueness)
-				 * constraint at that exact moment, and abort the transaction if the
-				 * course limit is exceeded.
-				 * Or perhaps choices should be also stored in an internal data
-				 * structure, though that requires extra attention on consistency
-				 * issues between the internal data structure and the database.
-				 * (Sometime I should really go fix the LMDB bindings...)
-				 */
-				ok := false
-				func() {
-					course.SelectedLock.Lock()
-					defer course.SelectedLock.Unlock()
-					if course.Selected < course.Max {
-						course.Selected++
-						go propagateCouldFail(fmt.Sprintf("N %d %d", courseID, course.Selected))
-						ok = true
-						return
+
+				err = func() error {
+					tx, err := db.Begin(ctx)
+					if err != nil {
+						err := writeText(ctx, c, "R "+mar[1]+" :Database error while beginning transaction")
+						if err != nil {
+							return fmt.Errorf("error rejecting based on database error: %w", err)
+						}
+						return nil
 					}
-					ok = false
-				}()
-				if ok {
-					_, err = db.Exec(
+					defer func() {
+						err := tx.Rollback(ctx)
+						if err != nil && (!errors.Is(err, pgx.ErrTxClosed)) {
+							err := writeText(ctx, c, "R "+mar[1]+" :Database error while rolling back transaction due to deferred return")
+							if err != nil {
+								log.Printf("error fejecting based on database error: %v", err) /* TODO: Handle this better */
+							}
+						}
+					}()
+
+					_, err = tx.Exec(
 						ctx, /* TODO: Do we really want this to be in a request context? */
 						"INSERT INTO choices (seltime, userid, courseid) VALUES ($1, $2, $3)",
 						time.Now().UnixMicro(),
 						userID,
 						courseID,
-						/* TODO: Set uniqueness constraint for each (userid, courseid) pair */
 					)
 					if err != nil {
-						go func() { /* Separate goroutine because we don't need a response from this operation */
-							course.SelectedLock.Lock()
-							defer course.SelectedLock.Unlock()
-							course.Selected--
-							propagateCouldFail(fmt.Sprintf("N %d %d", courseID, course.Selected))
-						}()
-						err := writeText(ctx, c, "R "+mar[1]+" :Database error") /* TODO: Handle this better */
+						/* TODO: Handle uniqueness constraint as a special case */
+						err := writeText(ctx, c, "R "+mar[1]+" :Database error while inserting course choice")
+						if err != nil {
+							return fmt.Errorf("error rejecting course choice: %w", err)
+						}
+						return nil
+					}
+
+					ok := func() bool {
+						course.SelectedLock.Lock()
+						defer course.SelectedLock.Unlock()
+						if course.Selected < course.Max {
+							course.Selected++
+							go propagateCouldFail(fmt.Sprintf("N %d %d", courseID, course.Selected))
+							return true
+						}
+						return false
+					}()
+
+					if ok {
+						err := tx.Commit(ctx)
+						if err != nil {
+							err := writeText(ctx, c, "R "+mar[1]+" :Database error while committing transaction")
+							if err != nil {
+								return fmt.Errorf("error fejecting based on database error: %w", err)
+							}
+						}
+						err = writeText(ctx, c, "Y "+mar[1])
+						if err != nil {
+							return fmt.Errorf("error affirming course choice: %w", err)
+						}
+					} else {
+						err := tx.Rollback(ctx)
+						if err != nil {
+							err := writeText(ctx, c, "R "+mar[1]+" :Database error while rolling back transaction due to course limit")
+							if err != nil {
+								return fmt.Errorf("error fejecting based on database error: %w", err)
+							}
+						}
+						err = writeText(ctx, c, "R "+mar[1]+" :Full")
 						if err != nil {
 							return fmt.Errorf("error rejecting course choice: %w", err)
 						}
 					}
-					err := writeText(ctx, c, "Y "+mar[1])
-					if err != nil {
-						return fmt.Errorf("error affirming course choice: %w", err)
-					}
-				} else {
-					err := writeText(ctx, c, "R "+mar[1]+" :Full")
-					if err != nil {
-						return fmt.Errorf("error rejecting course choice: %w", err)
-					}
+					return nil
+				}()
+				if err != nil {
+					return err
 				}
 			case "N":
 				if len(mar) != 2 {

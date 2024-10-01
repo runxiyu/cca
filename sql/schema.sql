@@ -15,7 +15,7 @@ CREATE TABLE users (
 	expr INTEGER
 );
 CREATE TABLE choices (
-	id INTEGER GENERATED ALWAYS AS IDENTITY,
+	PRIMARY KEY (userid, courseid),
 	seltime BIGINT NOT NULL, -- microseconds
 	userid TEXT NOT NULL,
 	courseid INTEGER NOT NULL,
