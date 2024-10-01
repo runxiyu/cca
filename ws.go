@@ -228,7 +228,7 @@ func setupChanPool() error {
  * Only call this when it is okay for propagation to fail, such as in course
  * number updates. Failures are currently ignored.
  */
-func propagateCouldFail(msg string) {
+func propagateIgnoreFailures(msg string) {
 	/*
 	 * It is not a mistake that we acquire a read lock instead of a write
 	 * lock here. Channels provide synchronization, and other than using
@@ -368,7 +368,7 @@ func handleConn(
 						defer course.SelectedLock.Unlock()
 						if course.Selected < course.Max {
 							course.Selected++
-							go propagateCouldFail(fmt.Sprintf("N %d %d", courseID, course.Selected))
+							go propagateIgnoreFailures(fmt.Sprintf("N %d %d", courseID, course.Selected))
 							return true
 						}
 						return false
