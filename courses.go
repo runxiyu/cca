@@ -105,10 +105,15 @@ func setupCourses() error {
 		if err != nil {
 			return fmt.Errorf("error fetching courses: %w", err)
 		}
+		err := db.QueryRow(context.Background(),
+			"SELECT COUNT (*) FROM choices WHERE courseid = $1",
+			currentCourse.ID,
+		).Scan(&currentCourse.Selected)
+		if err != nil {
+			return fmt.Errorf("error querying course member number: %w", err)
+		}
 		courses[currentCourse.ID] = &currentCourse
 	}
-
-	/* TODO: Populate currentCourse.Selected from the database */
 
 	return nil
 }
