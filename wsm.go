@@ -110,7 +110,7 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, mar []string, u
 			defer course.SelectedLock.Unlock()
 			if course.Selected < course.Max {
 				course.Selected++
-				go propagateIgnoreFailures(fmt.Sprintf("N %d %d", courseID, course.Selected))
+				go propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
 				return true
 			}
 			return false
@@ -123,7 +123,7 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, mar []string, u
 					course.SelectedLock.Lock()
 					defer course.SelectedLock.Unlock()
 					course.Selected--
-					propagateIgnoreFailures(fmt.Sprintf("N %d %d", courseID, course.Selected))
+					propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
 				}()
 				return protocolError(ctx, c, "Database error while committing transaction")
 			}
@@ -180,7 +180,7 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, mar []string,
 			course.SelectedLock.Lock()
 			defer course.SelectedLock.Unlock()
 			course.Selected--
-			propagateIgnoreFailures(fmt.Sprintf("N %d %d", courseID, course.Selected))
+			propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
 		}()
 	}
 

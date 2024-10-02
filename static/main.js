@@ -63,6 +63,9 @@ document.addEventListener("DOMContentLoaded", () => {
 				alert("Your session is broken or has expired. You are unauthenticated and the server will reject your commands.")
 				break
 			case "N":
+				document.getElementById(`tick${ mar[1] }`).checked = false
+				break
+			case "M":
 				document.getElementById(`selected${ mar[1] }`).textContent = mar[2]
 				if (mar[2] === document.getElementById(`max${ mar[1] }`).textContent && !(document.getElementById(`tick${ mar[1] }`).checked)) {
 					document.getElementById(`tick${ mar[1] }`).disabled = true
