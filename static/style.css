@@ -170,7 +170,7 @@ table.wide {
 	width: 100%;
 }
 th[scope~="row"] {
-	text-align: right;
+	text-align: left;
 }
 th[scope~="col"] {
 }

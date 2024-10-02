@@ -88,7 +88,6 @@
 					<table id="table-of-courses">
 						<thead>
 							<tr>
-								<th scope="col">ID</th>
 								<th scope="col">Tick</th>
 								<th scope="col"><abbr title="Used/Max"><i>n</i></abbr></th>
 								<th scope="col">Name</th>
@@ -105,11 +104,10 @@
 						<tbody>
 							{{- range .courses }}
 							<tr class="courseitem" id="course{{.ID}}">
-								<th scope="row">{{.ID}}</th>
 								{{ if lt .Selected .Max -}}
-								<td><input class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>
+								<th scope="row"><input class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>
 								{{ else -}}
-								<td><input disabled class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>
+								<th scope="row"><input disabled class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>
 								{{ end -}}
 								<td><span id="selected{{.ID}}">{{.Selected}}</span>/<span id="max{{.ID}}">{{.Max}}</span></td>
 								<td>{{.Title}}</td>
