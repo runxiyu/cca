@@ -8,6 +8,7 @@
 		<link rel="stylesheet" href="/static/style.css" />
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="YK Pao School CCA Selection System" />
 	</head>
 	<body>
 		<div style="font-size: 150%; color: red; font-weight: bold;" class="broken-styling-warning">
@@ -105,9 +106,9 @@
 							{{- range .courses }}
 							<tr class="courseitem" id="course{{.ID}}">
 								{{ if lt .Selected .Max -}}
-								<th scope="row"><input class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>
+								<th scope="row"><input aria-label="Enroll in course" class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>
 								{{ else -}}
-								<th scope="row"><input disabled class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>
+								<th scope="row"><input aria-label="Enroll in course" disabled class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>
 								{{ end -}}
 								<td><span id="selected{{.ID}}">{{.Selected}}</span>/<span id="max{{.ID}}">{{.Max}}</span></td>
 								<td>{{.Title}}</td>
