@@ -119,7 +119,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		userID = _uuid.String()
-		session, err = randomBytes(20)
+		session, err = randomString(20)
 		if err != nil {
 			log.Println(err)
 			return

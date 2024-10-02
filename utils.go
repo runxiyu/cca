@@ -51,7 +51,7 @@ func wstr(w http.ResponseWriter, code int, msg string) {
  * encoded string. It's divided by three because we're using base64 and it's
  * ideal to ensure that the entropy remains consistent throughout the string.
  */
-func randomBytes(sz int) (string, error) {
+func randomString(sz int) (string, error) {
 	r := make([]byte, 3*sz)
 	_, err := rand.Read(r)
 	if err != nil {
