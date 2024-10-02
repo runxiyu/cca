@@ -43,7 +43,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		}
 		err = tmpl.ExecuteTemplate(
 			w,
-			"index_login",
+			"login",
 			map[string]string{
 				"authURL": authURL,
 				"source":  config.Source,
@@ -79,7 +79,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			}
 			err = tmpl.ExecuteTemplate(
 				w,
-				"index_login",
+				"login",
 				map[string]interface{}{
 					"authURL": authURL,
 					"notes":   "You sent an invalid session cookie.",
@@ -101,7 +101,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		defer coursesLock.RUnlock()
 		return tmpl.ExecuteTemplate(
 			w,
-			"index",
+			"student",
 			map[string]interface{}{
 				"open": true,
 				"user": map[string]interface{}{
