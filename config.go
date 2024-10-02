@@ -52,6 +52,7 @@ var configWithPointers struct {
 		Conn *string `scfg:"conn"`
 	} `scfg:"db"`
 	Auth struct {
+		Fake      *bool   `scfg:"fake"`
 		Client    *string `scfg:"client"`
 		Authorize *string `scfg:"authorize"`
 		Jwks      *string `scfg:"jwks"`
@@ -83,6 +84,7 @@ var config struct {
 		Conn string
 	}
 	Auth struct {
+		Fake      bool
 		Client    string
 		Authorize string
 		Jwks      string
@@ -119,6 +121,7 @@ func fetchConfig(path string) error {
 	config.Listen.Addr = *(configWithPointers.Listen.Addr)
 	config.DB.Type = *(configWithPointers.DB.Type)
 	config.DB.Conn = *(configWithPointers.DB.Conn)
+	config.Auth.Fake = *(configWithPointers.Auth.Fake)
 	config.Auth.Client = *(configWithPointers.Auth.Client)
 	config.Auth.Authorize = *(configWithPointers.Auth.Authorize)
 	config.Auth.Jwks = *(configWithPointers.Auth.Jwks)

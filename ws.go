@@ -51,8 +51,10 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/coder/websocket"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -86,13 +88,18 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		_ = c.CloseNow()
 	}()
 
+	fake := false
+
 	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
-		err := writeText(req.Context(), c, "U")
-		if err != nil {
-			log.Println(err)
+		if !config.Auth.Fake {
+			err := writeText(req.Context(), c, "U")
+			if err != nil {
+				log.Println(err)
+			}
+			return
 		}
-		return
+		fake = true
 	} else if err != nil {
 		err := writeText(req.Context(), c, "E :Error fetching cookie")
 		if err != nil {
@@ -102,25 +109,63 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	}
 
 	var userID string
+	var session string
 	var expr int
 
-	err = db.QueryRow(
-		req.Context(),
-		"SELECT id, expr FROM users WHERE session = $1",
-		sessionCookie.Value,
-	).Scan(&userID, &expr)
-	if errors.Is(err, pgx.ErrNoRows) {
-		err := writeText(req.Context(), c, "U")
+	if fake {
+		_uuid, err := uuid.NewRandom()
 		if err != nil {
 			log.Println(err)
+			return
 		}
-		return
-	} else if err != nil {
-		err := writeText(req.Context(), c, "E :Database error while selecting session")
+		userID = _uuid.String()
+		session, err = randomBytes(20)
 		if err != nil {
 			log.Println(err)
+			return
 		}
-		return
+		_, err = db.Exec(
+			req.Context(),
+			"INSERT INTO users (id, name, email, department, session, expr) VALUES ($1, $2, $3, $4, $5, $6)",
+			userID,
+			"Fake User",
+			"fake@runxiyu.org",
+			"Y11",
+			session,
+			time.Now().Add(time.Duration(config.Auth.Expr)*time.Second).Unix(),
+		)
+		if err != nil {
+			err := writeText(req.Context(), c, "E :Database error while writing fake account info")
+			if err != nil {
+				log.Println(err)
+			}
+			return
+		}
+		err = writeText(req.Context(), c, "FAKE "+userID+" "+session)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	} else {
+		session = sessionCookie.Value
+		err = db.QueryRow(
+			req.Context(),
+			"SELECT id, expr FROM users WHERE session = $1",
+			session,
+		).Scan(&userID, &expr)
+		if errors.Is(err, pgx.ErrNoRows) {
+			err := writeText(req.Context(), c, "U")
+			if err != nil {
+				log.Println(err)
+			}
+			return
+		} else if err != nil {
+			err := writeText(req.Context(), c, "E :Database error while selecting session")
+			if err != nil {
+				log.Println(err)
+			}
+			return
+		}
 	}
 
 	/*
@@ -137,7 +182,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	err = handleConn(
 		req.Context(),
 		c,
-		sessionCookie.Value,
+		session,
 		userID,
 	)
 	if err != nil {
