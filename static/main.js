@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				socket.send(`Y ${ c.id.slice(4) }`)
 				break
 			case false:
-				c.indeterminate = false
+				c.indeterminate = true
 				socket.send(`N ${ c.id.slice(4) }`)
 				break
 			default:
