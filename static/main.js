@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				break
 			case "N":
 				document.getElementById(`tick${ mar[1] }`).checked = false
+				document.getElementById(`tick${ mar[1] }`).indeterminate = false
 				break
 			case "M":
 				document.getElementById(`selected${ mar[1] }`).textContent = mar[2]
