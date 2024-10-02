@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					let courseIDs = mar[1].split(",")
 					for (let i = 0; i < courseIDs.length; i++) {
 						document.getElementById(`tick${ courseIDs[i] }`).checked = true
+						document.getElementById(`tick${ courseIDs[i] }`).disabled = false
 					}
 				}
 				break
