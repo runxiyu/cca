@@ -33,19 +33,27 @@
 		</div>
 		<div class="script-unavailable message-box">
 			<p>
-			Unfortunately, JavaScript is required to use this page.
+			JavaScript is required to use this page. One of the following conditions are present:
 			</p>
+			<ul>
+				<li>
+					The JavaScript hasn&rsquo;t finished loading.
+				</li>
+				<li>
+					JavaScript is not supported by your browser.
+				</li>
+				<li>
+					JavaScript is disabled/blocked.
+				</li>
+			</ul>
 			<p>
-			I completely agree that ordinary websites that provide information should not require JavaScript. However, a CCA selection site is not a normal website. It needs to handle 600 people sending it requests at once; it needs to update the vacancy numbers live; it needs to responsively check for course consistencies; it needs to provide client-side search functionality; etc. These are better handled with client-side scripting, and we extensively use WebSocket for scalable communications (i.e. sending a few bytes as commands instead of a full-blown form or AJAX request).
-			</p>
-			<p>
-			The source code of this site is available in a repository on <a href="https://git.runxiyu.org/ykps/cca.git">git.rx</a>, <a href="https://git.sr.ht/~runxiyu/cca">SourceHut</a>, and <a href="https://github.com/runxiyu/cca">GitHub</a>. You could also read the JavaScript sent to your browser or something. You could also implement a custom client that speaks the WebSocket-based protocol if interested.
+			All JavaScript hosted on this site are licensed under the GNU Affero General Public License, version 3.0 or any later version.
 			</p>
 		</div>
 		<div class="script-required">
 			<div class="before-connection message-box">
 				<p>
-				Attempting to establish WebSocket connection.
+				Attempting to establish an WebSocket connection.
 				</p>
 				<p>
 				If this message does not disappear soon, it means that one of the following conditions are true:
@@ -82,6 +90,7 @@
 				</p>
 				<p>
 				<a href="javascript:window.location.reload(true)" class="btn btn-primary">Reconnect</a>
+				<!-- TODO: Add a quicker reconnect -->
 				</p>
 			</div>
 			<div class="need-connection">
