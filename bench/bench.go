@@ -62,7 +62,7 @@ func connect(cid int) {
 		defer func() {
 			if r := recover(); r != nil {
 				cancel()
-				log.Printf("%d !R %v", cid, r)
+				// log.Printf("%d !R %v", cid, r)
 			}
 		}()
 		for {
@@ -83,7 +83,7 @@ func connect(cid int) {
 		panic(err)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 
 	err = c.Close(websocket.StatusNormalClosure, "")
 	if err != nil {
@@ -99,7 +99,7 @@ func main() {
 			defer wg.Done()
 			defer func() {
 				if r := recover(); r != nil {
-					log.Printf("%d !M %v", i, r)
+					// log.Printf("%d !M %v", i, r)
 				}
 			}()
 			connect(i)
