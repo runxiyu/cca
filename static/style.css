@@ -310,7 +310,7 @@ a.btn {
 .message-box {
 	margin: auto;
 	max-width: 30rem;
-	border: solid 2px var(--border);
+	border: solid 1px var(--border);
 	background-color: var(--box);
 	padding: 0rem 1rem;
 }
