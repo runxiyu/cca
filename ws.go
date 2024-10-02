@@ -21,11 +21,10 @@
 /*
  * The message format is a WebSocket message separated with spaces.
  * The contents of each field could contain anything other than spaces,
- * null bytes, carriage returns, and newlines. The first character of
- * each argument cannot be a colon. As an exception, the last argument may
- * contain spaces and the first character thereof may be a colon, if the
- * argument is prefixed with a colon. The colon used for the prefix is not
- * considered part of the content of the message. For example, in
+ * The first character of each argument cannot be a colon. As an exception, the
+ * last argument may contain spaces and the first character thereof may be a
+ * colon, if the argument is prefixed with a colon. The colon used for the
+ * prefix is not considered part of the content of the message. For example, in
  *
  *    SQUISH POP :cat purr!!
  *
