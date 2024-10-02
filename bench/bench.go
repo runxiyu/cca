@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"log"
+	"math/big"
 	"net/http"
 	"sync"
 	"time"
@@ -12,7 +14,10 @@ import (
 	"github.com/coder/websocket"
 )
 
-var errUnexpectedStatusCode = errors.New("unexpected status code")
+var (
+	errUnexpectedStatusCode = errors.New("unexpected status code")
+	courses                 = big.NewInt(5)
+)
 
 func w(ctx context.Context, c *websocket.Conn, m string, cid int) error {
 	log.Printf("%d <- %s", cid, m)
@@ -69,7 +74,16 @@ func connect(cid int) {
 		}
 	}()
 
-	time.Sleep(5 * time.Second)
+	courseID, err := rand.Int(rand.Reader, courses)
+	if err != nil {
+		panic(err)
+	}
+	err = w(ctx, c, fmt.Sprintf("Y %d", courseID.Int64()+1), cid)
+	if err != nil {
+		panic(err)
+	}
+
+	time.Sleep(100 * time.Millisecond)
 
 	err = c.Close(websocket.StatusNormalClosure, "")
 	if err != nil {
@@ -79,7 +93,7 @@ func connect(cid int) {
 
 func main() {
 	var wg sync.WaitGroup
-	for i := range 128 {
+	for i := range 1023 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -90,7 +104,7 @@ func main() {
 			}()
 			connect(i)
 		}()
-		time.Sleep(2 * time.Millisecond)
+		time.Sleep(500 * time.Microsecond)
 	}
 	wg.Wait()
 }
