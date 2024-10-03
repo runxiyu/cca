@@ -329,6 +329,8 @@ func handleConn(
 	session string,
 	userID string,
 ) error {
+	reportError := makeReportError(ctx, c)
+	newCtx, newCancel := context.WithCancel(ctx)
 	func() {
 		cancelPoolLock.Lock()
 		defer cancelPoolLock.Unlock()
@@ -336,20 +338,7 @@ func handleConn(
 		if cancel != nil {
 			(*cancel)()
 		}
-		delete(cancelPool, userID)
-	}()
-
-	reportError := makeReportError(ctx, c)
-	newCtx, newCancel := context.WithCancel(ctx)
-	func() {
-		cancelPoolLock.Lock()
-		defer cancelPoolLock.Unlock()
 		cancelPool[userID] = &newCancel
-	}()
-	defer func() {
-		cancelPoolLock.Lock()
-		defer cancelPoolLock.Unlock()
-		delete(cancelPool, userID)
 	}()
 
 	send := make(chan string, config.Perf.SendQ)
