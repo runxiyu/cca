@@ -36,9 +36,9 @@ listen {
 	net tcp
 
 	# What is the address we should listen at? This is usually set to
-	# something like ":5555" for TCP, and a file path for UNIX domain
-	# sockets.
-	addr :5555
+	# something like ":5555" for TCP on all interfaces, and a file path for
+	# UNIX domain sockets.
+	addr 127.0.0.1:5555
 }
 
 db {
