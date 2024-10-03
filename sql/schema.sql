@@ -12,7 +12,7 @@ CREATE TABLE users (
 	email TEXT,
 	department TEXT,
 	session TEXT,
-	expr INTEGER
+	expr BIGINT
 );
 CREATE TABLE choices (
 	PRIMARY KEY (userid, courseid),
