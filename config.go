@@ -52,7 +52,7 @@ var configWithPointers struct {
 		Conn *string `scfg:"conn"`
 	} `scfg:"db"`
 	Auth struct {
-		Fake      *bool   `scfg:"fake"`
+		Fake      *int    `scfg:"fake"`
 		Client    *string `scfg:"client"`
 		Authorize *string `scfg:"authorize"`
 		Jwks      *string `scfg:"jwks"`
@@ -84,7 +84,7 @@ var config struct {
 		Conn string
 	}
 	Auth struct {
-		Fake      bool
+		Fake      int
 		Client    string
 		Authorize string
 		Jwks      string
@@ -121,7 +121,19 @@ func fetchConfig(path string) error {
 	config.Listen.Addr = *(configWithPointers.Listen.Addr)
 	config.DB.Type = *(configWithPointers.DB.Type)
 	config.DB.Conn = *(configWithPointers.DB.Conn)
-	config.Auth.Fake = *(configWithPointers.Auth.Fake)
+	if configWithPointers.Auth.Fake == nil {
+		config.Auth.Fake = 0
+	} else {
+		config.Auth.Fake = *(configWithPointers.Auth.Fake)
+		switch config.Auth.Fake {
+		case 0, 4712, 9080: /* Don't use them unless you know what you're doing */
+			if config.Prod {
+				panic("auth.fake not allowed in production mode")
+			}
+		default:
+			panic("illegal auth.fake config option")
+		}
+	}
 	config.Auth.Client = *(configWithPointers.Auth.Client)
 	config.Auth.Authorize = *(configWithPointers.Auth.Authorize)
 	config.Auth.Jwks = *(configWithPointers.Auth.Jwks)

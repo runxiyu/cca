@@ -91,7 +91,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 
 	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
-		if !config.Auth.Fake {
+		if config.Auth.Fake == 0 {
 			err := writeText(req.Context(), c, "U")
 			if err != nil {
 				log.Println(err)
@@ -112,12 +112,19 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	var expr int
 
 	if fake {
-		_uuid, err := uuid.NewRandom()
-		if err != nil {
-			log.Println(err)
-			return
+		switch config.Auth.Fake {
+		case 9080:
+			_uuid, err := uuid.NewRandom()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			userID = _uuid.String()
+		case 4712:
+			userID = "fake"
+		default:
+			panic("not supposed to happen")
 		}
-		userID = _uuid.String()
 		session, err = randomString(20)
 		if err != nil {
 			log.Println(err)
@@ -133,7 +140,8 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 			session,
 			time.Now().Add(time.Duration(config.Auth.Expr)*time.Second).Unix(),
 		)
-		if err != nil {
+		if err != nil && config.Auth.Fake != 4712 {
+			/* TODO check pgerr */
 			err := writeText(req.Context(), c, "E :Database error while writing fake account info")
 			if err != nil {
 				log.Println(err)

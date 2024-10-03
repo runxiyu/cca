@@ -52,11 +52,6 @@ db {
 }
 
 auth {
-	# Should we allow fake authentication? This should only be enabled
-	# in development and never in production as it would allow connections
-	# to create fake users.
-	fake false
-
 	# What is our OAUTH2 client ID?
 	client e8101cb5-84a3-49d7-860b-e5a75e63219a
 
