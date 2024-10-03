@@ -361,13 +361,11 @@ func handleConn(
 		chanPoolLock.Lock()
 		defer chanPoolLock.Unlock()
 		chanPool[session] = &send
-		log.Printf("Channel %v added to pool for session %s, userID %s\n", &send, session, userID)
 	}()
 	defer func() {
 		chanPoolLock.Lock()
 		defer chanPoolLock.Unlock()
 		delete(chanPool, session)
-		log.Printf("Purging channel %v for session %s userID %s, from pool\n", &send, session, userID)
 	}()
 
 	/*
