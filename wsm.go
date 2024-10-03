@@ -36,6 +36,12 @@ import (
 func messageHello(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string) error {
 	_, _ = mar, session
 
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("context done when handling hello: %w", ctx.Err())
+	default:
+	}
+
 	rows, err := db.Query(
 		ctx,
 		"SELECT courseid FROM choices WHERE userid = $1",
@@ -59,6 +65,13 @@ func messageHello(ctx context.Context, c *websocket.Conn, reportError reportErro
 
 func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string) error {
 	_ = session
+
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("context done when handling choose: %w", ctx.Err())
+	default:
+	}
+
 	if len(mar) != 2 {
 		return reportError("Invalid number of arguments for Y")
 	}
@@ -151,6 +164,13 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 
 func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string) error {
 	_ = session
+
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("context done when handling unchoose: %w", ctx.Err())
+	default:
+	}
+
 	if len(mar) != 2 {
 		return reportError("Invalid number of arguments for N")
 	}

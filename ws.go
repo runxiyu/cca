@@ -328,7 +328,7 @@ func handleConn(
 	c *websocket.Conn,
 	session string,
 	userID string,
-) error {
+) (retErr error) {
 	reportError := makeReportError(ctx, c)
 	newCtx, newCancel := context.WithCancel(ctx)
 	func() {
@@ -345,6 +345,14 @@ func handleConn(
 		defer cancelPoolLock.Unlock()
 		if cancelPool[userID] == &newCancel {
 			delete(cancelPool, userID)
+		}
+		if errors.Is(retErr, context.Canceled) {
+			/*
+			 * Only works if it's newCtx that has been cancelled
+			 * rather than the original ctx, which is kinda what
+			 * we intend
+			 */
+			_ = writeText(ctx, c, "E :Context canceled")
 		}
 	}()
 
@@ -372,18 +380,74 @@ func handleConn(
 	recv := make(chan *errbytesT)
 	go func() {
 		for {
-			_, b, err := c.Read(newCtx)
+			/*
+			 * Here we use the original connection context instead
+			 * of the new context we just created. Apparently when
+			 * the context passed to Read expires, the connection
+			 * gets closed, which makes it impossible for us to
+			 * write the context expiry message to the client.
+			 * So we pass the original connection context, which
+			 * would get cancelled anyway once we close the
+			 * connection.
+			 * We still need to take care of this while sending so
+			 * we don't infinitely block, and leak goroutines and
+			 * cause the channel to remain out of reach of the
+			 * garbage collector.
+			 * It would be nice to return the newCtx.Err() but
+			 * the only way to really do that is to use the recv
+			 * channel which might not have a listener anymore.
+			 * It's not really crucial anyways so we could just
+			 * close this goroutine by returning here.
+			 */
+			_, b, err := c.Read(ctx)
 			if err != nil {
-				recv <- &errbytesT{err: err, bytes: nil}
+				/*
+				 * TODO: Prioritize context dones... except
+				 * that it's not really possible. I would just
+				 * have placed newCtx in here but apparently
+				 * that causes the connection to be closed when
+				 * the context expires, which makes it
+				 * impossible to deliver the final error
+				 * message. Probably need to look into this
+				 * design again.
+				 */
+				select {
+				case <-newCtx.Done():
+					_ = writeText(ctx, c, "E :Context canceled")
+					/* Not a typo to use ctx here */
+					return
+				case recv <- &errbytesT{err: err, bytes: nil}:
+				}
 				return
 			}
-			recv <- &errbytesT{err: nil, bytes: &b}
+			select {
+			case <-newCtx.Done():
+				_ = writeText(ctx, c, "E :Context cancelled")
+				/* Not a typo to use ctx here */
+				return
+			case recv <- &errbytesT{err: nil, bytes: &b}:
+			}
 		}
 	}()
 
 	for {
 		var mar []string
 		select {
+		case <-newCtx.Done():
+			/*
+			 * TODO: Somehow prioritize this case over all other cases
+			 */
+			return fmt.Errorf("context done in main event loop: %w", newCtx.Err())
+			/*
+			 * There are other times when the context could be
+			 * cancelled, and apparently some WebSocket functions
+			 * just close the connection when the context is
+			 * cancelled. So it's kinda impossible to reliably
+			 * send this message due to newCtx cancellation.
+			 * But in any case, the WebSocket connection would
+			 * be closed, and the user would see the connection
+			 * closed page which should explain it.
+			 */
 		case gonnasend := <-send:
 			err := writeText(newCtx, c, gonnasend)
 			if err != nil {
@@ -392,7 +456,12 @@ func handleConn(
 			continue
 		case errbytes := <-recv:
 			if errbytes.err != nil {
-				return errbytes.err
+				return fmt.Errorf("error fetching message from recv channel: %w", errbytes.err)
+				/*
+				 * Note that this cannot return newCtx.Err(),
+				 * so we handle the error reporting in the
+				 * reading routine
+				 */
 			}
 			mar = splitMsg(errbytes.bytes)
 			switch mar[0] {
