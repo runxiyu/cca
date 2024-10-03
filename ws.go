@@ -218,7 +218,7 @@ endl:
 	return mar
 }
 
-func protocolError(ctx context.Context, conn *websocket.Conn, e string) error {
+func baseReportError(ctx context.Context, conn *websocket.Conn, e string) error {
 	err := writeText(ctx, conn, "E :"+e)
 	if err != nil {
 		return fmt.Errorf("error reporting protocol violation: %w", err)
@@ -228,6 +228,14 @@ func protocolError(ctx context.Context, conn *websocket.Conn, e string) error {
 		return fmt.Errorf("error closing websocket: %w", err)
 	}
 	return nil
+}
+
+type reportErrorT func(e string) error
+
+func makeReportError(ctx context.Context, conn *websocket.Conn) reportErrorT {
+	return func(e string) error {
+		return baseReportError(ctx, conn, e)
+	}
 }
 
 type errbytesT struct {
@@ -256,6 +264,33 @@ func setupChanPool() error {
 	}
 	defer chanPoolLock.Unlock()
 	chanPool = make(map[string](*chan string))
+	return nil
+}
+
+var (
+	/*
+	 * Note that the key for cancelPool is a userID rather than a sessionID
+	 */
+	cancelPool map[string](*context.CancelFunc)
+	/*
+	 * Normal Go maps are not thread safe, so we protect large cancelPool
+	 * operations such as addition and deletion under a RWMutex.
+	 */
+	cancelPoolLock sync.RWMutex
+)
+
+func setupCancelPool() error {
+	/*
+	 * It would be unusual for this function to run concurrently with
+	 * anything else that modifies cancelPool, so we fail when the lock is
+	 * unsuccessful.
+	 */
+	r := cancelPoolLock.TryLock()
+	if !r {
+		return fmt.Errorf("cannot set up cancelPool: %w", errUnexpectedRace)
+	}
+	defer cancelPoolLock.Unlock()
+	cancelPool = make(map[string](*context.CancelFunc))
 	return nil
 }
 
@@ -294,9 +329,32 @@ func handleConn(
 	session string,
 	userID string,
 ) error {
-	send := make(chan string, config.Perf.SendQ)
-	chanPoolLock.Lock()
 	func() {
+		cancelPoolLock.Lock()
+		defer cancelPoolLock.Unlock()
+		cancel := cancelPool[userID]
+		if cancel != nil {
+			(*cancel)()
+		}
+		delete(cancelPool, userID)
+	}()
+
+	reportError := makeReportError(ctx, c)
+	newCtx, newCancel := context.WithCancel(ctx)
+	func() {
+		cancelPoolLock.Lock()
+		defer cancelPoolLock.Unlock()
+		cancelPool[userID] = &newCancel
+	}()
+	defer func() {
+		cancelPoolLock.Lock()
+		defer cancelPoolLock.Unlock()
+		delete(cancelPool, userID)
+	}()
+
+	send := make(chan string, config.Perf.SendQ)
+	func() {
+		chanPoolLock.Lock()
 		defer chanPoolLock.Unlock()
 		chanPool[session] = &send
 		log.Printf("Channel %v added to pool for session %s, userID %s\n", &send, session, userID)
@@ -318,7 +376,7 @@ func handleConn(
 	recv := make(chan *errbytesT)
 	go func() {
 		for {
-			_, b, err := c.Read(ctx)
+			_, b, err := c.Read(newCtx)
 			if err != nil {
 				recv <- &errbytesT{err: err, bytes: nil}
 				return
@@ -331,7 +389,7 @@ func handleConn(
 		var mar []string
 		select {
 		case gonnasend := <-send:
-			err := writeText(ctx, c, gonnasend)
+			err := writeText(newCtx, c, gonnasend)
 			if err != nil {
 				return fmt.Errorf("error sending to websocket from send channel: %w", err)
 			}
@@ -343,22 +401,22 @@ func handleConn(
 			mar = splitMsg(errbytes.bytes)
 			switch mar[0] {
 			case "HELLO":
-				err := messageHello(ctx, c, mar, userID, session)
+				err := messageHello(newCtx, c, reportError, mar, userID, session)
 				if err != nil {
 					return err
 				}
 			case "Y":
-				err := messageChooseCourse(ctx, c, mar, userID, session)
+				err := messageChooseCourse(newCtx, c, reportError, mar, userID, session)
 				if err != nil {
 					return err
 				}
 			case "N":
-				err := messageUnchooseCourse(ctx, c, mar, userID, session)
+				err := messageUnchooseCourse(newCtx, c, reportError, mar, userID, session)
 				if err != nil {
 					return err
 				}
 			default:
-				return protocolError(ctx, c, "Unknown command "+mar[0])
+				return reportError("Unknown command " + mar[0])
 			}
 		}
 	}

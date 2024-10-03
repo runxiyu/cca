@@ -33,7 +33,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-func messageHello(ctx context.Context, c *websocket.Conn, mar []string, userID string, session string) error {
+func messageHello(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string) error {
 	_, _ = mar, session
 
 	rows, err := db.Query(
@@ -42,11 +42,11 @@ func messageHello(ctx context.Context, c *websocket.Conn, mar []string, userID s
 		userID,
 	)
 	if err != nil {
-		return protocolError(ctx, c, "error fetching choices")
+		return reportError("error fetching choices")
 	}
 	courseIDs, err := pgx.CollectRows(rows, pgx.RowTo[string])
 	if err != nil {
-		return protocolError(ctx, c, "error collecting choices")
+		return reportError("error collecting choices")
 	}
 
 	err = writeText(ctx, c, "HI :"+strings.Join(courseIDs, ","))
@@ -57,14 +57,14 @@ func messageHello(ctx context.Context, c *websocket.Conn, mar []string, userID s
 	return nil
 }
 
-func messageChooseCourse(ctx context.Context, c *websocket.Conn, mar []string, userID string, session string) error {
+func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string) error {
 	_ = session
 	if len(mar) != 2 {
-		return protocolError(ctx, c, "Invalid number of arguments for Y")
+		return reportError("Invalid number of arguments for Y")
 	}
 	_courseID, err := strconv.ParseInt(mar[1], 10, strconv.IntSize)
 	if err != nil {
-		return protocolError(ctx, c, "Course ID must be an integer")
+		return reportError("Course ID must be an integer")
 	}
 	courseID := int(_courseID)
 	course := func() *courseT {
@@ -76,12 +76,12 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, mar []string, u
 	err = func() (returnedError error) { /* Named returns so I could modify them in defer */
 		tx, err := db.Begin(ctx)
 		if err != nil {
-			return protocolError(ctx, c, "Database error while beginning transaction")
+			return reportError("Database error while beginning transaction")
 		}
 		defer func() {
 			err := tx.Rollback(ctx)
 			if err != nil && (!errors.Is(err, pgx.ErrTxClosed)) {
-				returnedError = protocolError(ctx, c, "Database error while rolling back transaction in defer block")
+				returnedError = reportError("Database error while rolling back transaction in defer block")
 				return
 			}
 		}()
@@ -102,7 +102,7 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, mar []string, u
 				}
 				return nil
 			}
-			return protocolError(ctx, c, "Database error while inserting course choice")
+			return reportError("Database error while inserting course choice")
 		}
 
 		ok := func() bool {
@@ -125,7 +125,7 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, mar []string, u
 					course.Selected--
 					propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
 				}()
-				return protocolError(ctx, c, "Database error while committing transaction")
+				return reportError("Database error while committing transaction")
 			}
 			err = writeText(ctx, c, "Y "+mar[1])
 			if err != nil {
@@ -134,7 +134,7 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, mar []string, u
 		} else {
 			err := tx.Rollback(ctx)
 			if err != nil {
-				return protocolError(ctx, c, "Database error while rolling back transaction due to course limit")
+				return reportError("Database error while rolling back transaction due to course limit")
 			}
 			err = writeText(ctx, c, "R "+mar[1]+" :Full")
 			if err != nil {
@@ -149,14 +149,14 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, mar []string, u
 	return nil
 }
 
-func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, mar []string, userID string, session string) error {
+func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string) error {
 	_ = session
 	if len(mar) != 2 {
-		return protocolError(ctx, c, "Invalid number of arguments for N")
+		return reportError("Invalid number of arguments for N")
 	}
 	_courseID, err := strconv.ParseInt(mar[1], 10, strconv.IntSize)
 	if err != nil {
-		return protocolError(ctx, c, "Course ID must be an integer")
+		return reportError("Course ID must be an integer")
 	}
 	courseID := int(_courseID)
 	course := func() *courseT {
@@ -172,7 +172,7 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, mar []string,
 		courseID,
 	)
 	if err != nil {
-		return protocolError(ctx, c, "Database error while deleting course choice")
+		return reportError("Database error while deleting course choice")
 	}
 
 	if ct.RowsAffected() != 0 {
