@@ -27,7 +27,7 @@ for CCA registrations:
 * The web interface is extremely bloated and contains more than 10 megabytes of
   unnecessary JavaScript.
 * The main interface displays three CCA periods, and inside each CCA period you
-  can choose between Monsday/Wednesday and Tuesday/Thursday. That's a bit
+  can choose between Monday/Wednesday and Tuesday/Thursday. That's a bit
   unintuitive.
 * It seems to only support authentication by PowerSchool single sign-on, which
   is problematic because PowerSchool only supports a limited number of students
