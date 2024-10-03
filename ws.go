@@ -340,6 +340,13 @@ func handleConn(
 		}
 		cancelPool[userID] = &newCancel
 	}()
+	defer func() {
+		cancelPoolLock.Lock()
+		defer cancelPoolLock.Unlock()
+		if cancelPool[userID] == &newCancel {
+			delete(cancelPool, userID)
+		}
+	}()
 
 	send := make(chan string, config.Perf.SendQ)
 	func() {
