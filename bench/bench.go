@@ -83,7 +83,7 @@ func connect(cid int) {
 		panic(err)
 	}
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(30 * time.Second)
 
 	err = c.Close(websocket.StatusNormalClosure, "")
 	if err != nil {
@@ -93,7 +93,7 @@ func connect(cid int) {
 
 func main() {
 	var wg sync.WaitGroup
-	for i := range 1023 {
+	for i := range 30000 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
