@@ -1,11 +1,5 @@
 # YKPS CCA Selection System (WIP)
 
-[![Codeberg CI](https://ci.codeberg.org/api/badges/13763/status.svg)](https://ci.codeberg.org/repos/13763)
-[![GitHub CI](https://github.com/runxiyu/cca/actions/workflows/go.yml/badge.svg)](https://github.com/runxiyu/cca/actions/workflows/go.yml)
-
-**Note:** CI is actually currently disabled. I use pre-commit hooks to run all
-tests before committing.
-
 This is my internal assessment for the IB Diploma Programme's Computer Science
 (Higher Level) course. The `iadocs` directory contains documentation required
 by the IB, while the `docs` directory contains the documentation that I
