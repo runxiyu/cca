@@ -24,11 +24,9 @@ static true
 source https://git.sr.ht/~runxiyu/cca
 
 listen {
-	# Which protocol are we listening for? This may be set to "http" for
-	# plain HTTP, or "fcgi" for FastCGI. FastCGI is recommended for most
-	# purposes, and both nginx(8) and OpenBSD httpd(8) may easily be
-	# configured to serve FastCGI. However, if for any reason we need to
-	# run behind relayd(8) or another reverse proxy, http is available.
+	# Which protocol are we listening for? Currently only "http" is
+	# supported because it is difficult to configure FastCGI to work with
+	# WebSockets.
 	proto http
 
 	# Which network backend should we use? This is usually set to "tcp"

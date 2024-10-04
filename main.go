@@ -25,7 +25,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"net/http/fcgi"
 	"time"
 )
 
@@ -99,9 +98,8 @@ func main() {
 			ReadHeaderTimeout: time.Duration(config.Perf.ReadHeaderTimeout) * time.Second,
 		} //exhaustruct:ignore
 		err = srv.Serve(l)
-	} else if config.Listen.Proto == "fcgi" {
-		log.Println("Serving fcgi")
-		err = fcgi.Serve(l, nil)
+	} else {
+		log.Fatalln("Unsupported protocol")
 	}
 	if err != nil {
 		log.Fatal(err)
