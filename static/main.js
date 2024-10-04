@@ -17,7 +17,7 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-	const socket = new WebSocket("ws://localhost:5555/ws")
+	const socket = new WebSocket("wss://localhost.runxiyu.org:8080/ws")
 	socket.addEventListener("open", function() {
 		var _handleMessage = event => {
 			let msg = new String(event?.data)

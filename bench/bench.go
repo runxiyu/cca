@@ -32,7 +32,7 @@ func connect(cid int) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	c, r, err := websocket.Dial(ctx, "ws://localhost:5555/ws", nil)
+	c, r, err := websocket.Dial(ctx, "wss://localhost.runxiyu.org:8080/ws", nil)
 	if err != nil {
 		panic(err)
 	}
