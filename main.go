@@ -72,11 +72,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if config.Static {
-		log.Println("Registering static handle")
-		fs := http.FileServer(http.Dir("./static"))
-		http.Handle("/static/", http.StripPrefix("/static/", fs))
-	}
+	log.Println("Registering static handle")
+	fs := http.FileServer(http.Dir(config.Static))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	log.Println("Registering handlers")
 	http.HandleFunc("/{$}", handleIndex)

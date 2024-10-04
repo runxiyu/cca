@@ -40,7 +40,7 @@ var configWithPointers struct {
 	URL    *string `scfg:"url"`
 	Prod   *bool   `scfg:"prod"`
 	Tmpl   *string `scfg:"tmpl"`
-	Static *bool   `scfg:"static"`
+	Static *string `scfg:"static"`
 	Source *string `scfg:"source"`
 	Listen struct {
 		Proto *string `scfg:"proto"`
@@ -77,7 +77,7 @@ var config struct {
 	URL    string
 	Prod   bool
 	Tmpl   string
-	Static bool
+	Static string
 	Source string
 	Listen struct {
 		Proto string
