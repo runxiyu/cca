@@ -22,6 +22,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 
@@ -110,6 +111,11 @@ var config struct {
 	} `scfg:"perf"`
 }
 
+var (
+	errAuthFakeProd    = errors.New("auth.fake not allowed in production mode")
+	errAuthFakeInvalid = errors.New("invalid auth.fake value")
+)
+
 func fetchConfig(path string) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -141,12 +147,14 @@ func fetchConfig(path string) error {
 	} else {
 		config.Auth.Fake = *(configWithPointers.Auth.Fake)
 		switch config.Auth.Fake {
-		case 0, 4712, 9080: /* Don't use them unless you know what you're doing */
+		case 0:
+			/* It's okay to set it to 0 in production */
+		case 4712, 9080: /* Don't use them unless you know what you're doing */
 			if config.Prod {
-				panic("auth.fake not allowed in production mode")
+				return errAuthFakeProd
 			}
 		default:
-			panic("illegal auth.fake config option")
+			return errAuthFakeInvalid
 		}
 	}
 	config.Auth.Client = *(configWithPointers.Auth.Client)
