@@ -21,6 +21,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"html/template"
 	"log"
 	"net"
@@ -82,14 +83,39 @@ func main() {
 	http.HandleFunc("/auth", handleAuth)
 	http.HandleFunc("/ws", handleWs)
 
-	log.Printf(
-		"Establishing listener for net \"%s\", addr \"%s\"\n",
-		config.Listen.Net,
-		config.Listen.Addr,
-	)
-	l, err := net.Listen(config.Listen.Net, config.Listen.Addr)
-	if err != nil {
-		log.Fatal(err)
+	var l net.Listener
+
+	switch config.Listen.Trans {
+	case "plain":
+		log.Printf(
+			"Establishing plain listener for net \"%s\", addr \"%s\"\n",
+			config.Listen.Net,
+			config.Listen.Addr,
+		)
+		l, err = net.Listen(config.Listen.Net, config.Listen.Addr)
+		if err != nil {
+			log.Fatalf("Failed to establish plain listener: %v\n", err)
+		}
+	case "tls":
+		cer, err := tls.LoadX509KeyPair(config.Listen.TLS.Cert, config.Listen.TLS.Key)
+		if err != nil {
+			log.Fatalf("Failed to load TLS certificate and key: %v\n", err)
+		}
+		tlsconfig := &tls.Config{
+			Certificates: []tls.Certificate{cer},
+			MinVersion:   tls.VersionTLS13,
+		} //exhaustruct:ignore
+		log.Printf(
+			"Establishing TLS listener for net \"%s\", addr \"%s\"\n",
+			config.Listen.Net,
+			config.Listen.Addr,
+		)
+		l, err = tls.Listen(config.Listen.Net, config.Listen.Addr, tlsconfig)
+		if err != nil {
+			log.Fatalf("Failed to establish TLS listener: %v\n", err)
+		}
+	default:
+		log.Fatalln("listen.trans must be \"plain\" or \"tls\"")
 	}
 
 	if config.Listen.Proto == "http" {

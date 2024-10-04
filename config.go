@@ -46,6 +46,11 @@ var configWithPointers struct {
 		Proto *string `scfg:"proto"`
 		Net   *string `scfg:"net"`
 		Addr  *string `scfg:"addr"`
+		Trans *string `scfg:"trans"`
+		TLS   struct {
+			Cert *string `scfg:"cert"`
+			Key  *string `scfg:"key"`
+		} `scfg:"tls"`
 	} `scfg:"listen"`
 	DB struct {
 		Type *string `scfg:"type"`
@@ -78,6 +83,11 @@ var config struct {
 		Proto string
 		Net   string
 		Addr  string
+		Trans string
+		TLS   struct {
+			Cert string
+			Key  string
+		}
 	}
 	DB struct {
 		Type string
@@ -119,6 +129,11 @@ func fetchConfig(path string) error {
 	config.Listen.Proto = *(configWithPointers.Listen.Proto)
 	config.Listen.Net = *(configWithPointers.Listen.Net)
 	config.Listen.Addr = *(configWithPointers.Listen.Addr)
+	config.Listen.Trans = *(configWithPointers.Listen.Trans)
+	if config.Listen.Trans == "tls" {
+		config.Listen.TLS.Cert = *(configWithPointers.Listen.TLS.Cert)
+		config.Listen.TLS.Key = *(configWithPointers.Listen.TLS.Key)
+	}
 	config.DB.Type = *(configWithPointers.DB.Type)
 	config.DB.Conn = *(configWithPointers.DB.Conn)
 	if configWithPointers.Auth.Fake == nil {

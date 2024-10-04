@@ -37,6 +37,22 @@ listen {
 	# something like ":5555" for TCP on all interfaces, and a file path for
 	# UNIX domain sockets.
 	addr 127.0.0.1:5555
+
+	# Which transport should we use? Currently only "plain" and "tls" are
+	# supported.
+	trans plain
+
+	# If "trans" is set to "tls", this block must be configured:
+	tls {
+		# Where is the file containing the TLS certificate? You should
+		# use a certificate that includes the entire CA chain, which
+		# should usually be called "fullchain.pem" for certificates
+		# obtained from LE.
+		cert /etc/letsencrypt/live/cca.runxiyu.org/fullchain.pem
+
+		# Where is the file containing the TLS private key?
+		key /etc/letsencrypt/live/cca.runxiyu.org/privkey.pem
+	}
 }
 
 db {
