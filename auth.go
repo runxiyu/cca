@@ -37,7 +37,11 @@ import (
 
 var myKeyfunc keyfunc.Keyfunc
 
-var errInsufficientFields = errors.New("insufficient fields")
+var (
+	errInsufficientFields         = errors.New("insufficient fields")
+	errAccessTokenIncompleteError = errors.New("access token has unpopulated error fields")
+	errTokenEndpointReturnedError = errors.New("token endpoint returned error")
+)
 
 const tokenLength = 20
 
@@ -106,7 +110,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	if returnedError != "" {
 		returnedErrorDescription := req.PostFormValue("error_description")
 		if returnedErrorDescription == "" {
-			wstr(w, http.StatusBadRequest, returnedError)
+			wstr(w, http.StatusBadRequest, fmt.Sprintf("authorize endpoint returned error: %v", returnedErrorDescription))
 			return
 		}
 		wstr(w, http.StatusBadRequest, fmt.Sprintf(
@@ -163,7 +167,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 
 	accessToken, err := getAccessToken(req.Context(), authorizationCode)
 	if err != nil {
-		wstr(w, http.StatusInternalServerError, "Unable to fetch access token")
+		wstr(w, http.StatusInternalServerError, fmt.Sprintf("Unable to fetch access token: %v", err))
 		return
 	}
 
@@ -321,6 +325,9 @@ type accessTokenT struct {
 	OriginalExpiresIn *int `json:"expires_in"` /* Original time to expiration */
 	Expiration        time.Time
 	Content           *string `json:"access_token"`
+	Error             *string `json:"error"`
+	ErrorDescription  *string `json:"error_description"`
+	ErrorCodes        *[]int  `json:"error_codes"`
 }
 
 /*
@@ -352,8 +359,14 @@ func getAccessToken(ctx context.Context, authorizationCode string) (accessTokenT
 	if err != nil {
 		return accessToken, fmt.Errorf("error decoding access token: %w", err)
 	}
+	if accessToken.Error != nil || accessToken.ErrorCodes != nil || accessToken.ErrorDescription != nil {
+		if accessToken.Error == nil || accessToken.ErrorCodes == nil || accessToken.ErrorDescription == nil {
+			return accessToken, errAccessTokenIncompleteError
+		}
+		return accessToken, fmt.Errorf("%w: %v", errTokenEndpointReturnedError, *accessToken.ErrorDescription)
+	}
 	if accessToken.Content == nil || accessToken.OriginalExpiresIn == nil {
-		return accessToken, fmt.Errorf("error decoding access token: %w", errInsufficientFields)
+		return accessToken, fmt.Errorf("error extracting access token: %w", errInsufficientFields)
 	}
 	accessToken.Expiration = t.Add(time.Duration(*(accessToken.OriginalExpiresIn)) * time.Second)
 
