@@ -1,12 +1,3 @@
-INSERT INTO ctypes (name) VALUES('Enrichment');
-INSERT INTO ctypes (name) VALUES('Sport');
-INSERT INTO ctypes (name) VALUES('Culture');
-INSERT INTO cgroups (name) VALUES('MW1');
-INSERT INTO cgroups (name) VALUES('MW2');
-INSERT INTO cgroups (name) VALUES('MW3');
-INSERT INTO cgroups (name) VALUES('TT1');
-INSERT INTO cgroups (name) VALUES('TT2');
-INSERT INTO cgroups (name) VALUES('TT3');
 INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Floorball', 'Sport', 'MW1', 'Chen Xiaojia', 'Gym', 1000);
 INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Flag Football', 'Sport', 'MW2', 'Ding Zhaoyuan', 'Pitch', 1000);
 INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Chamber Music', 'Enrichment', 'TT1', '(?)', 'Music Rooms', 1000);

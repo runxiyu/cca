@@ -1,9 +1,3 @@
-CREATE TABLE ctypes (
-	name TEXT PRIMARY KEY NOT NULL
-);
-CREATE TABLE cgroups (
-	name TEXT PRIMARY KEY NOT NULL
-);
 CREATE TABLE courses (
 	id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	nmax INTEGER NOT NULL,
@@ -11,9 +5,7 @@ CREATE TABLE courses (
 	teacher TEXT NOT NULL,
 	location TEXT NOT NULL,
 	ctype TEXT NOT NULL,
-	FOREIGN KEY(ctype) REFERENCES ctypes(name),
-	cgroup TEXT NOT NULL,
-	FOREIGN KEY(cgroup) REFERENCES cgroups(name)
+	cgroup TEXT NOT NULL
 );
 CREATE TABLE users (
 	id TEXT PRIMARY KEY NOT NULL, -- should be UUID

@@ -22,11 +22,15 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 )
 
-type coursetypeT string
+type (
+	courseTypeT  string
+	courseGroupT string
+)
 
 type courseT struct {
 	ID           int
@@ -34,18 +38,41 @@ type courseT struct {
 	SelectedLock sync.RWMutex
 	Max          int
 	Title        string
-	Type         coursetypeT
+	Type         courseTypeT
+	Group        courseGroupT
 	Teacher      string
 	Location     string
 }
 
-/*
- * const (
- * 	sport      coursetypeT = "Sport"
- * 	enrichment coursetypeT = "Enrichment"
- * 	culture    coursetypeT = "Culture"
- * )
- */
+const (
+	sport      courseTypeT = "Sport"
+	enrichment courseTypeT = "Enrichment"
+	culture    courseTypeT = "Culture"
+)
+
+const (
+	mw1 courseGroupT = "MW1"
+	mw2 courseGroupT = "MW2"
+	mw3 courseGroupT = "MW3"
+	tt1 courseGroupT = "TT1"
+	tt2 courseGroupT = "TT2"
+	tt3 courseGroupT = "TT3"
+)
+
+/* TODO: This may be inefficient, perhaps use a hash table */
+
+func checkCourseType(ct courseTypeT) bool {
+	return ct == sport || ct == enrichment || ct == culture
+}
+
+func checkCourseGroup(cg courseGroupT) bool {
+	return cg == mw1 || cg == mw2 || cg == mw3 || cg == tt1 || cg == tt2 || cg == tt3
+}
+
+var (
+	errInvalidCourseType  = errors.New("invalid course type")
+	errInvalidCourseGroup = errors.New("invalid course group")
+)
 
 /*
  * The courses are simply stored in a map indexed by the course ID, although
@@ -79,7 +106,7 @@ func setupCourses() error {
 
 	rows, err := db.Query(
 		context.Background(),
-		"SELECT id, nmax, title, ctype, teacher, location FROM courses",
+		"SELECT id, nmax, title, ctype, cgroup, teacher, location FROM courses",
 	)
 	if err != nil {
 		return fmt.Errorf("error fetching courses: %w", err)
@@ -99,11 +126,18 @@ func setupCourses() error {
 			&currentCourse.Max,
 			&currentCourse.Title,
 			&currentCourse.Type,
+			&currentCourse.Group,
 			&currentCourse.Teacher,
 			&currentCourse.Location,
 		)
 		if err != nil {
 			return fmt.Errorf("error fetching courses: %w", err)
+		}
+		if !checkCourseType(currentCourse.Type) {
+			return fmt.Errorf("%w: %d %s", errInvalidCourseType, currentCourse.ID, currentCourse.Type)
+		}
+		if !checkCourseGroup(currentCourse.Group) {
+			return fmt.Errorf("%w: %d %s", errInvalidCourseGroup, currentCourse.ID, currentCourse.Group)
 		}
 		err := db.QueryRow(context.Background(),
 			"SELECT COUNT (*) FROM choices WHERE courseid = $1",
