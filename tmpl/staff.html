@@ -1,0 +1,149 @@
+{{- define "staff" -}}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>
+			{{ .user.Name }} &ndash; CCA Selection System
+		</title>
+		<link rel="stylesheet" href="/static/style.css" />
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="YK Pao School CCA Selection System" />
+	</head>
+	<body>
+		<div style="font-size: 150%; color: red; font-weight: bold;" class="broken-styling-warning">
+			The fact that you see this message means that the CSS styling information for this site is not loading correctly, and usability would be severely impacted. Check your network connection, and if this issue persists, you should contact the system administrator.
+		</div>
+		<header>
+			<div class="header-content">
+				<div class="header-left">
+					<h1><a id="site-title" href="/">CCASS Staff Page</a></h1>
+				</div>
+				<div class="header-middle">
+				</div>
+				<div class="header-right">
+					<p>{{- .user.Name }} ({{ .user.Department -}})</p>
+				</div>
+			</div>
+		</header>
+		<div class="reading-width" id="wip-notice">
+			<p>
+			This site is still a work in progress and may contain bugs! Please contact <a href="mailto:s22537@stu.ykpaoschool.cn">Runxi Yu</a> for any issues.
+			</p>
+		</div>
+		<div class="script-unavailable message-box">
+			<p>
+			JavaScript is required to use this page. One of the following conditions are present:
+			</p>
+			<ul>
+				<li>
+					The JavaScript hasn&rsquo;t finished loading.
+				</li>
+				<li>
+					JavaScript is not supported by your browser.
+				</li>
+				<li>
+					JavaScript is disabled/blocked.
+				</li>
+			</ul>
+			<p>
+			All JavaScript hosted on this site are licensed under the GNU Affero General Public License, version 3.0 or any later version.
+			</p>
+		</div>
+		<div class="script-required">
+			<div class="before-connection message-box">
+				<p>
+				Attempting to establish an WebSocket connection.
+				</p>
+				<p>
+				If this message does not disappear soon, it means that one of the following conditions are true:
+				</p>
+				<ul>
+					<li>
+						Your browser does not <a href="https://caniuse.com/websockets">support WebSocket</a>, or they are being blocked.
+					</li>
+					<li>
+						The server is overloaded or encountered an error.
+					</li>
+					<li>
+						The network is over-saturated, or you just have a bad network.
+					</li>
+				</ul>
+			</div>
+			<div class="broken-connection message-box">
+				<p>
+				Your WebSocket connection has been closed. This means that one of the following occurred:
+				</p>
+				<ul>
+					<li>
+						You logged in on another session.
+					</li>
+					<li>
+						The network is over-saturated and connections cannot be maintained.
+					</li>
+					<li>
+						There was an internal server error that closed your connection.
+					</li>
+					<li>
+						There was an error in the JavaScript running on your browser.
+					</li>
+				</ul>
+				<p>
+				If you believe that your networking is in good condition, you may wish to report this to the system administrator.
+				</p>
+				<p>
+				<a href="javascript:window.location.reload(true)" class="btn btn-primary">Reconnect</a>
+				<!-- TODO: Add a quicker reconnect -->
+				</p>
+			</div>
+			<div class="need-connection">
+				<div id="alreadyopen" class="reading-width">
+					<table id="table-of-courses">
+						<thead>
+							<tr>
+								<th scope="col"><abbr title="Used/Max"><i>n</i></abbr></th>
+								<th scope="col">Name</th>
+								<th scope="col">Type</th>
+								<th scope="col">Teacher</th>
+								<th scope="col">Location</th>
+							</tr>
+							<tr>
+								<th colspan="6" class="tdinput">
+									<input type="text" id="search" placeholder="Search..." />
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							{{- range .courses }}
+							<tr class="courseitem" id="course{{.ID}}">
+								<td><span id="selected{{.ID}}">{{.Selected}}</span>/<span id="max{{.ID}}">{{.Max}}</span></td>
+								<td>{{.Title}}</td>
+								<td id="type{{.ID}}">{{.Type}}</td>
+								<td>{{.Teacher}}</td>
+								<td>{{.Location}}</td>
+							</tr>
+							{{- end }}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<footer>
+			CCA Selection System, licensed under the GNU Affero General Public License, version 3.0 or any later version. Source code available at <a href="{{.source}}"><code>{{.source}}</code></a>.
+		</footer>
+		<script src="static/staff.js"></script>
+		<script>
+			document.addEventListener("DOMContentLoaded", () => {
+				const search = document.getElementById("search")
+				search.addEventListener("input", () => {
+					const s = search.value.toLowerCase().trim().normalize('NFD')
+					document.querySelectorAll(".courseitem").forEach(c => {
+						const m = c.textContent.toLowerCase().normalize('NFD').includes(s)
+						c.hidden = (!m) && (s.length > 0)
+					})
+				})
+			})
+		</script>
+	</body>
+</html>
+{{- end -}}
