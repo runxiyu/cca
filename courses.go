@@ -50,6 +50,12 @@ const (
 	culture    courseTypeT = "Culture"
 )
 
+var courseTypes = map[courseTypeT]bool{
+	sport:      true,
+	enrichment: true,
+	culture:    true,
+}
+
 const (
 	mw1 courseGroupT = "MW1"
 	mw2 courseGroupT = "MW2"
@@ -59,19 +65,27 @@ const (
 	tt3 courseGroupT = "TT3"
 )
 
-/* TODO: This may be inefficient, perhaps use a hash table */
+var courseGroups = map[courseGroupT]bool{
+	mw1: true,
+	mw2: true,
+	mw3: true,
+	tt1: true,
+	tt2: true,
+	tt3: true,
+}
 
 func checkCourseType(ct courseTypeT) bool {
-	return ct == sport || ct == enrichment || ct == culture
+	return courseTypes[ct]
 }
 
 func checkCourseGroup(cg courseGroupT) bool {
-	return cg == mw1 || cg == mw2 || cg == mw3 || cg == tt1 || cg == tt2 || cg == tt3
+	return courseGroups[cg]
 }
 
 var (
-	errInvalidCourseType  = errors.New("invalid course type")
-	errInvalidCourseGroup = errors.New("invalid course group")
+	errInvalidCourseType         = errors.New("invalid course type")
+	errInvalidCourseGroup        = errors.New("invalid course group")
+	errMultipleChoicesInOneGroup = errors.New("multiple choices per group per user")
 )
 
 /*
