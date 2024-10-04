@@ -62,7 +62,7 @@ func connect(cid int) {
 		defer func() {
 			if r := recover(); r != nil {
 				cancel()
-				// log.Printf("%d !R %v", cid, r)
+				log.Printf("%d !R %v", cid, r)
 			}
 		}()
 		for {
@@ -93,18 +93,18 @@ func connect(cid int) {
 
 func main() {
 	var wg sync.WaitGroup
-	for i := range 30000 {
+	for i := range 800 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			defer func() {
 				if r := recover(); r != nil {
-					// log.Printf("%d !M %v", i, r)
+					log.Printf("%d !M %v", i, r)
 				}
 			}()
 			connect(i)
 		}()
-		time.Sleep(500 * time.Microsecond)
+		time.Sleep(2 * time.Millisecond)
 	}
 	wg.Wait()
 }
