@@ -406,7 +406,10 @@ func handleConn(
 	 * in the courseGroup.
 	 */
 	var userCourseGroups userCourseGroupsT = make(map[courseGroupT]bool)
-	populateUserCourseGroups(newCtx, &userCourseGroups, userID)
+	err := populateUserCourseGroups(newCtx, &userCourseGroups, userID)
+	if err != nil {
+		return reportError(fmt.Sprintf("cannot populate user course groups: %v", err))
+	}
 
 	/*
 	 * Later we need to select from recv and send and perform the
