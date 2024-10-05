@@ -294,6 +294,15 @@ func propagateIgnoreFailures(msg string) {
 	}
 }
 
+func propagateSelectedUpdate(courseID int) {
+	course := courses[courseID]
+	course.UsemsLock.RLock()
+	defer course.UsemsLock.RUnlock()
+	for _, usem := range course.Usems {
+		usem.set()
+	}
+}
+
 /*
  * The actual logic in handling the connection, after authentication has been
  * completed.
@@ -352,13 +361,14 @@ func handleConn(
 		coursesLock.RLock()
 		defer coursesLock.RUnlock()
 		for courseID, course := range courses {
-			var usem usemT
+			usem := &usemT{}
+			usem.init()
 			func() {
 				course.UsemsLock.Lock()
 				defer course.UsemsLock.Unlock()
-				course.Usems[userID] = &usem
+				course.Usems[userID] = usem
 			}()
-			usems[courseID] = &usem
+			usems[courseID] = usem
 		}
 	}()
 	defer func() {
@@ -380,7 +390,7 @@ func handleConn(
 				select {
 				case <-newCtx.Done():
 					return
-				case <-usem.ch():
+				case <-usem.ch:
 					select {
 					case <-newCtx.Done():
 						return

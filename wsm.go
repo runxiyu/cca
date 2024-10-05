@@ -119,13 +119,13 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 			defer course.SelectedLock.Unlock()
 			if course.Selected < course.Max {
 				course.Selected++
-				go propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
 				return true
 			}
 			return false
 		}()
 
 		if ok {
+			go propagateSelectedUpdate(courseID)
 			err := tx.Commit(ctx)
 			if err != nil {
 				go course.decrementSelectedAndPropagate()

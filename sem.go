@@ -21,20 +21,16 @@
 package main
 
 type usemT struct {
-	_ch (chan struct{})
+	ch (chan struct{})
 }
 
 func (s *usemT) init() {
-	s._ch = make(chan struct{}, 1)
+	s.ch = make(chan struct{}, 1)
 }
 
 func (s *usemT) set() {
 	select {
-	case s._ch <- struct{}{}:
+	case s.ch <- struct{}{}:
 	default:
 	}
-}
-
-func (s *usemT) ch() (<- chan struct{}) {
-	return s._ch
 }

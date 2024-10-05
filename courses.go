@@ -225,10 +225,12 @@ func getCourseGroupFromCourseID(ctx context.Context, courseID int) (courseGroupT
 }
 
 func (course *courseT) decrementSelectedAndPropagate() {
-	course.SelectedLock.Lock()
-	defer course.SelectedLock.Unlock()
-	course.Selected--
-	propagateIgnoreFailures(fmt.Sprintf("M %d %d", course.ID, course.Selected))
+	func() {
+		course.SelectedLock.Lock()
+		defer course.SelectedLock.Unlock()
+		course.Selected--
+	}()
+	propagateSelectedUpdate(course.ID)
 }
 
 func getCourseByID(courseID int) *courseT {
