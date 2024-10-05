@@ -1,5 +1,5 @@
 /*
- * Primary WebSocket routines
+ * WebSocket connection routine
  *
  * Copyright (C) 2024  Runxi Yu <https://runxiyu.org>
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -18,255 +18,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
- * The message format is a WebSocket message separated with spaces.
- * The contents of each field could contain anything other than spaces,
- * The first character of each argument cannot be a colon. As an exception, the
- * last argument may contain spaces and the first character thereof may be a
- * colon, if the argument is prefixed with a colon. The colon used for the
- * prefix is not considered part of the content of the message. For example, in
- *
- *    SQUISH POP :cat purr!!
- *
- * the first field is "SQUISH", the second field is "POP", and the third
- * field is "cat purr!!".
- *
- * It is essentially an RFC 1459 IRC message without trailing CR-LF and
- * without prefixes. See section 2.3.1 of RFC 1459 for an approximate
- * BNF representation.
- *
- * The reason this was chosen instead of using protobuf etc. is that it
- * is simple to parse without external libraries, and it also happens to
- * be a format I'm very familiar with, having extensively worked with the
- * IRC protocol.
- */
-
 package main
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
-	"net/http"
 	"sync"
 	"time"
 
 	"github.com/coder/websocket"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 )
-
-func writeText(ctx context.Context, c *websocket.Conn, msg string) error {
-	err := c.Write(ctx, websocket.MessageText, []byte(msg))
-	if err != nil {
-		return fmt.Errorf("error writing to connection: %w", err)
-	}
-	return nil
-}
-
-/*
- * Handle requests to the WebSocket endpoint and establish a connection.
- * Authentication is handled here, but afterwards, the connection is really
- * handled in handleConn.
- */
-func handleWs(w http.ResponseWriter, req *http.Request) {
-	wsOptions := &websocket.AcceptOptions{
-		Subprotocols: []string{"cca1"},
-	} //exhaustruct:ignore
-	c, err := websocket.Accept(
-		w,
-		req,
-		wsOptions,
-	)
-	if err != nil {
-		wstr(w, http.StatusBadRequest, "This endpoint only supports valid WebSocket connections.")
-		return
-	}
-	defer func() {
-		_ = c.CloseNow()
-	}()
-
-	fake := false
-
-	sessionCookie, err := req.Cookie("session")
-	if errors.Is(err, http.ErrNoCookie) {
-		if config.Auth.Fake == 0 {
-			err := writeText(req.Context(), c, "U")
-			if err != nil {
-				log.Println(err)
-			}
-			return
-		}
-		fake = true
-	} else if err != nil {
-		err := writeText(req.Context(), c, "E :Error fetching cookie")
-		if err != nil {
-			log.Println(err)
-		}
-		return
-	}
-
-	var userID string
-	var session string
-	var expr int
-
-	if fake {
-		switch config.Auth.Fake {
-		case 9080:
-			_uuid, err := uuid.NewRandom()
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			userID = _uuid.String()
-		case 4712:
-			userID = "fake"
-		default:
-			panic("not supposed to happen")
-		}
-		session, err = randomString(20)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		_, err = db.Exec(
-			req.Context(),
-			"INSERT INTO users (id, name, email, department, session, expr) VALUES ($1, $2, $3, $4, $5, $6)",
-			userID,
-			"Fake User",
-			"fake@runxiyu.org",
-			"Y11",
-			session,
-			time.Now().Add(time.Duration(config.Auth.Expr)*time.Second).Unix(),
-		)
-		if err != nil && config.Auth.Fake != 4712 {
-			/* TODO check pgerr */
-			err := writeText(req.Context(), c, "E :Database error while writing fake account info")
-			if err != nil {
-				log.Println(err)
-			}
-			return
-		}
-		err = writeText(req.Context(), c, "FAKE "+userID+" "+session)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	} else {
-		session = sessionCookie.Value
-		err = db.QueryRow(
-			req.Context(),
-			"SELECT id, expr FROM users WHERE session = $1",
-			session,
-		).Scan(&userID, &expr)
-		if errors.Is(err, pgx.ErrNoRows) {
-			err := writeText(req.Context(), c, "U")
-			if err != nil {
-				log.Println(err)
-			}
-			return
-		} else if err != nil {
-			err := writeText(req.Context(), c, "E :Database error while selecting session")
-			if err != nil {
-				log.Println(err)
-			}
-			return
-		}
-	}
-
-	/*
-	 * Now that we have an authenticated request, this WebSocket connection
-	 * may be simply associated with the session and userID.
-	 * TODO: There are various race conditions that could occur if one user
-	 * creates multiple connections, with the same or different session
-	 * cookies. The last situation could occur in normal use when a user
-	 * opens multiple instances of the page in one browser, and is not
-	 * unique to custom clients or malicious users. Some effort must be
-	 * taken to ensure that each user may only have one connection at a
-	 * time.
-	 */
-	err = handleConn(
-		req.Context(),
-		c,
-		session,
-		userID,
-	)
-	if err != nil {
-		log.Printf("%v", err)
-		return
-	}
-}
-
-/*
- * Split an IRC-style message of type []byte into type []string where each
- * element is a complete argument. Generally, arguments are separated by
- * spaces, and an argument that begins with a ':' causes the rest of the
- * line to be treated as a single argument.
- */
-func splitMsg(b *[]byte) []string {
-	mar := make([]string, 0, config.Perf.MessageArgumentsCap)
-	elem := make([]byte, 0, config.Perf.MessageBytesCap)
-	for i, c := range *b {
-		switch c {
-		case ' ':
-			if (*b)[i+1] == ':' {
-				mar = append(mar, string(elem))
-				mar = append(mar, string((*b)[i+2:]))
-				goto endl
-			}
-			mar = append(mar, string(elem))
-			elem = make([]byte, 0, config.Perf.MessageBytesCap)
-		default:
-			elem = append(elem, c)
-		}
-	}
-	mar = append(mar, string(elem))
-endl:
-	return mar
-}
-
-func baseReportError(ctx context.Context, conn *websocket.Conn, e string) error {
-	err := writeText(ctx, conn, "E :"+e)
-	if err != nil {
-		return fmt.Errorf("error reporting protocol violation: %w", err)
-	}
-	err = conn.Close(websocket.StatusProtocolError, e)
-	if err != nil {
-		return fmt.Errorf("error closing websocket: %w", err)
-	}
-	return nil
-}
-
-type reportErrorT func(e string) error
-
-func makeReportError(ctx context.Context, conn *websocket.Conn) reportErrorT {
-	return func(e string) error {
-		return baseReportError(ctx, conn, e)
-	}
-}
 
 type errbytesT struct {
 	err   error
 	bytes *[]byte
-}
-
-var (
-	cancelPool = make(map[string](*context.CancelFunc))
-	/*
-	 * Normal Go maps are not thread safe, so we protect large cancelPool
-	 * operations such as addition and deletion under a RWMutex.
-	 */
-	cancelPoolLock sync.RWMutex
-)
-
-func propagateSelectedUpdate(courseID int) {
-	course := courses[courseID]
-	course.UsemsLock.RLock()
-	defer course.UsemsLock.RUnlock()
-	for _, usem := range course.Usems {
-		usem.set()
-	}
 }
 
 /*
@@ -489,3 +255,12 @@ func handleConn(
 		}
 	}
 }
+
+var (
+	cancelPool = make(map[string](*context.CancelFunc))
+	/*
+	 * Normal Go maps are not thread safe, so we protect large cancelPool
+	 * operations such as addition and deletion under a RWMutex.
+	 */
+	cancelPoolLock sync.RWMutex
+)
