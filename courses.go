@@ -33,7 +33,7 @@ type (
 )
 
 type courseT struct {
-	ID           int
+	ID int
 	/*
 	 * TODO: There will be a lot of lock contention over Selected. It is
 	 * probably more appropriate to directly use atomics.
