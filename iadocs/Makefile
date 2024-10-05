@@ -1,11 +1,13 @@
-# GNU Make is required because BSD Make has bad pattern matching
+.PHONY: iadocs
 
-.SUFFIXES: .tex .pdf
+iadocs: ../dist/iadocs/cover_page.htm ../dist/iadocs/crita_planning.pdf ../dist/iadocs/critb_design.pdf ../dist/iadocs/critb_recordoftasks.pdf ../dist/iadocs/critc_development.pdf ../dist/iadocs/critd_functionality.pdf ../dist/iadocs/crite_evaluation.pdf ../dist/iadocs/appendix.pdf
 
-.PHONY: all
+../dist/iadocs/%.htm: %.htm
+	mkdir -p ../dist/iadocs
+	cp $< $@
 
-all: crita_planning.pdf critb_design.pdf critb_recordoftasks.pdf critc_development.pdf critd_functionality.pdf crite_evaluation.pdf
-
-%.pdf: %.tex header.inc
+../dist/iadocs/%.pdf: %.tex header.inc
+	mkdir -p ../dist/iadocs
 	lualatex $<
 	lualatex $<
+	mv $$(basename $@) $@
