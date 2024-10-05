@@ -22,6 +22,7 @@ package main
 
 import (
 	"crypto/tls"
+	"flag"
 	"html/template"
 	"log"
 	"net"
@@ -34,7 +35,12 @@ var tmpl *template.Template
 func main() {
 	var err error
 
-	if err := fetchConfig("cca.scfg"); err != nil {
+	var configPath string
+
+	flag.StringVar(&configPath, "config", "cca.scfg", "path to configuration file")
+	flag.Parse()
+
+	if err := fetchConfig(configPath); err != nil {
 		log.Fatal(err)
 	}
 
