@@ -132,31 +132,16 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 		if ok {
 			err := tx.Commit(ctx)
 			if err != nil {
-				go func() { /* Separate goroutine because we don't need a response from this operation */
-					course.SelectedLock.Lock()
-					defer course.SelectedLock.Unlock()
-					course.Selected--
-					propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
-				}()
+				go course.decrementSelectedAndPropagate()
 				return reportError("Database error while committing transaction")
 			}
 			thisCourseGroup, err := getCourseGroupFromCourseID(ctx, courseID)
 			if err != nil {
-				go func() { /* Duplicate code, could turn into function */
-					course.SelectedLock.Lock()
-					defer course.SelectedLock.Unlock()
-					course.Selected--
-					propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
-				}()
+				go course.decrementSelectedAndPropagate()
 				return reportError("Database error while committing transaction")
 			}
 			if (*userCourseGroups)[thisCourseGroup] {
-				go func() { /* Duplicate code, could turn into function */
-					course.SelectedLock.Lock()
-					defer course.SelectedLock.Unlock()
-					course.Selected--
-					propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
-				}()
+				go course.decrementSelectedAndPropagate()
 				return reportError("inconsistent user course groups")
 			}
 			(*userCourseGroups)[thisCourseGroup] = true
@@ -216,12 +201,7 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError r
 	}
 
 	if ct.RowsAffected() != 0 {
-		go func() { /* Separate goroutine because we don't need a response from this operation */
-			course.SelectedLock.Lock()
-			defer course.SelectedLock.Unlock()
-			course.Selected--
-			propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
-		}()
+		go course.decrementSelectedAndPropagate()
 		thisCourseGroup, err := getCourseGroupFromCourseID(ctx, courseID)
 		if err != nil {
 			return reportError("error unsetting course group flag")

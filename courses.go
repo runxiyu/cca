@@ -34,6 +34,10 @@ type (
 
 type courseT struct {
 	ID           int
+	/*
+	 * TODO: There will be a lot of lock contention over Selected. It is
+	 * probably more appropriate to directly use atomics.
+	 */
 	Selected     int
 	SelectedLock sync.RWMutex
 	Max          int
@@ -209,4 +213,11 @@ func getCourseGroupFromCourseID(ctx context.Context, courseID int) (courseGroupT
 		return ret, fmt.Errorf("error querying group of course: %w", err)
 	}
 	return ret, nil
+}
+
+func (course *courseT) decrementSelectedAndPropagate() {
+	course.SelectedLock.Lock()
+	defer course.SelectedLock.Unlock()
+	course.Selected--
+	propagateIgnoreFailures(fmt.Sprintf("M %d %d", course.ID, course.Selected))
 }
