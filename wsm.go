@@ -63,7 +63,7 @@ func messageHello(ctx context.Context, c *websocket.Conn, reportError reportErro
 	return nil
 }
 
-func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string) error {
+func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string, userCourseGroups *userCourseGroupsT) error {
 	_ = session
 
 	select {
@@ -140,6 +140,26 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 				}()
 				return reportError("Database error while committing transaction")
 			}
+			thisCourseGroup, err := getCourseGroupFromCourseID(ctx, courseID)
+			if err != nil {
+				go func() { /* Duplicate code, could turn into function */
+					course.SelectedLock.Lock()
+					defer course.SelectedLock.Unlock()
+					course.Selected--
+					propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
+				}()
+				return reportError("Database error while committing transaction")
+			}
+			if (*userCourseGroups)[thisCourseGroup] {
+				go func() { /* Duplicate code, could turn into function */
+					course.SelectedLock.Lock()
+					defer course.SelectedLock.Unlock()
+					course.Selected--
+					propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
+				}()
+				return reportError("inconsistent user course groups")
+			}
+			(*userCourseGroups)[thisCourseGroup] = true
 			err = writeText(ctx, c, "Y "+mar[1])
 			if err != nil {
 				return fmt.Errorf("error affirming course choice: %w", err)
@@ -162,7 +182,7 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 	return nil
 }
 
-func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string) error {
+func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string, userCourseGroups *userCourseGroupsT) error {
 	_ = session
 
 	select {
@@ -202,6 +222,14 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError r
 			course.Selected--
 			propagateIgnoreFailures(fmt.Sprintf("M %d %d", courseID, course.Selected))
 		}()
+		thisCourseGroup, err := getCourseGroupFromCourseID(ctx, courseID)
+		if err != nil {
+			return reportError("error unsetting course group flag")
+		}
+		if (*userCourseGroups)[thisCourseGroup] == false {
+			return reportError("inconsistent user course groups")
+		}
+		(*userCourseGroups)[thisCourseGroup] = false
 	}
 
 	err = writeText(ctx, c, "N "+mar[1])

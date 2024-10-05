@@ -166,7 +166,9 @@ func setupCourses() error {
 	return nil
 }
 
-func populateUserCourseGroups(ctx context.Context, userCourseGroups *map[courseGroupT]bool, userID string) error {
+type userCourseGroupsT map[courseGroupT]bool
+
+func populateUserCourseGroups(ctx context.Context, userCourseGroups *userCourseGroupsT, userID string) error {
 	rows, err := db.Query(ctx, "SELECT courseid FROM choices WHERE userid = $1", userID)
 	if err != nil {
 		return fmt.Errorf("error querying user's choices while populating course groups: %w", err)
@@ -184,13 +186,9 @@ func populateUserCourseGroups(ctx context.Context, userCourseGroups *map[courseG
 		if err != nil {
 			return fmt.Errorf("error fetching user's choices while populating course groups: %w", err)
 		}
-		var thisGroupName courseGroupT
-		err = db.QueryRow(ctx,
-			"SELECT cgroup FROM courses WHERE id = $1",
-			thisCourseID,
-		).Scan(&thisGroupName)
+		thisGroupName, err := getCourseGroupFromCourseID(ctx, thisCourseID)
 		if err != nil {
-			return fmt.Errorf("error querying group of course: %w", err)
+			return fmt.Errorf("error while populating course groups: %w", err)
 		}
 		if (*userCourseGroups)[thisGroupName] {
 			return fmt.Errorf("%w: user %v, group %v", errMultipleChoicesInOneGroup, userID, thisGroupName)
@@ -198,4 +196,17 @@ func populateUserCourseGroups(ctx context.Context, userCourseGroups *map[courseG
 		(*userCourseGroups)[thisGroupName] = true
 	}
 	return nil
+}
+
+func getCourseGroupFromCourseID(ctx context.Context, courseID int) (courseGroupT, error) {
+	var ret courseGroupT
+	err := db.QueryRow(
+		ctx,
+		"SELECT cgroup FROM courses WHERE id = $1",
+		courseID,
+	).Scan(&ret)
+	if err != nil {
+		return ret, fmt.Errorf("error querying group of course: %w", err)
+	}
+	return ret, nil
 }

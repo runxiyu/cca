@@ -381,7 +381,7 @@ func handleConn(
 	 * userCourseGroups stores whether the user has already chosen a course
 	 * in the courseGroup.
 	 */
-	userCourseGroups := make(map[courseGroupT]bool)
+	var userCourseGroups userCourseGroupsT = make(map[courseGroupT]bool)
 	populateUserCourseGroups(newCtx, &userCourseGroups, userID)
 	/*
 	 * TODO: No more HELLO command needed? Or otherwise integrate the two.
@@ -490,12 +490,12 @@ func handleConn(
 					return err
 				}
 			case "Y":
-				err := messageChooseCourse(newCtx, c, reportError, mar, userID, session)
+				err := messageChooseCourse(newCtx, c, reportError, mar, userID, session, &userCourseGroups)
 				if err != nil {
 					return err
 				}
 			case "N":
-				err := messageUnchooseCourse(newCtx, c, reportError, mar, userID, session)
+				err := messageUnchooseCourse(newCtx, c, reportError, mar, userID, session, &userCourseGroups)
 				if err != nil {
 					return err
 				}
