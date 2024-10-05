@@ -382,38 +382,7 @@ func handleConn(
 	 * in the courseGroup.
 	 */
 	userCourseGroups := make(map[courseGroupT]bool)
-	userCourseGroups[mw1] = true // TODO
-	rows, err := db.Query(newCtx, "SELECT courseid FROM choices WHERE userid = $1", userID)
-	if err != nil {
-		return reportError(fmt.Sprintf("cannot select choices: %v", err))
-	}
-	for {
-		if !rows.Next() {
-			err := rows.Err()
-			if err != nil {
-				return fmt.Errorf("error iterating choices: %w", err)
-			}
-			break
-		}
-		var thisCourseID int
-		err := rows.Scan(&thisCourseID)
-		if err != nil {
-			return fmt.Errorf("error fetching choices: %w", err)
-		}
-		var thisGroupName courseGroupT
-		err = db.QueryRow(newCtx,
-			"SELECT cgroup FROM courses WHERE id = $1",
-			thisCourseID,
-		).Scan(&thisGroupName)
-		if err != nil {
-			return fmt.Errorf("error querying group of course: %w", err)
-		}
-		if userCourseGroups[thisGroupName] {
-			return fmt.Errorf("%w: user %v, group %v", errMultipleChoicesInOneGroup, userID, thisGroupName)
-		}
-		userCourseGroups[thisGroupName] = true
-	}
-
+	populateUserCourseGroups(newCtx, &userCourseGroups, userID)
 	/*
 	 * TODO: No more HELLO command needed? Or otherwise integrate the two.
 	 * In any case, the database work is being duplicated. Probably move
