@@ -42,12 +42,6 @@ func connect(cid int) {
 			panic(err)
 		}
 	}()
-	defer func() {
-		err := r.Body.Close()
-		if err != nil {
-			panic(err)
-		}
-	}()
 
 	if r.StatusCode != http.StatusSwitchingProtocols {
 		panic(errUnexpectedStatusCode)
