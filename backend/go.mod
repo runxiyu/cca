@@ -1,4 +1,4 @@
-module git.sr.ht/~runxiyu/cca
+module git.sr.ht/~runxiyu/cca/backend
 
 go 1.23.1
 
