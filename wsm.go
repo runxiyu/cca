@@ -80,11 +80,7 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 		return reportError("Course ID must be an integer")
 	}
 	courseID := int(_courseID)
-	course := func() *courseT {
-		coursesLock.RLock()
-		defer coursesLock.RUnlock()
-		return courses[courseID]
-	}()
+	course := getCourseByID(courseID)
 
 	err = func() (returnedError error) { /* Named returns so I could modify them in defer */
 		tx, err := db.Begin(ctx)
@@ -184,11 +180,7 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError r
 		return reportError("Course ID must be an integer")
 	}
 	courseID := int(_courseID)
-	course := func() *courseT {
-		coursesLock.RLock()
-		defer coursesLock.RUnlock()
-		return courses[courseID]
-	}()
+	course := getCourseByID(courseID)
 
 	ct, err := db.Exec(
 		ctx,

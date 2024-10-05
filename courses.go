@@ -221,3 +221,9 @@ func (course *courseT) decrementSelectedAndPropagate() {
 	course.Selected--
 	propagateIgnoreFailures(fmt.Sprintf("M %d %d", course.ID, course.Selected))
 }
+
+func getCourseByID(courseID int) *courseT {
+	coursesLock.RLock()
+	defer coursesLock.RUnlock()
+	return courses[courseID]
+}
