@@ -135,11 +135,12 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 				go course.decrementSelectedAndPropagate()
 				return reportError("Database error while committing transaction")
 			}
-			thisCourseGroup, err := getCourseGroupFromCourseID(ctx, courseID)
-			if err != nil {
-				go course.decrementSelectedAndPropagate()
-				return reportError("Database error while committing transaction")
-			}
+			var thisCourseGroup courseGroupT
+			func() {
+				coursesLock.RLock()
+				defer coursesLock.RUnlock()
+				thisCourseGroup = courses[courseID].Group
+			}()
 			if (*userCourseGroups)[thisCourseGroup] {
 				go course.decrementSelectedAndPropagate()
 				return reportError("inconsistent user course groups")
@@ -202,10 +203,12 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError r
 
 	if ct.RowsAffected() != 0 {
 		go course.decrementSelectedAndPropagate()
-		thisCourseGroup, err := getCourseGroupFromCourseID(ctx, courseID)
-		if err != nil {
-			return reportError("error unsetting course group flag")
-		}
+		var thisCourseGroup courseGroupT
+		func() {
+			coursesLock.RLock()
+			defer coursesLock.RUnlock()
+			thisCourseGroup = courses[courseID].Group
+		}()
 		if !(*userCourseGroups)[thisCourseGroup] {
 			return reportError("inconsistent user course groups")
 		}

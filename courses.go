@@ -199,29 +199,18 @@ func populateUserCourseGroups(ctx context.Context, userCourseGroups *userCourseG
 		if err != nil {
 			return fmt.Errorf("error fetching user's choices while populating course groups: %w", err)
 		}
-		thisGroupName, err := getCourseGroupFromCourseID(ctx, thisCourseID)
-		if err != nil {
-			return fmt.Errorf("error while populating course groups: %w", err)
-		}
+		var thisGroupName courseGroupT
+		func() {
+			coursesLock.RLock()
+			defer coursesLock.RUnlock()
+			thisGroupName = courses[thisCourseID].Group
+		}()
 		if (*userCourseGroups)[thisGroupName] {
 			return fmt.Errorf("%w: user %v, group %v", errMultipleChoicesInOneGroup, userID, thisGroupName)
 		}
 		(*userCourseGroups)[thisGroupName] = true
 	}
 	return nil
-}
-
-func getCourseGroupFromCourseID(ctx context.Context, courseID int) (courseGroupT, error) {
-	var ret courseGroupT
-	err := db.QueryRow(
-		ctx,
-		"SELECT cgroup FROM courses WHERE id = $1",
-		courseID,
-	).Scan(&ret)
-	if err != nil {
-		return ret, fmt.Errorf("error querying group of course: %w", err)
-	}
-	return ret, nil
 }
 
 func (course *courseT) decrementSelectedAndPropagate() {
