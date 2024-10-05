@@ -68,9 +68,10 @@ var configWithPointers struct {
 		Expr      *int    `scfg:"expr"`
 	} `scfg:"auth"`
 	Perf struct {
-		MessageArgumentsCap *int `scfg:"msg_args_cap"`
-		MessageBytesCap     *int `scfg:"msg_bytes_cap"`
-		ReadHeaderTimeout   *int `scfg:"read_header_timeout"`
+		MessageArgumentsCap  *int `scfg:"msg_args_cap"`
+		MessageBytesCap      *int `scfg:"msg_bytes_cap"`
+		ReadHeaderTimeout    *int `scfg:"read_header_timeout"`
+		CourseUpdateInterval *int `scfg:"course_update_interval"`
 	} `scfg:"perf"`
 }
 
@@ -104,9 +105,10 @@ var config struct {
 		Expr      int
 	}
 	Perf struct {
-		MessageArgumentsCap int
-		MessageBytesCap     int
-		ReadHeaderTimeout   int
+		MessageArgumentsCap  int
+		MessageBytesCap      int
+		ReadHeaderTimeout    int
+		CourseUpdateInterval int
 	} `scfg:"perf"`
 }
 
@@ -166,6 +168,7 @@ func fetchConfig(path string) error {
 	config.Perf.MessageArgumentsCap = *(configWithPointers.Perf.MessageArgumentsCap)
 	config.Perf.MessageBytesCap = *(configWithPointers.Perf.MessageBytesCap)
 	config.Perf.ReadHeaderTimeout = *(configWithPointers.Perf.ReadHeaderTimeout)
+	config.Perf.CourseUpdateInterval = *(configWithPointers.Perf.CourseUpdateInterval)
 
 	return nil
 }

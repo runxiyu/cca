@@ -351,6 +351,7 @@ func handleConn(
 					case usemParent <- courseID:
 					}
 				}
+				time.Sleep(time.Duration(config.Perf.CourseUpdateInterval) * time.Millisecond)
 			}
 		}()
 	}

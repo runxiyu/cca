@@ -96,4 +96,8 @@ perf {
 	# time out? Note that a large value may cause the server to be
 	# vulnerable to Slow Loris attacks.
 	read_header_timeout 5
+
+	# How long, in milliseconds, do we wait before propagating course
+	# number update events for conjunction between course and user?
+	course_update_interval 200
 }
