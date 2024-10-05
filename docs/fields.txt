@@ -11,6 +11,7 @@ as that needs to be imported into PowerSchool. The sample provided by the CCA
 department includes the following needed fields (the others are not needed):
 
     Student Last Name (e.g. "YU")
+
     Student First Name (e.g. "Runxi (Runxi 于润熙)")
     SIS/MIS ID2 (the student number without a preceding "s")
     Grade/Year (a two-digit integer)

@@ -1,56 +1,135 @@
-\documentclass{scrartcl}
+\input{header.inc}
 
-\subject{IBDP Computer Science Internal Assessment}
 \title{Criterion A: Planning}
-\author{Runxi Yu}
-\date{\today}
-
-\usepackage{tgtermes}
-\usepackage{tgheros}
-\usepackage{microtype}
 
 \begin{document}
 \maketitle
 
-\section{Problems with the existing system}
+\section{The scenario}
 
-There are various issues with Schoolsbuddy, the current system our school uses
-for CCA registrations:
+My school offers co-curricular activities (CCAs) to students after academic
+periods from Monday to Thursday. Most of those activities are relatively
+limited in space, and my campus has approximately 586 students across 4 year
+groups.
+
+Before I joined the school, the CCA department has already been using
+\href{https://www.schoolsbuddy.com}{SchoolsBuddy} as a CCA selection interface
+for students. However, SchoolsBuddy has the following problems when used at the
+scale and to the requirements of our school:
 
 \begin{itemize}
-	\item There are various race conditions and locking issues that occur when too many
-		students use the system at the same time. Course member caps are enforced by
-		kicking random users out of the system while over-filling some courses,
-		instead of having the course choice fail gracefully. The number of remaining
-		seats in each course is also not updated live.
-	\item If a lot of people are trying to load the Schoolsbuddy page, it takes ages.
-	\item The web interface is extremely bloated and contains more than 10 megabytes of
-		unnecessary JavaScript.
-	\item The main interface displays three CCA periods, and inside each CCA period you
-		can choose between Monday/Wednesday and Tuesday/Thursday. That's a bit
-		unintuitive.
-	\item It seems to only support authentication by PowerSchool single sign-on, which
-		is problematic because PowerSchool only supports a limited number of students
-		logging on at the same time.
-	\item The selection system does not enforce CCA hours requirements, and the CCA
-		office's staff must manually verify that students have completed CCA choices
-		to the year group's requirements, by literally printing out the spreadsheet
-		to paper and reading through them.
-	\item The school has to pay Schoolsbuddy a subscription fee, while something as
-		simple as CCA selection could be easily accomplished on cheap hardware and
-		minimal software.
+	\item When too many students attempt to choose one course at a time,
+		most of their attempts would be confirmed and recorded in the
+		database, and the CCA department staff must notice them
+		after-the-fact that their attempt at choosing a course was
+		unsuccessful. At that point, there would be much fewer other
+		CCAs with available places too, leaving the student with
+		insufficient choices---after they have been told by the system
+		that their place has already been confirmed.
+	\item The only way to sign in to SchoolsBuddy, at least for our school's
+		configuration, is to log on to PowerSchool and click the
+		SchoolsBuddy Single Sign-on link. This generally works well,
+		except for the fact that PowerSchool only allows approximately
+		300 simultaneous sessions, which means that there would be
+		approximately 200 students unable to choose CCAs on
+		SchoolsBuddy.
+	\item Even after logging in, the SchoolsBuddy web page is extremely
+		bloated. It takes 16.5 MiB to get completely load the
+		SchoolsBuddy home page,	and an additional 8 MiB per additional
+		page. This takes about 8 seconds on a relatively good connection
+		without congestion. But when CCA selection starts and everyone
+		is trying to use student WiFi to log on at the same time,
+		loading each page could take well more than a minute.
+	\item Some parts of the interface is unintuitive to students. We have
+		6 CCA slots: MW1, MW2, MW3, TT1, TT2, and TT3, which basically
+		mean ``CCA Period $n$''.
+	\item The selection system does not enforce CCA hours requirements, and
+		the CCA office's staff must manually verify that students have
+		completed CCA choices to the year group's requirements, by
+		literally printing out the spreadsheet to paper and reading
+		through them.
+	\item The school has to pay SchoolsBuddy an expensive subscription fee.
 \end{itemize}
 
-\section{Key questions}
+I am developing this project to replace this legacy system and to improve the
+user experience for both the CCA department and individual students.
+
+\section{Rationale for the proposed solution}
+
+I have consulted with the school's IT department and confirmed that, with the
+approval of appropriate faculty such as the Head of Co-curricular Activities,
+the IT can provision a virtual machine on the school's LAN, running a suitable
+server operating system such as Alpine Linux or Debian, to run the solution
+that I develop. I am also capable of running the solution on my own hardware in
+my dorm if necessary for beta and acceptance testing.
+
+I am relatively experienced in developing low-latency network applications such
+as IRC software, and I am comfortable reading specifications of network
+protocols on various layers of the OSI model. I am somewhat familiar with
+developing web applications in the context of our school's environment, and I
+have previously developed a library for web services written in
+\href{https://go.dev}{Go} to interface with our school's Microsoft Entra ID
+system for authentication (previously known as Azure Active Directory).
+
+The program does not need input data during the development process. During
+production, all data is automatically retreived from Microsoft Entra ID and the
+Microsoft Graph API via delegated access once a student has logged in via OAuth
+2.0; in practice, this data includes the year group (grade level), name,
+student number, and email address, all of which are publicly available to any
+student via the Microsoft Entra ID portal.
+
+There are no special security considerations other than various standard ones
+present when working with web applications. Care must be taken not to leak
+client secrets used in the OAuth 2.0 authorization code flow, although leakage
+thereof is considered inconsequential as an authorization code would be
+required anyway. Cookies must be protected against cross-origin request forgery
+and should have \texttt{httponly} and \texttt{secure} flags. It should be made
+impossible for a student to spoof another student's course choices, provided
+that the victim's school login credentials haven't been already leaked.
+
+\section{Success criteria}
+
+The product shall present to students and administrators an accessible and
+easy-to-use web interface for choosing and managing CCAs. It shall address each
+of the issues of SchoolsBuddy as presented above.
 
 \begin{itemize}
-	\item How does the CCA staff enter available courses, teacher information, member
-		caps, and timing information into the system? Would it be okay if I just
-		accept a CSV spreadsheet?   
-		Apparently they use the Schoolsbuddy web page to do so. I'd add a CSV upload
-		as that would be more convenient for most purposes.
-	\item How do they get student choices out of the system and into PowerSchool?   
-		It looks like they export an Excel sheet. See \texttt{docs/fields.txt}.
+	\item When too many students attempt to choose one course at a time,
+		their attempts are sequentially processed, and those that
+		exceed the CCA's member limit are properly rejected.
+	\item It should be possible to log in via Microsoft Entra ID.
+	\item The web page must be lightweight. The login page shall be
+		preferrably no more than 15 KiB. The course selection page
+		shall be preferrably no more than 50 KiB.
+		If a compressing content encoding such as \texttt{gzip} or
+		\texttt{deflate} is used, the values above refer to the size of
+		resources after decompression. If minification is used, the
+		values above refer to the size of resources after minification.
+		The experience should be fast and it should not take excessive
+		resources on the host server.
+	\item The course selection categories shall be relatively intuitive.
+		Students may choose from a table of dropdown choices, where
+		there is one dropdown per CCA slot; or they may choose from a
+		set of tables, where one table represents all CCAs in one
+		CCA slot.
+	\item The selection system must enforce CCA hours requirements.
+	\item The selection system must be able to take a CSV of CCAs with
+		fields such as period, location, teacher, and member cap. It
+		must then be able to populate its own CCAs table that it
+		presents to the students with information in the CSV.
+	\item The selection system must be able to export student choices as a
+		CSV containing the following fields:
+		\begin{itemize}
+			\item Student name
+			\item Numeric student ID
+			\item Student year group (grade level)
+			\item CCA name
+			\item CCA period
+		\end{itemize}
+		These may then be used to trivially import choices to
+		PowerSchool. It would be best if the PowerSchool API could be
+		directly accessed to insert the courses, but the API is not
+		publicly documented.
 \end{itemize}
 
 \end{document}

@@ -1,9 +1,11 @@
+# GNU Make is required because BSD Make has bad pattern matching
+
 .SUFFIXES: .tex .pdf
 
 .PHONY: all
 
-all: appendix.pdf crita_planning.pdf critb_design.pdf critb_recordoftasks.pdf critc_development.pdf critd_functionality.pdf crite_evaluation.pdf
+all: crita_planning.pdf critb_design.pdf critb_recordoftasks.pdf critc_development.pdf critd_functionality.pdf crite_evaluation.pdf
 
-.tex.pdf:
-	pdflatex $<
-	pdflatex $<
+%.pdf: %.tex header.inc
+	lualatex $<
+	lualatex $<
