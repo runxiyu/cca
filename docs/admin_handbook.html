@@ -44,9 +44,18 @@
 				<li>CCASS natively supports serving over clear text HTTP or over HTTPS. HTTPS is required for production setups as Microsoft Entra ID does not allow clear-text HTTP redirect URLs for non-<code>localhost</code> access.</li>
 				<li>Note that CCASS is designed to be directly exposed to clients due to the lacking performance of standard reverse proxy setups, although there is nothing that otherwise prevents it from being used behind a reverse proxy. Reverse proxies must forward WebSocket connection upgrade headers for all requests to the <code>/ws</code> endpoint.</li>
 				<li>You must <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade">create an app registration on the Azure portal</a> and complete the corresponding configuration options.</li>
-				<li>You must configure a <a href="https://www.postgresql.org/">PostgreSQL</a> instance and configure CCASS accordingly.</li>
 				<li><code>perf/sendq</code> should be set to roughly the number of expected students making concurrent choices.</li>
 			</ul>
+			<h2>Database setup</h2>
+			<p>
+			A working PostgreSQL setup is required. It is recommended to set up UNIX socket authentication and set the user running CCASS as the database owner while creating the database.
+			</p>
+			<p>
+			Before first run, run <code>psql <i>dbname</i> -f sql/schema.sql</code> to create the database tables, where <code><i>dbname</i></code> is the name of the database.
+			</p>
+			<p>
+			Using the same database for different versions of CCASS is currently unsupported, although it should be trivial to manually migrate the database.
+			</p>
 		</main>
 	</body>
 </html>
