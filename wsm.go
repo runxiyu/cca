@@ -82,6 +82,10 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 	courseID := int(_courseID)
 	course := getCourseByID(courseID)
 
+	if course == nil {
+		return reportError("nil course")
+	}
+
 	err = func() (returnedError error) { /* Named returns so I could modify them in defer */
 		tx, err := db.Begin(ctx)
 		if err != nil {
@@ -181,6 +185,10 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError r
 	}
 	courseID := int(_courseID)
 	course := getCourseByID(courseID)
+
+	if course == nil {
+		return reportError("nil course")
+	}
 
 	ct, err := db.Exec(
 		ctx,
