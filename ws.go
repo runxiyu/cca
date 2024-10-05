@@ -264,28 +264,13 @@ var (
 	/*
 	 * Note that the key for cancelPool is a userID rather than a sessionID
 	 */
-	cancelPool map[string](*context.CancelFunc)
+	cancelPool = make(map[string](*context.CancelFunc))
 	/*
 	 * Normal Go maps are not thread safe, so we protect large cancelPool
 	 * operations such as addition and deletion under a RWMutex.
 	 */
 	cancelPoolLock sync.RWMutex
 )
-
-func setupCancelPool() error {
-	/*
-	 * It would be unusual for this function to run concurrently with
-	 * anything else that modifies cancelPool, so we fail when the lock is
-	 * unsuccessful.
-	 */
-	r := cancelPoolLock.TryLock()
-	if !r {
-		return fmt.Errorf("cannot set up cancelPool: %w", errUnexpectedRace)
-	}
-	defer cancelPoolLock.Unlock()
-	cancelPool = make(map[string](*context.CancelFunc))
-	return nil
-}
 
 /*
  * Only call this when it is okay for propagation to fail, such as in course

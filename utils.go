@@ -23,13 +23,10 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
 )
-
-var errUnexpectedRace = errors.New("unexpected race condition")
 
 /*
  * Write a string to a http.ResponseWriter, setting the Content-Type and status

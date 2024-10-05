@@ -60,12 +60,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println("Setting up context cancellation connection pool")
-	err = setupCancelPool()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	log.Println("Registering static handle")
 	fs := http.FileServer(http.Dir(config.Static))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
