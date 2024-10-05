@@ -261,9 +261,6 @@ var (
 )
 
 var (
-	/*
-	 * Note that the key for cancelPool is a userID rather than a sessionID
-	 */
 	cancelPool = make(map[string](*context.CancelFunc))
 	/*
 	 * Normal Go maps are not thread safe, so we protect large cancelPool
@@ -339,12 +336,12 @@ func handleConn(
 	func() {
 		chanPoolLock.Lock()
 		defer chanPoolLock.Unlock()
-		chanPool[session] = &send
+		chanPool[userID] = &send
 	}()
 	defer func() {
 		chanPoolLock.Lock()
 		defer chanPoolLock.Unlock()
-		delete(chanPool, session)
+		delete(chanPool, userID)
 	}()
 
 	/*
