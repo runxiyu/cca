@@ -24,6 +24,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 
 	"git.sr.ht/~emersion/go-scfg"
@@ -153,6 +154,7 @@ func fetchConfig(path string) error {
 			if config.Prod {
 				return errAuthFakeProd
 			}
+			log.Println("!!! WARNING: Fake authentication is enabled. Any WebSocket connection would have a fake account. This is a HUGE security hole. You should only use this while benchmarking.")
 		default:
 			return errAuthFakeInvalid
 		}
