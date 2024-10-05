@@ -17,7 +17,7 @@ import (
 var (
 	errUnexpectedStatusCode = errors.New("unexpected status code")
 	courses                 = big.NewInt(5)
-	globalLock sync.RWMutex
+	globalLock              sync.RWMutex
 )
 
 func w(ctx context.Context, c *websocket.Conn, m string, cid int) error {
@@ -114,7 +114,7 @@ func main() {
 	}
 	for i := range 10 {
 		time.Sleep(1 * time.Second)
-		log.Printf("waiting %d before trigger", 10 - i)
+		log.Printf("waiting %d before trigger", 10-i)
 	}
 	globalLock.Unlock()
 	wg.Wait()
