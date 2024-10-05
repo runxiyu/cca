@@ -1,2 +1,3 @@
-cca: *.go
-	go build -o cca
+../dist/cca: *.go
+	mkdir -p ../dist
+	go build -o ../dist/cca

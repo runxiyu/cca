@@ -27,12 +27,15 @@
 			</ul>
 			<h2>Building</h2>
 			<p>
-			There is a <code>Makefile</code> in the <code>backend</code> directory that builds the backend. This is all the compilation necessary at the moment; in the future, the frontend code such as the CSS and JavaScript may be minified too.
+			You need a standard Go toolchain to build the backend. You need <a href="https://github.com/tdewolff/minify">minify</a> to build the minified frontend; read the README in the frontend directory for details; if you don&rsquo;t want to minify, you could just copy the files over.
 			</p>
+			<pre>cd ./backend/
+make
+cd ../frontend/
+make</pre>
 			<p>
-			You may also wish to strip the binary&rsquo;s debug symbols to shrink the file size:
+			Your compiled files will appear in <code>dist/</code>.
 			</p>
-			<pre>make && strip cca</pre>
 			<h2>Configuration</h2>
 			<p>
 			The <code>static</code> and <code>tmpl</code> directories must be available to the running program, in addition to a configuration file <code>cca.scfg</code>.
