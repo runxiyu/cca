@@ -361,7 +361,7 @@ func handleConn(
 		coursesLock.RLock()
 		defer coursesLock.RUnlock()
 		for courseID, course := range courses {
-			usem := &usemT{}
+			usem := &usemT{} //exhaustruct:ignore
 			usem.init()
 			func() {
 				course.UsemsLock.Lock()
