@@ -313,6 +313,7 @@ func handleConn(
 		cancel := cancelPool[userID]
 		if cancel != nil {
 			(*cancel)()
+			/* TODO: Make the cancel synchronous */
 		}
 		cancelPool[userID] = &newCancel
 	}()
@@ -344,17 +345,58 @@ func handleConn(
 		delete(chanPool, userID)
 	}()
 
+	/* TODO: Tell the user their current choices here. Deprecate HELLO. */
+
+	usems := make(map[int]*usemT)
+	func() {
+		coursesLock.RLock()
+		defer coursesLock.RUnlock()
+		for courseID, course := range courses {
+			var usem usemT
+			func() {
+				course.UsemsLock.Lock()
+				defer course.UsemsLock.Unlock()
+				course.Usems[userID] = &usem
+			}()
+			usems[courseID] = &usem
+		}
+	}()
+	defer func() {
+		coursesLock.RLock()
+		defer coursesLock.RUnlock()
+		for _, course := range courses {
+			func() {
+				course.UsemsLock.Lock()
+				defer course.UsemsLock.Unlock()
+				delete(course.Usems, userID)
+			}()
+		}
+	}()
+
+	usemParent := make(chan int)
+	for courseID, usem := range usems {
+		go func() {
+			for {
+				select {
+				case <-newCtx.Done():
+					return
+				case <-usem.ch():
+					select {
+					case <-newCtx.Done():
+						return
+					case usemParent <- courseID:
+					}
+				}
+			}
+		}()
+	}
+
 	/*
 	 * userCourseGroups stores whether the user has already chosen a course
 	 * in the courseGroup.
 	 */
 	var userCourseGroups userCourseGroupsT = make(map[courseGroupT]bool)
 	populateUserCourseGroups(newCtx, &userCourseGroups, userID)
-	/*
-	 * TODO: No more HELLO command needed? Or otherwise integrate the two.
-	 * In any case, the database work is being duplicated. Probably move
-	 * that up here.
-	 */
 
 	/*
 	 * Later we need to select from recv and send and perform the
@@ -434,6 +476,19 @@ func handleConn(
 			 * be closed, and the user would see the connection
 			 * closed page which should explain it.
 			 */
+		case courseID := <-usemParent:
+			var selected int
+			func() {
+				course := courses[courseID]
+				course.SelectedLock.RLock()
+				defer course.SelectedLock.RUnlock()
+				selected = course.Selected
+			}()
+			err := writeText(newCtx, c, fmt.Sprintf("M %d %d", courseID, selected))
+			if err != nil {
+				return fmt.Errorf("error sending to websocket for course selected update: %w", err)
+			}
+			continue
 		case gonnasend := <-send:
 			err := writeText(newCtx, c, gonnasend)
 			if err != nil {

@@ -37,6 +37,11 @@ type courseT struct {
 	/*
 	 * TODO: There will be a lot of lock contention over Selected. It is
 	 * probably more appropriate to directly use atomics.
+	 * Except that it's actually hard to use atomics directly here
+	 * because I need to "increment if less than Max"... I think I could
+	 * just do compare and swap in a loop, but the loop would be intensive
+	 * on the CPU so I'd have to look into how mutexes/semaphores are
+	 * actually implemented and how I could interact with the runtime.
 	 */
 	Selected     int
 	SelectedLock sync.RWMutex
@@ -46,6 +51,8 @@ type courseT struct {
 	Group        courseGroupT
 	Teacher      string
 	Location     string
+	Usems        map[string](*usemT)
+	UsemsLock    sync.RWMutex
 }
 
 const (
@@ -138,7 +145,9 @@ func setupCourses() error {
 			}
 			break
 		}
-		currentCourse := courseT{} //exhaustruct:ignore
+		currentCourse := courseT{
+			Usems: make(map[string]*usemT),
+		} //exhaustruct:ignore
 		err = rows.Scan(
 			&currentCourse.ID,
 			&currentCourse.Max,
