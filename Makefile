@@ -1,4 +1,4 @@
-.PHONY: default backend frontend docs sql iadocs
+.PHONY: default backend tmpl frontend docs sql iadocs
 
 default: backend tmpl frontend docs sql iadocs
 
