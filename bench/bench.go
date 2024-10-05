@@ -68,16 +68,25 @@ func connect(cid int) {
 		}
 	}()
 
-	courseID, err := rand.Int(rand.Reader, courses)
-	if err != nil {
-		panic(err)
-	}
-	err = w(ctx, c, fmt.Sprintf("Y %d", courseID.Int64()+1), cid)
-	if err != nil {
-		panic(err)
+	time.Sleep(30 * time.Second)
+
+	if false {
+		courseID, err := rand.Int(rand.Reader, courses)
+		if err != nil {
+			panic(err)
+		}
+		err = w(ctx, c, fmt.Sprintf("Y %d", courseID.Int64()+1), cid)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		err = w(ctx, c, "Y 1", cid)
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	time.Sleep(30 * time.Second)
+	time.Sleep(120 * time.Second)
 
 	err = c.Close(websocket.StatusNormalClosure, "")
 	if err != nil {
@@ -87,7 +96,7 @@ func connect(cid int) {
 
 func main() {
 	var wg sync.WaitGroup
-	for i := range 800 {
+	for i := range 8000 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
