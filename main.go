@@ -60,12 +60,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println("Setting up WebSocket connection pool")
-	err = setupChanPool()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	log.Println("Setting up context cancellation connection pool")
 	err = setupCancelPool()
 	if err != nil {

@@ -252,28 +252,13 @@ type errbytesT struct {
 }
 
 var (
-	chanPool map[string](*chan string)
+	chanPool = make(map[string](*chan string))
 	/*
 	 * Normal Go maps are not thread safe, so we protect large chanPool
 	 * operations such as addition and deletion under a RWMutex.
 	 */
 	chanPoolLock sync.RWMutex
 )
-
-func setupChanPool() error {
-	/*
-	 * It would be unusual for this function to run concurrently with
-	 * anything else that modifies chanPool, so we fail when the lock is
-	 * unsuccessful.
-	 */
-	r := chanPoolLock.TryLock()
-	if !r {
-		return fmt.Errorf("cannot set up chanPool: %w", errUnexpectedRace)
-	}
-	defer chanPoolLock.Unlock()
-	chanPool = make(map[string](*chan string))
-	return nil
-}
 
 var (
 	/*
