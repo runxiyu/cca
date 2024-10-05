@@ -206,7 +206,7 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError r
 		if err != nil {
 			return reportError("error unsetting course group flag")
 		}
-		if (*userCourseGroups)[thisCourseGroup] == false {
+		if !(*userCourseGroups)[thisCourseGroup] {
 			return reportError("inconsistent user course groups")
 		}
 		(*userCourseGroups)[thisCourseGroup] = false
