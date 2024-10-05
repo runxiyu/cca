@@ -68,7 +68,6 @@ var configWithPointers struct {
 		Expr      *int    `scfg:"expr"`
 	} `scfg:"auth"`
 	Perf struct {
-		SendQ               *int `scfg:"sendq"`
 		MessageArgumentsCap *int `scfg:"msg_args_cap"`
 		MessageBytesCap     *int `scfg:"msg_bytes_cap"`
 		ReadHeaderTimeout   *int `scfg:"read_header_timeout"`
@@ -105,7 +104,6 @@ var config struct {
 		Expr      int
 	}
 	Perf struct {
-		SendQ               int
 		MessageArgumentsCap int
 		MessageBytesCap     int
 		ReadHeaderTimeout   int
@@ -165,7 +163,6 @@ func fetchConfig(path string) error {
 	config.Auth.Token = *(configWithPointers.Auth.Token)
 	config.Auth.Secret = *(configWithPointers.Auth.Secret)
 	config.Auth.Expr = *(configWithPointers.Auth.Expr)
-	config.Perf.SendQ = *(configWithPointers.Perf.SendQ)
 	config.Perf.MessageArgumentsCap = *(configWithPointers.Perf.MessageArgumentsCap)
 	config.Perf.MessageBytesCap = *(configWithPointers.Perf.MessageBytesCap)
 	config.Perf.ReadHeaderTimeout = *(configWithPointers.Perf.ReadHeaderTimeout)

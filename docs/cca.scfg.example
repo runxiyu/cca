@@ -84,10 +84,6 @@ auth {
 
 # The following block contains some tweaks for performance.
 perf {
-	# How long should the send queue be? This is implemented as the
-	# buffer number for a Go channel.
-	sendq 10
-
 	# How many arguments' space should we initially allocate for each
 	# message?
 	msg_args_cap 4

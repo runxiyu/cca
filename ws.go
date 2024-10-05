@@ -252,15 +252,6 @@ type errbytesT struct {
 }
 
 var (
-	chanPool = make(map[string](*chan string))
-	/*
-	 * Normal Go maps are not thread safe, so we protect large chanPool
-	 * operations such as addition and deletion under a RWMutex.
-	 */
-	chanPoolLock sync.RWMutex
-)
-
-var (
 	cancelPool = make(map[string](*context.CancelFunc))
 	/*
 	 * Normal Go maps are not thread safe, so we protect large cancelPool
@@ -268,31 +259,6 @@ var (
 	 */
 	cancelPoolLock sync.RWMutex
 )
-
-/*
- * Only call this when it is okay for propagation to fail, such as in course
- * number updates. Failures are currently ignored.
- */
-func propagateIgnoreFailures(msg string) {
-	/*
-	 * It is not a mistake that we acquire a read lock instead of a write
-	 * lock here. Channels provide synchronization, and other than using
-	 * the channels, we are simply iterating through chanPoolLock. This is
-	 * unsafe when chanPoolLock's structure is being modified, such as
-	 * when a channel is being added or deleted from the pool; but it's
-	 * fine if other goroutines are simply indexing it and using the
-	 * channels.
-	 */
-	chanPoolLock.RLock()
-	defer chanPoolLock.RUnlock()
-	for k, v := range chanPool {
-		select {
-		case *v <- msg:
-		default:
-			log.Println("WARNING: SendQ exceeded for " + k)
-		}
-	}
-}
 
 func propagateSelectedUpdate(courseID int) {
 	course := courses[courseID]
@@ -340,18 +306,6 @@ func handleConn(
 			 */
 			_ = writeText(ctx, c, "E :Context canceled")
 		}
-	}()
-
-	send := make(chan string, config.Perf.SendQ)
-	func() {
-		chanPoolLock.Lock()
-		defer chanPoolLock.Unlock()
-		chanPool[userID] = &send
-	}()
-	defer func() {
-		chanPoolLock.Lock()
-		defer chanPoolLock.Unlock()
-		delete(chanPool, userID)
 	}()
 
 	/* TODO: Tell the user their current choices here. Deprecate HELLO. */
@@ -500,12 +454,6 @@ func handleConn(
 			err := writeText(newCtx, c, fmt.Sprintf("M %d %d", courseID, selected))
 			if err != nil {
 				return fmt.Errorf("error sending to websocket for course selected update: %w", err)
-			}
-			continue
-		case gonnasend := <-send:
-			err := writeText(newCtx, c, gonnasend)
-			if err != nil {
-				return fmt.Errorf("error sending to websocket from send channel: %w", err)
 			}
 			continue
 		case errbytes := <-recv:
