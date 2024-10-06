@@ -132,7 +132,10 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 			go propagateSelectedUpdate(courseID)
 			err := tx.Commit(ctx)
 			if err != nil {
-				go course.decrementSelectedAndPropagate()
+				err := course.decrementSelectedAndPropagate(ctx, c)
+				if err != nil {
+					return fmt.Errorf("error decrementing and notifying: %w", err)
+				}
 				return reportError("Database error while committing transaction")
 			}
 			var thisCourseGroup courseGroupT
@@ -142,13 +145,20 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 				thisCourseGroup = courses[courseID].Group
 			}()
 			if (*userCourseGroups)[thisCourseGroup] {
-				go course.decrementSelectedAndPropagate()
+				err := course.decrementSelectedAndPropagate(ctx, c)
+				if err != nil {
+					return fmt.Errorf("error decrementing and notifying: %w", err)
+				}
 				return reportError("inconsistent user course groups")
 			}
 			(*userCourseGroups)[thisCourseGroup] = true
 			err = writeText(ctx, c, "Y "+mar[1])
 			if err != nil {
 				return fmt.Errorf("error affirming course choice: %w", err)
+			}
+			err = sendSelectedUpdate(ctx, c, courseID)
+			if err != nil {
+				return fmt.Errorf("error notifying after increment: %w", err)
 			}
 		} else {
 			err := tx.Rollback(ctx)
@@ -202,7 +212,10 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError r
 	}
 
 	if ct.RowsAffected() != 0 {
-		go course.decrementSelectedAndPropagate()
+		err := course.decrementSelectedAndPropagate(ctx, c)
+		if err != nil {
+			return fmt.Errorf("error decrementing and notifying: %w", err)
+		}
 		var thisCourseGroup courseGroupT
 		func() {
 			coursesLock.RLock()

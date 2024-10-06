@@ -25,6 +25,8 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+
+	"github.com/coder/websocket"
 )
 
 type (
@@ -213,13 +215,18 @@ func populateUserCourseGroups(ctx context.Context, userCourseGroups *userCourseG
 	return nil
 }
 
-func (course *courseT) decrementSelectedAndPropagate() {
+func (course *courseT) decrementSelectedAndPropagate(ctx context.Context, conn *websocket.Conn) error {
 	func() {
 		course.SelectedLock.Lock()
 		defer course.SelectedLock.Unlock()
 		course.Selected--
 	}()
-	propagateSelectedUpdate(course.ID)
+	go propagateSelectedUpdate(course.ID)
+	err := sendSelectedUpdate(ctx, conn, course.ID)
+	if err != nil {
+		return fmt.Errorf("error sending selected update on decrement: %w", err)
+	}
+	return nil
 }
 
 func getCourseByID(courseID int) *courseT {

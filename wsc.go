@@ -211,16 +211,9 @@ func handleConn(
 			 * closed page which should explain it.
 			 */
 		case courseID := <-usemParent:
-			var selected int
-			func() {
-				course := courses[courseID]
-				course.SelectedLock.RLock()
-				defer course.SelectedLock.RUnlock()
-				selected = course.Selected
-			}()
-			err := writeText(newCtx, c, fmt.Sprintf("M %d %d", courseID, selected))
+			err := sendSelectedUpdate(newCtx, c, courseID)
 			if err != nil {
-				return fmt.Errorf("error sending to websocket for course selected update: %w", err)
+				return fmt.Errorf("error acting on usem: %w", err)
 			}
 			continue
 		case errbytes := <-recv:

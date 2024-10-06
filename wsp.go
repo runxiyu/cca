@@ -83,3 +83,18 @@ func propagateSelectedUpdate(courseID int) {
 		usem.set()
 	}
 }
+
+func sendSelectedUpdate(ctx context.Context, conn *websocket.Conn, courseID int) error {
+	var selected int
+	func() {
+		course := courses[courseID]
+		course.SelectedLock.RLock()
+		defer course.SelectedLock.RUnlock()
+		selected = course.Selected
+	}()
+	err := writeText(ctx, conn, fmt.Sprintf("M %d %d", courseID, selected))
+	if err != nil {
+		return fmt.Errorf("error sending to websocket for course selected update: %w", err)
+	}
+	return nil
+}
