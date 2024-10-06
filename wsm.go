@@ -89,10 +89,11 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 	thisCourseGroup := course.Group
 
 	if (*userCourseGroups)[thisCourseGroup] {
-		return reportError("inconsistent user course groups")
-		/*
-		 * TODO: reportError terminates the connection which is not necessary
-		 */
+		err := writeText(ctx, c, "R "+mar[1]+" :Group conflict")
+		if err != nil {
+			return fmt.Errorf("error rejecting course choice due to group conflict: %w", err)
+		}
+		return nil
 	}
 
 	err = func() (returnedError error) { /* Named returns so I could modify them in defer */
