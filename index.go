@@ -46,7 +46,6 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			"login",
 			map[string]string{
 				"authURL": authURL,
-				"source":  config.Source,
 				/*
 				 * We directly generate the login URL here
 				 * instead of doing so in a redirect to save
@@ -83,7 +82,6 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 				map[string]interface{}{
 					"authURL": authURL,
 					"notes":   "You sent an invalid session cookie.",
-					"source":  config.Source,
 				},
 			)
 			if err != nil {
@@ -109,7 +107,6 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 					"Department": userDepartment,
 				},
 				"courses": courses,
-				"source":  config.Source,
 			},
 		)
 	}()

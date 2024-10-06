@@ -25,16 +25,17 @@
 				<li>To obtain a stable version, go to the <a href="https://git.sr.ht/~runxiyu/cca/refs">release page</a> and download the latest version that is not a pre-release.</li>
 				<li>To obtain an unstable development version, clone the development repository at <a href="https://git.sr.ht/~runxiyu/cca"><code>https://git.sr.ht/~runxiyu/cca</code></a>, or download the latest development snapshot&rsquo;s tarball at <a href="https://git.runxiyu.org/ykps/cca.git/snapshot/cca-master.tar.gz"><code>https://git.runxiyu.org/ykps/cca.git/snapshot/cca-master.tar.gz</code></a>.</li>
 			</ul>
-			<h2>Building</h2>
+			<h2>External dependencies</h2>
 			<p>
-			You need a standard Go toolchain to build the backend. You need <a href="https://github.com/tdewolff/minify">minify</a> to build the minified frontend; read the README in the frontend directory for details; if you don&rsquo;t want to minify, you could just copy the files over.
+			You need a <a href="https://go.dev">Go</a> toolchain, <a href="https://www.gnu.org/software/make/">GNU make</a>, <a href="https://tug.org/texlive/">TeX Live</a> and <a href="https://github.com/tdewolff/minify">minify</a>. If you have everything else, you could install minify via <code>make minifier</code>, which would build and install it with your Go toolchain.
 			</p>
-			<pre>cd ./backend/
-make
-cd ../frontend/
-make</pre>
 			<p>
-			Your compiled files will appear in <code>dist/</code>.
+			The Go toolchain will fetch more dependencies. You may wish to set a Go proxy (such as via <code>export GOPROXY='https://goproxy.io'</code>) if it stalls or is too slow. This is likely necessary for users in Mainland China due to firewall restrictions.
+			</p>
+			<h2>Building</h2>
+			<p>Just type <code>make</code>.</p>
+			<p>
+			The built files will appear in <code>dist/</code>. The binary, with all runtime resources other than the configuration file embedded, is located at <code>dist/cca</code>. A minified copy of the documentation, including a sample configuration file, is located at <code>dist/docs/</code>.
 			</p>
 			<h2>Configuration</h2>
 			<p>

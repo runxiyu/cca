@@ -41,9 +41,6 @@ import (
 var configWithPointers struct {
 	URL    *string `scfg:"url"`
 	Prod   *bool   `scfg:"prod"`
-	Tmpl   *string `scfg:"tmpl"`
-	Static *string `scfg:"static"`
-	Source *string `scfg:"source"`
 	Listen struct {
 		Proto *string `scfg:"proto"`
 		Net   *string `scfg:"net"`
@@ -78,9 +75,6 @@ var configWithPointers struct {
 var config struct {
 	URL    string
 	Prod   bool
-	Tmpl   string
-	Static string
-	Source string
 	Listen struct {
 		Proto string
 		Net   string
@@ -155,21 +149,6 @@ func fetchConfig(path string) (retErr error) {
 		return fmt.Errorf("%w: prod", errMissingConfigValue)
 	}
 	config.Prod = *(configWithPointers.Prod)
-
-	if configWithPointers.Tmpl == nil {
-		return fmt.Errorf("%w: tmpl", errMissingConfigValue)
-	}
-	config.Tmpl = *(configWithPointers.Tmpl)
-
-	if configWithPointers.Static == nil {
-		return fmt.Errorf("%w: static", errMissingConfigValue)
-	}
-	config.Static = *(configWithPointers.Static)
-
-	if configWithPointers.Source == nil {
-		return fmt.Errorf("%w: source", errMissingConfigValue)
-	}
-	config.Source = *(configWithPointers.Source)
 
 	if configWithPointers.Listen.Proto == nil {
 		return fmt.Errorf("%w: listen.proto", errMissingConfigValue)

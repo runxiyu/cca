@@ -22,7 +22,9 @@ package main
 
 import (
 	"crypto/tls"
+	"embed"
 	"flag"
+	"io/fs"
 	"html/template"
 	"log"
 	"net"
@@ -31,6 +33,12 @@ import (
 )
 
 var tmpl *template.Template
+
+//go:embed build/static/* tmpl/* build/iadocs/* build/docs/*
+var runFS embed.FS
+
+//go:embed *.go docs/* frontend/* README.md LICENSE Makefile iadocs/* sql/* tmpl/* scripts/*
+var srcFS embed.FS
 
 func main() {
 	var err error
@@ -55,7 +63,7 @@ func main() {
 	}
 
 	log.Println("Setting up templates")
-	tmpl, err = template.ParseGlob(config.Tmpl)
+	tmpl, err = template.ParseFS(runFS, "tmpl/*")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,8 +75,28 @@ func main() {
 	}
 
 	log.Println("Registering static handle")
-	fs := http.FileServer(http.Dir(config.Static))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	staticFS, err := fs.Sub(runFS, "build/static")
+	if err != nil {
+		log.Fatal(err)
+	}
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
+
+	log.Println("Registering iadocs handle")
+	iaDocsFS, err := fs.Sub(runFS, "build/iadocs")
+	if err != nil {
+		log.Fatal(err)
+	}
+	http.Handle("/iadocs/", http.StripPrefix("/iadocs/", http.FileServer(http.FS(iaDocsFS))))
+
+	log.Println("Registering docs handle")
+	docsFS, err := fs.Sub(runFS, "build/docs")
+	if err != nil {
+		log.Fatal(err)
+	}
+	http.Handle("/docs/", http.StripPrefix("/docs/", http.FileServer(http.FS(docsFS))))
+
+	log.Println("Registering source handle")
+	http.Handle("/src/", http.StripPrefix("/src/", http.FileServer(http.FS(srcFS))))
 
 	log.Println("Registering handlers")
 	http.HandleFunc("/{$}", handleIndex)

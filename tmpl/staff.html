@@ -17,9 +17,25 @@
 		<header>
 			<div class="header-content">
 				<div class="header-left">
-					<h1><a id="site-title" href="/">CCASS Staff Page</a></h1>
+					<h1><a id="site-title" href="./">CCASS Staff Page</a></h1>
 				</div>
 				<div class="header-middle">
+					<nav>
+						<ul>
+							<li>
+								<a href="./">Home</a>
+							</li>
+							<li>
+								<a href="./docs/">Docs</a>
+							</li>
+							<li>
+								<a href="./iadocs/">IA Docs</a>
+							</li>
+							<li>
+								<a href="./src/">Source</a>
+							</li>
+						</ul>
+					</nav>
 				</div>
 				<div class="header-right">
 					<p>{{- .user.Name }} ({{ .user.Department -}})</p>
@@ -128,9 +144,6 @@
 				</div>
 			</div>
 		</div>
-		<footer>
-			CCA Selection System, licensed under the GNU Affero General Public License, version 3.0 or any later version. Source code available at <a href="{{.source}}"><code>{{.source}}</code></a>.
-		</footer>
 		<script src="static/staff.js"></script>
 		<script>
 			document.addEventListener("DOMContentLoaded", () => {

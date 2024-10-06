@@ -6,20 +6,6 @@ url http://localhost:5555
 # cookies and may come with other production-related changes in the future.
 prod false
 
-# Where are the template files? Usually this should be a directory inside the
-# source directory, though it might exist in /usr/local/share or /usr/share if
-# this ever gets packaged or something. Remember that this is a file glob, so
-# be sure to use /* or something similar.
-tmpl tmpl/*
-
-# Where is the static directory? Reverse proxy setups are not recommended for
-# performance reasons so we serve the static files ourselves.
-static static/
-
-# Where could the source code of this instance be found? It is important to
-# keep this up to date to comply with the AGPL.
-source https://git.sr.ht/~runxiyu/cca
-
 listen {
 	# Which protocol are we listening for? Currently only "http" is
 	# supported because it is difficult to configure FastCGI to work with
