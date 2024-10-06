@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/coder/websocket"
@@ -34,6 +35,8 @@ type errbytesT struct {
 	err   error
 	bytes *[]byte
 }
+
+var usemCount int64
 
 /*
  * The actual logic in handling the connection, after authentication has been
@@ -78,6 +81,7 @@ func handleConn(
 
 	usems := make(map[int]*usemT)
 	func() {
+		atomic.AddInt64(&usemCount, int64(len(courses)))
 		coursesLock.RLock()
 		defer coursesLock.RUnlock()
 		for courseID, course := range courses {
@@ -101,6 +105,7 @@ func handleConn(
 				delete(course.Usems, userID)
 			}()
 		}
+		atomic.AddInt64(&usemCount, -int64(len(courses)))
 	}()
 
 	usemParent := make(chan int)
@@ -117,7 +122,7 @@ func handleConn(
 					case usemParent <- courseID:
 					}
 				}
-				time.Sleep(time.Duration(config.Perf.CourseUpdateInterval) * time.Millisecond)
+				time.Sleep(time.Duration(usemCount>>config.Perf.UsemDelayShiftBits) * time.Millisecond)
 			}
 		}()
 	}

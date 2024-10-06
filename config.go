@@ -65,10 +65,10 @@ var configWithPointers struct {
 		Expr      *int    `scfg:"expr"`
 	} `scfg:"auth"`
 	Perf struct {
-		MessageArgumentsCap  *int `scfg:"msg_args_cap"`
-		MessageBytesCap      *int `scfg:"msg_bytes_cap"`
-		ReadHeaderTimeout    *int `scfg:"read_header_timeout"`
-		CourseUpdateInterval *int `scfg:"course_update_interval"`
+		MessageArgumentsCap *int `scfg:"msg_args_cap"`
+		MessageBytesCap     *int `scfg:"msg_bytes_cap"`
+		ReadHeaderTimeout   *int `scfg:"read_header_timeout"`
+		UsemDelayShiftBits  *int `scfg:"usem_delay_shift_bits"`
 	} `scfg:"perf"`
 }
 
@@ -99,10 +99,10 @@ var config struct {
 		Expr      int
 	}
 	Perf struct {
-		MessageArgumentsCap  int
-		MessageBytesCap      int
-		ReadHeaderTimeout    int
-		CourseUpdateInterval int
+		MessageArgumentsCap int
+		MessageBytesCap     int
+		ReadHeaderTimeout   int
+		UsemDelayShiftBits  int
 	} `scfg:"perf"`
 }
 
@@ -254,10 +254,10 @@ func fetchConfig(path string) (retErr error) {
 	}
 	config.Perf.ReadHeaderTimeout = *(configWithPointers.Perf.ReadHeaderTimeout)
 
-	if configWithPointers.Perf.CourseUpdateInterval == nil {
-		return fmt.Errorf("%w: perf.course_update_interval", errMissingConfigValue)
+	if configWithPointers.Perf.UsemDelayShiftBits == nil {
+		return fmt.Errorf("%w: perf.usem_delay_shift_bits", errMissingConfigValue)
 	}
-	config.Perf.CourseUpdateInterval = *(configWithPointers.Perf.CourseUpdateInterval)
+	config.Perf.UsemDelayShiftBits = *(configWithPointers.Perf.UsemDelayShiftBits)
 
 	return nil
 }
