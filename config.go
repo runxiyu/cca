@@ -119,13 +119,21 @@ func fetchConfig(path string) (retErr error) {
 		if v := recover(); v != nil {
 			s, ok := v.(error)
 			if ok {
-				retErr = fmt.Errorf("%w: %w", errCannotProcessConfig, s)
+				retErr = fmt.Errorf(
+					"%w: %w",
+					errCannotProcessConfig,
+					s,
+				)
 			}
 			retErr = fmt.Errorf("%w: %v", errCannotProcessConfig, v)
 			return
 		}
 		if retErr != nil {
-			retErr = fmt.Errorf("%w: %w", errCannotProcessConfig, retErr)
+			retErr = fmt.Errorf(
+				"%w: %w",
+				errCannotProcessConfig,
+				retErr,
+			)
 			return
 		}
 	}()
@@ -172,12 +180,18 @@ func fetchConfig(path string) (retErr error) {
 
 	if config.Listen.Trans == "tls" {
 		if configWithPointers.Listen.TLS.Cert == nil {
-			return fmt.Errorf("%w: listen.tls.cert", errMissingConfigValue)
+			return fmt.Errorf(
+				"%w: listen.tls.cert",
+				errMissingConfigValue,
+			)
 		}
 		config.Listen.TLS.Cert = *(configWithPointers.Listen.TLS.Cert)
 
 		if configWithPointers.Listen.TLS.Key == nil {
-			return fmt.Errorf("%w: listen.tls.key", errMissingConfigValue)
+			return fmt.Errorf(
+				"%w: listen.tls.key",
+				errMissingConfigValue,
+			)
 		}
 		config.Listen.TLS.Key = *(configWithPointers.Listen.TLS.Key)
 	}
@@ -201,11 +215,19 @@ func fetchConfig(path string) (retErr error) {
 			/* It's okay to set it to 0 in production */
 		case 4712, 9080: /* Don't use them unless you know what you're doing */
 			if config.Prod {
-				return fmt.Errorf("%w: fake authentication is incompatible with production mode", errIllegalConfig)
+				return fmt.Errorf(
+					"%w: fake authentication is incompatible with production mode",
+					errIllegalConfig,
+				)
 			}
-			log.Println("!!! WARNING: Fake authentication is enabled. Any WebSocket connection would have a fake account. This is a HUGE security hole. You should only use this while benchmarking.")
+			log.Println(
+				"!!! WARNING: Fake authentication is enabled. Any WebSocket connection would have a fake account. This is a HUGE security hole. You should only use this while benchmarking.",
+			)
 		default:
-			return fmt.Errorf("%w: invalid option for auth.fake", errIllegalConfig)
+			return fmt.Errorf(
+				"%w: invalid option for auth.fake",
+				errIllegalConfig,
+			)
 		}
 	}
 
@@ -240,22 +262,34 @@ func fetchConfig(path string) (retErr error) {
 	config.Auth.Expr = *(configWithPointers.Auth.Expr)
 
 	if configWithPointers.Perf.MessageArgumentsCap == nil {
-		return fmt.Errorf("%w: perf.msg_args_cap", errMissingConfigValue)
+		return fmt.Errorf(
+			"%w: perf.msg_args_cap",
+			errMissingConfigValue,
+		)
 	}
 	config.Perf.MessageArgumentsCap = *(configWithPointers.Perf.MessageArgumentsCap)
 
 	if configWithPointers.Perf.MessageBytesCap == nil {
-		return fmt.Errorf("%w: perf.msg_bytes_cap", errMissingConfigValue)
+		return fmt.Errorf(
+			"%w: perf.msg_bytes_cap",
+			errMissingConfigValue,
+		)
 	}
 	config.Perf.MessageBytesCap = *(configWithPointers.Perf.MessageBytesCap)
 
 	if configWithPointers.Perf.ReadHeaderTimeout == nil {
-		return fmt.Errorf("%w: perf.read_header_timeout", errMissingConfigValue)
+		return fmt.Errorf(
+			"%w: perf.read_header_timeout",
+			errMissingConfigValue,
+		)
 	}
 	config.Perf.ReadHeaderTimeout = *(configWithPointers.Perf.ReadHeaderTimeout)
 
 	if configWithPointers.Perf.UsemDelayShiftBits == nil {
-		return fmt.Errorf("%w: perf.usem_delay_shift_bits", errMissingConfigValue)
+		return fmt.Errorf(
+			"%w: perf.usem_delay_shift_bits",
+			errMissingConfigValue,
+		)
 	}
 	config.Perf.UsemDelayShiftBits = *(configWithPointers.Perf.UsemDelayShiftBits)
 

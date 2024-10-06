@@ -34,10 +34,15 @@ import (
 
 var tmpl *template.Template
 
-//go:embed build/static/* tmpl/* build/iadocs/*.pdf build/iadocs/*.htm build/docs/*
+//go:embed build/static/* tmpl/*
+//go:embed build/iadocs/*.pdf build/iadocs/*.htm build/docs/*
 var runFS embed.FS
 
-//go:embed go.* *.go docs/* frontend/* README.md LICENSE Makefile iadocs/* sql/* tmpl/* scripts/* .editorconfig .gitignore
+//go:embed go.* *.go
+//go:embed docs/* iadocs/*
+//go:embed frontend/* tmpl/*
+//go:embed README.md LICENSE Makefile .editorconfig .gitignore
+//go:embed scripts/* sql/*
 var srcFS embed.FS
 
 func main() {
@@ -45,7 +50,12 @@ func main() {
 
 	var configPath string
 
-	flag.StringVar(&configPath, "config", "cca.scfg", "path to configuration file")
+	flag.StringVar(
+		&configPath,
+		"config",
+		"cca.scfg",
+		"path to configuration file",
+	)
 	flag.Parse()
 
 	if err := fetchConfig(configPath); err != nil {
@@ -63,24 +73,45 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
+	http.Handle("/static/",
+		http.StripPrefix(
+			"/static/",
+			http.FileServer(http.FS(staticFS)),
+		),
+	)
 
 	log.Println("Registering iadocs handle")
 	iaDocsFS, err := fs.Sub(runFS, "build/iadocs")
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.Handle("/iadocs/", http.StripPrefix("/iadocs/", http.FileServer(http.FS(iaDocsFS))))
+	http.Handle("/iadocs/",
+		http.StripPrefix(
+			"/iadocs/",
+			http.FileServer(http.FS(iaDocsFS)),
+		),
+	)
 
 	log.Println("Registering docs handle")
 	docsFS, err := fs.Sub(runFS, "build/docs")
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.Handle("/docs/", http.StripPrefix("/docs/", http.FileServer(http.FS(docsFS))))
+	http.Handle(
+		"/docs/",
+		http.StripPrefix(
+			"/docs/",
+			http.FileServer(http.FS(docsFS)),
+		),
+	)
 
 	log.Println("Registering source handle")
-	http.Handle("/src/", http.StripPrefix("/src/", http.FileServer(http.FS(srcFS))))
+	http.Handle(
+		"/src/",
+		http.StripPrefix(
+			"/src/", http.FileServer(http.FS(srcFS)),
+		),
+	)
 
 	log.Println("Registering handlers")
 	http.HandleFunc("/{$}", handleIndex)
@@ -98,12 +129,21 @@ func main() {
 		)
 		l, err = net.Listen(config.Listen.Net, config.Listen.Addr)
 		if err != nil {
-			log.Fatalf("Failed to establish plain listener: %v\n", err)
+			log.Fatalf(
+				"Failed to establish plain listener: %v\n",
+				err,
+			)
 		}
 	case "tls":
-		cer, err := tls.LoadX509KeyPair(config.Listen.TLS.Cert, config.Listen.TLS.Key)
+		cer, err := tls.LoadX509KeyPair(
+			config.Listen.TLS.Cert,
+			config.Listen.TLS.Key,
+		)
 		if err != nil {
-			log.Fatalf("Failed to load TLS certificate and key: %v\n", err)
+			log.Fatalf(
+				"Failed to load TLS certificate and key: %v\n",
+				err,
+			)
 		}
 		tlsconfig := &tls.Config{
 			Certificates: []tls.Certificate{cer},
@@ -114,9 +154,16 @@ func main() {
 			config.Listen.Net,
 			config.Listen.Addr,
 		)
-		l, err = tls.Listen(config.Listen.Net, config.Listen.Addr, tlsconfig)
+		l, err = tls.Listen(
+			config.Listen.Net,
+			config.Listen.Addr,
+			tlsconfig,
+		)
 		if err != nil {
-			log.Fatalf("Failed to establish TLS listener: %v\n", err)
+			log.Fatalf(
+				"Failed to establish TLS listener: %v\n",
+				err,
+			)
 		}
 	default:
 		log.Fatalln("listen.trans must be \"plain\" or \"tls\"")
@@ -141,7 +188,9 @@ func main() {
 	if config.Listen.Proto == "http" {
 		log.Println("Serving http")
 		srv := &http.Server{
-			ReadHeaderTimeout: time.Duration(config.Perf.ReadHeaderTimeout) * time.Second,
+			ReadHeaderTimeout: time.Duration(
+				config.Perf.ReadHeaderTimeout,
+			) * time.Second,
 		} //exhaustruct:ignore
 		err = srv.Serve(l)
 	} else {

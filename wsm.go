@@ -33,12 +33,22 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-func messageHello(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string) error {
+func messageHello(
+	ctx context.Context,
+	c *websocket.Conn,
+	reportError reportErrorT,
+	mar []string,
+	userID string,
+	session string,
+) error {
 	_, _ = mar, session
 
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf("context done when handling hello: %w", ctx.Err())
+		return fmt.Errorf(
+			"context done when handling hello: %w",
+			ctx.Err(),
+		)
 	default:
 	}
 
@@ -63,12 +73,23 @@ func messageHello(ctx context.Context, c *websocket.Conn, reportError reportErro
 	return nil
 }
 
-func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string, userCourseGroups *userCourseGroupsT) error {
+func messageChooseCourse(
+	ctx context.Context,
+	c *websocket.Conn,
+	reportError reportErrorT,
+	mar []string,
+	userID string,
+	session string,
+	userCourseGroups *userCourseGroupsT,
+) error {
 	_ = session
 
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf("context done when handling choose: %w", ctx.Err())
+		return fmt.Errorf(
+			"context done when handling choose: %w",
+			ctx.Err(),
+		)
 	default:
 	}
 
@@ -91,7 +112,10 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 	if (*userCourseGroups)[thisCourseGroup] {
 		err := writeText(ctx, c, "R "+mar[1]+" :Group conflict")
 		if err != nil {
-			return fmt.Errorf("error rejecting course choice due to group conflict: %w", err)
+			return fmt.Errorf(
+				"error rejecting course choice due to group conflict: %w",
+				err,
+			)
 		}
 		return nil
 	}
@@ -99,12 +123,16 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 	err = func() (returnedError error) { /* Named returns so I could modify them in defer */
 		tx, err := db.Begin(ctx)
 		if err != nil {
-			return reportError("Database error while beginning transaction")
+			return reportError(
+				"Database error while beginning transaction",
+			)
 		}
 		defer func() {
 			err := tx.Rollback(ctx)
 			if err != nil && (!errors.Is(err, pgx.ErrTxClosed)) {
-				returnedError = reportError("Database error while rolling back transaction in defer block")
+				returnedError = reportError(
+					"Database error while rolling back transaction in defer block",
+				)
 				return
 			}
 		}()
@@ -121,11 +149,16 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 			if errors.As(err, &pgErr) && pgErr.Code == pgErrUniqueViolation {
 				err := writeText(ctx, c, "Y "+mar[1])
 				if err != nil {
-					return fmt.Errorf("error reaffirming course choice: %w", err)
+					return fmt.Errorf(
+						"error reaffirming course choice: %w",
+						err,
+					)
 				}
 				return nil
 			}
-			return reportError("Database error while inserting course choice")
+			return reportError(
+				"Database error while inserting course choice",
+			)
 		}
 
 		ok := func() bool {
@@ -144,9 +177,14 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 			if err != nil {
 				err := course.decrementSelectedAndPropagate(ctx, c)
 				if err != nil {
-					return fmt.Errorf("error decrementing and notifying: %w", err)
+					return fmt.Errorf(
+						"error decrementing and notifying: %w",
+						err,
+					)
 				}
-				return reportError("Database error while committing transaction")
+				return reportError(
+					"Database error while committing transaction",
+				)
 			}
 
 			/*
@@ -157,20 +195,31 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 
 			err = writeText(ctx, c, "Y "+mar[1])
 			if err != nil {
-				return fmt.Errorf("error affirming course choice: %w", err)
+				return fmt.Errorf(
+					"error affirming course choice: %w",
+					err,
+				)
 			}
 			err = sendSelectedUpdate(ctx, c, courseID)
 			if err != nil {
-				return fmt.Errorf("error notifying after increment: %w", err)
+				return fmt.Errorf(
+					"error notifying after increment: %w",
+					err,
+				)
 			}
 		} else {
 			err := tx.Rollback(ctx)
 			if err != nil {
-				return reportError("Database error while rolling back transaction due to course limit")
+				return reportError(
+					"Database error while rolling back transaction due to course limit",
+				)
 			}
 			err = writeText(ctx, c, "R "+mar[1]+" :Full")
 			if err != nil {
-				return fmt.Errorf("error rejecting course choice: %w", err)
+				return fmt.Errorf(
+					"error rejecting course choice: %w",
+					err,
+				)
 			}
 		}
 		return nil
@@ -181,7 +230,15 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 	return nil
 }
 
-func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError reportErrorT, mar []string, userID string, session string, userCourseGroups *userCourseGroupsT) error {
+func messageUnchooseCourse(
+	ctx context.Context,
+	c *websocket.Conn,
+	reportError reportErrorT,
+	mar []string,
+	userID string,
+	session string,
+	userCourseGroups *userCourseGroupsT,
+) error {
 	_ = session
 
 	select {
@@ -211,13 +268,18 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError r
 		courseID,
 	)
 	if err != nil {
-		return reportError("Database error while deleting course choice")
+		return reportError(
+			"Database error while deleting course choice",
+		)
 	}
 
 	if ct.RowsAffected() != 0 {
 		err := course.decrementSelectedAndPropagate(ctx, c)
 		if err != nil {
-			return fmt.Errorf("error decrementing and notifying: %w", err)
+			return fmt.Errorf(
+				"error decrementing and notifying: %w",
+				err,
+			)
 		}
 		var thisCourseGroup courseGroupT
 		func() {
@@ -233,7 +295,10 @@ func messageUnchooseCourse(ctx context.Context, c *websocket.Conn, reportError r
 
 	err = writeText(ctx, c, "N "+mar[1])
 	if err != nil {
-		return fmt.Errorf("error replying that course has been deselected: %w", err)
+		return fmt.Errorf(
+			"error replying that course has been deselected: %w",
+			err,
+		)
 	}
 
 	return nil

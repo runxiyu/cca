@@ -46,7 +46,11 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		wsOptions,
 	)
 	if err != nil {
-		wstr(w, http.StatusBadRequest, "This endpoint only supports valid WebSocket connections.")
+		wstr(
+			w,
+			http.StatusBadRequest,
+			"This endpoint only supports valid WebSocket connections.",
+		)
 		return
 	}
 	defer func() {
@@ -104,11 +108,17 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 			"fake@runxiyu.org",
 			"Y11",
 			session,
-			time.Now().Add(time.Duration(config.Auth.Expr)*time.Second).Unix(),
+			time.Now().Add(
+				time.Duration(config.Auth.Expr)*time.Second,
+			).Unix(),
 		)
 		if err != nil && config.Auth.Fake != 4712 {
 			/* TODO check pgerr */
-			err := writeText(req.Context(), c, "E :Database error while writing fake account info")
+			err := writeText(
+				req.Context(),
+				c,
+				"E :Database error while writing fake account info",
+			)
 			if err != nil {
 				log.Println(err)
 			}
@@ -133,7 +143,11 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 			}
 			return
 		} else if err != nil {
-			err := writeText(req.Context(), c, "E :Database error while selecting session")
+			err := writeText(
+				req.Context(),
+				c,
+				"E :Database error while selecting session",
+			)
 			if err != nil {
 				log.Println(err)
 			}

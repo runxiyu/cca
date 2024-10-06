@@ -55,7 +55,11 @@ endl:
 	return mar
 }
 
-func baseReportError(ctx context.Context, conn *websocket.Conn, e string) error {
+func baseReportError(
+	ctx context.Context,
+	conn *websocket.Conn,
+	e string,
+) error {
 	err := writeText(ctx, conn, "E :"+e)
 	if err != nil {
 		return fmt.Errorf("error reporting protocol violation: %w", err)
@@ -84,7 +88,11 @@ func propagateSelectedUpdate(courseID int) {
 	}
 }
 
-func sendSelectedUpdate(ctx context.Context, conn *websocket.Conn, courseID int) error {
+func sendSelectedUpdate(
+	ctx context.Context,
+	conn *websocket.Conn,
+	courseID int,
+) error {
 	var selected int
 	func() {
 		course := courses[courseID]
@@ -94,7 +102,10 @@ func sendSelectedUpdate(ctx context.Context, conn *websocket.Conn, courseID int)
 	}()
 	err := writeText(ctx, conn, fmt.Sprintf("M %d %d", courseID, selected))
 	if err != nil {
-		return fmt.Errorf("error sending to websocket for course selected update: %w", err)
+		return fmt.Errorf(
+			"error sending to websocket for course selected update: %w",
+			err,
+		)
 	}
 	return nil
 }

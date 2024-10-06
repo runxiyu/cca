@@ -122,7 +122,12 @@ func handleConn(
 					case usemParent <- courseID:
 					}
 				}
-				time.Sleep(time.Duration(usemCount>>config.Perf.UsemDelayShiftBits) * time.Millisecond)
+				time.Sleep(
+					time.Duration(
+						usemCount>>
+							config.Perf.UsemDelayShiftBits,
+					) * time.Millisecond,
+				)
 			}
 		}()
 	}
@@ -134,7 +139,12 @@ func handleConn(
 	var userCourseGroups userCourseGroupsT = make(map[courseGroupT]bool)
 	err := populateUserCourseGroups(newCtx, &userCourseGroups, userID)
 	if err != nil {
-		return reportError(fmt.Sprintf("cannot populate user course groups: %v", err))
+		return reportError(
+			fmt.Sprintf(
+				"cannot populate user course groups: %v",
+				err,
+			),
+		)
 	}
 
 	/*
@@ -180,7 +190,11 @@ func handleConn(
 				 */
 				select {
 				case <-newCtx.Done():
-					_ = writeText(ctx, c, "E :Context canceled")
+					_ = writeText(
+						ctx,
+						c,
+						"E :Context canceled",
+					)
 					/* Not a typo to use ctx here */
 					return
 				case recv <- &errbytesT{err: err, bytes: nil}:
@@ -202,9 +216,13 @@ func handleConn(
 		select {
 		case <-newCtx.Done():
 			/*
-			 * TODO: Somehow prioritize this case over all other cases
+			 * TODO: Somehow prioritize this case over all other
+			 * cases
 			 */
-			return fmt.Errorf("context done in main event loop: %w", newCtx.Err())
+			return fmt.Errorf(
+				"context done in main event loop: %w",
+				newCtx.Err(),
+			)
 			/*
 			 * There are other times when the context could be
 			 * cancelled, and apparently some WebSocket functions
@@ -218,12 +236,18 @@ func handleConn(
 		case courseID := <-usemParent:
 			err := sendSelectedUpdate(newCtx, c, courseID)
 			if err != nil {
-				return fmt.Errorf("error acting on usem: %w", err)
+				return fmt.Errorf(
+					"error acting on usem: %w",
+					err,
+				)
 			}
 			continue
 		case errbytes := <-recv:
 			if errbytes.err != nil {
-				return fmt.Errorf("error fetching message from recv channel: %w", errbytes.err)
+				return fmt.Errorf(
+					"error fetching message from recv channel: %w",
+					errbytes.err,
+				)
 				/*
 				 * Note that this cannot return newCtx.Err(),
 				 * so we handle the error reporting in the
@@ -233,17 +257,40 @@ func handleConn(
 			mar = splitMsg(errbytes.bytes)
 			switch mar[0] {
 			case "HELLO":
-				err := messageHello(newCtx, c, reportError, mar, userID, session)
+				err := messageHello(
+					newCtx,
+					c,
+					reportError,
+					mar,
+					userID,
+					session,
+				)
 				if err != nil {
 					return err
 				}
 			case "Y":
-				err := messageChooseCourse(newCtx, c, reportError, mar, userID, session, &userCourseGroups)
+				err := messageChooseCourse(
+					newCtx,
+					c,
+					reportError,
+					mar,
+					userID,
+					session,
+					&userCourseGroups,
+				)
 				if err != nil {
 					return err
 				}
 			case "N":
-				err := messageUnchooseCourse(newCtx, c, reportError, mar, userID, session, &userCourseGroups)
+				err := messageUnchooseCourse(
+					newCtx,
+					c,
+					reportError,
+					mar,
+					userID,
+					session,
+					&userCourseGroups,
+				)
 				if err != nil {
 					return err
 				}

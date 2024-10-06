@@ -143,7 +143,10 @@ func setupCourses() error {
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				return fmt.Errorf("error fetching courses: %w", err)
+				return fmt.Errorf(
+					"error fetching courses: %w",
+					err,
+				)
 			}
 			break
 		}
@@ -163,17 +166,30 @@ func setupCourses() error {
 			return fmt.Errorf("error fetching courses: %w", err)
 		}
 		if !checkCourseType(currentCourse.Type) {
-			return fmt.Errorf("%w: %d %s", errInvalidCourseType, currentCourse.ID, currentCourse.Type)
+			return fmt.Errorf(
+				"%w: %d %s",
+				errInvalidCourseType,
+				currentCourse.ID,
+				currentCourse.Type,
+			)
 		}
 		if !checkCourseGroup(currentCourse.Group) {
-			return fmt.Errorf("%w: %d %s", errInvalidCourseGroup, currentCourse.ID, currentCourse.Group)
+			return fmt.Errorf(
+				"%w: %d %s",
+				errInvalidCourseGroup,
+				currentCourse.ID,
+				currentCourse.Group,
+			)
 		}
 		err := db.QueryRow(context.Background(),
 			"SELECT COUNT (*) FROM choices WHERE courseid = $1",
 			currentCourse.ID,
 		).Scan(&currentCourse.Selected)
 		if err != nil {
-			return fmt.Errorf("error querying course member number: %w", err)
+			return fmt.Errorf(
+				"error querying course member number: %w",
+				err,
+			)
 		}
 		courses[currentCourse.ID] = &currentCourse
 	}
@@ -183,23 +199,40 @@ func setupCourses() error {
 
 type userCourseGroupsT map[courseGroupT]bool
 
-func populateUserCourseGroups(ctx context.Context, userCourseGroups *userCourseGroupsT, userID string) error {
-	rows, err := db.Query(ctx, "SELECT courseid FROM choices WHERE userid = $1", userID)
+func populateUserCourseGroups(
+	ctx context.Context,
+	userCourseGroups *userCourseGroupsT,
+	userID string,
+) error {
+	rows, err := db.Query(
+		ctx,
+		"SELECT courseid FROM choices WHERE userid = $1",
+		userID,
+	)
 	if err != nil {
-		return fmt.Errorf("error querying user's choices while populating course groups: %w", err)
+		return fmt.Errorf(
+			"error querying user's choices while populating course groups: %w",
+			err,
+		)
 	}
 	for {
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				return fmt.Errorf("error iterating user's choices while populating course groups: %w", err)
+				return fmt.Errorf(
+					"error iterating user's choices while populating course groups: %w",
+					err,
+				)
 			}
 			break
 		}
 		var thisCourseID int
 		err := rows.Scan(&thisCourseID)
 		if err != nil {
-			return fmt.Errorf("error fetching user's choices while populating course groups: %w", err)
+			return fmt.Errorf(
+				"error fetching user's choices while populating course groups: %w",
+				err,
+			)
 		}
 		var thisGroupName courseGroupT
 		func() {
@@ -208,14 +241,22 @@ func populateUserCourseGroups(ctx context.Context, userCourseGroups *userCourseG
 			thisGroupName = courses[thisCourseID].Group
 		}()
 		if (*userCourseGroups)[thisGroupName] {
-			return fmt.Errorf("%w: user %v, group %v", errMultipleChoicesInOneGroup, userID, thisGroupName)
+			return fmt.Errorf(
+				"%w: user %v, group %v",
+				errMultipleChoicesInOneGroup,
+				userID,
+				thisGroupName,
+			)
 		}
 		(*userCourseGroups)[thisGroupName] = true
 	}
 	return nil
 }
 
-func (course *courseT) decrementSelectedAndPropagate(ctx context.Context, conn *websocket.Conn) error {
+func (course *courseT) decrementSelectedAndPropagate(
+	ctx context.Context,
+	conn *websocket.Conn,
+) error {
 	func() {
 		course.SelectedLock.Lock()
 		defer course.SelectedLock.Unlock()
@@ -224,7 +265,10 @@ func (course *courseT) decrementSelectedAndPropagate(ctx context.Context, conn *
 	go propagateSelectedUpdate(course.ID)
 	err := sendSelectedUpdate(ctx, conn, course.ID)
 	if err != nil {
-		return fmt.Errorf("error sending selected update on decrement: %w", err)
+		return fmt.Errorf(
+			"error sending selected update on decrement: %w",
+			err,
+		)
 	}
 	return nil
 }

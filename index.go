@@ -38,7 +38,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 	if errors.Is(err, http.ErrNoCookie) {
 		authURL, err := generateAuthorizationURL()
 		if err != nil {
-			wstr(w, http.StatusInternalServerError, "Cannot generate authorization URL")
+			wstr(
+				w,
+				http.StatusInternalServerError,
+				"Cannot generate authorization URL",
+			)
 			return
 		}
 		err = tmpl.ExecuteTemplate(
@@ -73,7 +77,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		if errors.Is(err, pgx.ErrNoRows) {
 			authURL, err := generateAuthorizationURL()
 			if err != nil {
-				wstr(w, http.StatusInternalServerError, "Cannot generate authorization URL")
+				wstr(
+					w,
+					http.StatusInternalServerError,
+					"Cannot generate authorization URL",
+				)
 				return
 			}
 			err = tmpl.ExecuteTemplate(
@@ -90,7 +98,14 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			}
 			return
 		}
-		wstr(w, http.StatusInternalServerError, fmt.Sprintf("Error: Unexpected database error: %s", err))
+		wstr(
+			w,
+			http.StatusInternalServerError,
+			fmt.Sprintf(
+				"Error: Unexpected database error: %s",
+				err,
+			),
+		)
 		return
 	}
 
