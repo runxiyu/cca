@@ -7,9 +7,10 @@
 \usepackage{fontspec}
 \setmainfont{TeX Gyre Termes}
 \setsansfont{TeX Gyre Heros}
-\setmonofont{DejaVu Sans Mono}[Scale=0.8]
+\setmonofont{DejaVu Sans Mono}[Scale=0.86]
 \usepackage{unicode-math}
 \setmathfont{TeX Gyre Termes Math}
 \usepackage{microtype}
 
-\usepackage[colorlinks]{hyperref}
+\usepackage{xcolor}
+\usepackage[colorlinks, allcolors={blue!60!black}]{hyperref}

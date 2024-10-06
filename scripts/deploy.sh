@@ -16,3 +16,6 @@ rm build/static/student.js
 rsync -v dist/cca root@runxiyu.org:/srv/dev/cca
 
 ssh root@runxiyu.org pkill cca
+
+rm dist/cca
+mv dist/ccae dist/cca
