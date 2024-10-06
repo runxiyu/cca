@@ -13,4 +13,4 @@
 \usepackage{microtype}
 
 \usepackage{xcolor}
-\usepackage[colorlinks, allcolors={blue!60!black}]{hyperref}
+\usepackage[colorlinks, allcolors={white!40!blue!50!black}]{hyperref}
