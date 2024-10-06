@@ -86,6 +86,15 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 		return reportError("nil course")
 	}
 
+	thisCourseGroup := course.Group
+
+	if (*userCourseGroups)[thisCourseGroup] {
+		return reportError("inconsistent user course groups")
+		/*
+		 * TODO: reportError terminates the connection which is not necessary
+		 */
+	}
+
 	err = func() (returnedError error) { /* Named returns so I could modify them in defer */
 		tx, err := db.Begin(ctx)
 		if err != nil {
@@ -138,20 +147,13 @@ func messageChooseCourse(ctx context.Context, c *websocket.Conn, reportError rep
 				}
 				return reportError("Database error while committing transaction")
 			}
-			var thisCourseGroup courseGroupT
-			func() {
-				coursesLock.RLock()
-				defer coursesLock.RUnlock()
-				thisCourseGroup = courses[courseID].Group
-			}()
-			if (*userCourseGroups)[thisCourseGroup] {
-				err := course.decrementSelectedAndPropagate(ctx, c)
-				if err != nil {
-					return fmt.Errorf("error decrementing and notifying: %w", err)
-				}
-				return reportError("inconsistent user course groups")
-			}
+
+			/*
+			 * This would race if message handlers could run
+			 * concurrently for one connection.
+			 */
 			(*userCourseGroups)[thisCourseGroup] = true
+
 			err = writeText(ctx, c, "Y "+mar[1])
 			if err != nil {
 				return fmt.Errorf("error affirming course choice: %w", err)
