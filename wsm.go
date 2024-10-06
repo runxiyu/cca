@@ -200,12 +200,15 @@ func messageChooseCourse(
 					err,
 				)
 			}
-			err = sendSelectedUpdate(ctx, c, courseID)
-			if err != nil {
-				return fmt.Errorf(
-					"error notifying after increment: %w",
-					err,
-				)
+
+			if config.Perf.PropagateImmediate {
+				err = sendSelectedUpdate(ctx, c, courseID)
+				if err != nil {
+					return fmt.Errorf(
+						"error notifying after increment: %w",
+						err,
+					)
+				}
 			}
 		} else {
 			err := tx.Rollback(ctx)

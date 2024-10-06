@@ -90,4 +90,9 @@ perf {
 	# larger value (i.e. shorter delay) could cause too much lock
 	# contention and degrade the system usability overall.
 	usem_delay_shift_bits 4
+
+	# Should we send a course's member count to a user as soon as they 
+	# choose the course? Setting this to true may provide a better
+	# user experience but would have a major performance impact.
+	propagate_immediate true
 }

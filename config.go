@@ -65,10 +65,11 @@ var configWithPointers struct {
 		Expr      *int    `scfg:"expr"`
 	} `scfg:"auth"`
 	Perf struct {
-		MessageArgumentsCap *int `scfg:"msg_args_cap"`
-		MessageBytesCap     *int `scfg:"msg_bytes_cap"`
-		ReadHeaderTimeout   *int `scfg:"read_header_timeout"`
-		UsemDelayShiftBits  *int `scfg:"usem_delay_shift_bits"`
+		MessageArgumentsCap *int  `scfg:"msg_args_cap"`
+		MessageBytesCap     *int  `scfg:"msg_bytes_cap"`
+		ReadHeaderTimeout   *int  `scfg:"read_header_timeout"`
+		UsemDelayShiftBits  *int  `scfg:"usem_delay_shift_bits"`
+		PropagateImmediate  *bool `scfg:"propagate_immediate"`
 	} `scfg:"perf"`
 }
 
@@ -103,6 +104,7 @@ var config struct {
 		MessageBytesCap     int
 		ReadHeaderTimeout   int
 		UsemDelayShiftBits  int
+		PropagateImmediate  bool
 	} `scfg:"perf"`
 }
 
@@ -292,6 +294,14 @@ func fetchConfig(path string) (retErr error) {
 		)
 	}
 	config.Perf.UsemDelayShiftBits = *(configWithPointers.Perf.UsemDelayShiftBits)
+
+	if configWithPointers.Perf.PropagateImmediate == nil {
+		return fmt.Errorf(
+			"%w: perf.propagate_immediate",
+			errMissingConfigValue,
+		)
+	}
+	config.Perf.PropagateImmediate = *(configWithPointers.Perf.PropagateImmediate)
 
 	return nil
 }
