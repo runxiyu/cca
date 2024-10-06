@@ -11,7 +11,7 @@ docs: dist/docs/admin_handbook.html dist/docs/handbook.css dist/docs/cca.scfg.ex
 iadocs: dist/iadocs/cover_page.htm dist/iadocs/appendix.pdf dist/iadocs/crita_planning.pdf dist/iadocs/critb_design.pdf dist/iadocs/critb_recordoftasks.pdf dist/iadocs/critc_development.pdf dist/iadocs/critd_functionality.pdf dist/iadocs/crite_evaluation.pdf
 
 # Final binary which tries to embed stuff
-dist/cca: *.go build/static/style.css build/static/student.js tmpl/* build/docs/admin_handbook.html build/docs/handbook.css build/docs/cca.scfg.example build/iadocs/cover_page.htm build/iadocs/appendix.pdf build/iadocs/crita_planning.pdf build/iadocs/critb_design.pdf build/iadocs/critb_recordoftasks.pdf build/iadocs/critc_development.pdf build/iadocs/critd_functionality.pdf build/iadocs/crite_evaluation.pdf
+dist/cca: go.* *.go build/static/style.css build/static/student.js tmpl/* build/docs/admin_handbook.html build/docs/handbook.css build/docs/cca.scfg.example build/iadocs/cover_page.htm build/iadocs/appendix.pdf build/iadocs/crita_planning.pdf build/iadocs/critb_design.pdf build/iadocs/critb_recordoftasks.pdf build/iadocs/critc_development.pdf build/iadocs/critd_functionality.pdf build/iadocs/crite_evaluation.pdf
 	mkdir -p dist
 	go build -o $@
 

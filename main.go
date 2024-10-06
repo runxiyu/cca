@@ -37,7 +37,7 @@ var tmpl *template.Template
 //go:embed build/static/* tmpl/* build/iadocs/* build/docs/*
 var runFS embed.FS
 
-//go:embed *.go docs/* frontend/* README.md LICENSE Makefile iadocs/* sql/* tmpl/* scripts/*
+//go:embed go.* *.go docs/* frontend/* README.md LICENSE Makefile iadocs/* sql/* tmpl/* scripts/*
 var srcFS embed.FS
 
 func main() {
