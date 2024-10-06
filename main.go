@@ -52,24 +52,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println("Setting up database")
-	if err := setupDatabase(); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("Setting up JWKS")
-	if err := setupJwks(); err != nil {
-		log.Fatal(err)
-	}
-
 	log.Println("Setting up templates")
 	tmpl, err = template.ParseFS(runFS, "tmpl/*")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("Setting up courses")
-	err = setupCourses()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -136,6 +120,22 @@ func main() {
 		}
 	default:
 		log.Fatalln("listen.trans must be \"plain\" or \"tls\"")
+	}
+
+	log.Println("Setting up database")
+	if err := setupDatabase(); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Setting up courses")
+	err = setupCourses()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Setting up JWKS")
+	if err := setupJwks(); err != nil {
+		log.Fatal(err)
 	}
 
 	if config.Listen.Proto == "http" {
