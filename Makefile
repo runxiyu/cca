@@ -41,12 +41,12 @@ build/iadocs/%.htm: iadocs/%.htm
 	minify --html-keep-end-tags --html-keep-document-tags -o $@ $<
 build/iadocs/%.pdf: iadocs/%.tex build/iadocs/header.inc
 	mkdir -p build/iadocs
-	lualatex -halt-on-error -output-directory=build/iadocs $<
-	lualatex -halt-on-error -output-directory=build/iadocs $<
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
 build/iadocs/appendix.pdf: iadocs/appendix.tex build/iadocs/header.inc build/iadocs/source.gen
 	mkdir -p build/iadocs
-	lualatex -halt-on-error -shell-escape -output-directory=build/iadocs $<
-	lualatex -halt-on-error -shell-escape -output-directory=build/iadocs $<
+	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
+	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
 build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.js tmpl/* scripts/latexify-source.sh docs/* sql/* scripts/*
 	mkdir -p build/iadocs
 	scripts/latexify-source.sh
