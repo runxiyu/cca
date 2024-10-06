@@ -24,8 +24,8 @@ import (
 	"crypto/tls"
 	"embed"
 	"flag"
-	"io/fs"
 	"html/template"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -34,7 +34,7 @@ import (
 
 var tmpl *template.Template
 
-//go:embed build/static/* tmpl/* build/iadocs/* build/docs/*
+//go:embed build/static/* tmpl/* build/iadocs/*.pdf build/iadocs/*.htm build/docs/*
 var runFS embed.FS
 
 //go:embed go.* *.go docs/* frontend/* README.md LICENSE Makefile iadocs/* sql/* tmpl/* scripts/*
