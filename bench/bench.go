@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"math/big"
@@ -12,6 +13,11 @@ import (
 	"time"
 
 	"github.com/coder/websocket"
+)
+
+var (
+	chosenCourseID = flag.Int("c", -1, "course ID (-1 for random)")
+	connections    = flag.Int("n", 10000, "number of connections")
 )
 
 var (
@@ -72,7 +78,7 @@ func connect(cid int) {
 	globalLock.RLock()
 	defer globalLock.RUnlock()
 
-	if false {
+	if *chosenCourseID == -1 {
 		courseID, err := rand.Int(rand.Reader, courses)
 		if err != nil {
 			panic(err)
@@ -82,7 +88,7 @@ func connect(cid int) {
 			panic(err)
 		}
 	} else {
-		err = w(ctx, c, "Y 1", cid)
+		err = w(ctx, c, fmt.Sprintf("Y %d", *chosenCourseID), cid)
 		if err != nil {
 			panic(err)
 		}
@@ -94,8 +100,10 @@ func connect(cid int) {
 }
 
 func main() {
+	flag.Parse()
+
 	globalLock.Lock()
-	for i := range 10000 {
+	for i := range *connections {
 		go func() {
 			defer func() {
 				if r := recover(); r != nil {
