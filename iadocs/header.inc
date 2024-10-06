@@ -7,7 +7,7 @@
 \usepackage{fontspec}
 \setmainfont{TeX Gyre Termes}
 \setsansfont{TeX Gyre Heros}
-\setmonofont{Latin Modern Mono}
+\setmonofont{DejaVu Sans Mono}[Scale=0.8]
 \usepackage{unicode-math}
 \setmathfont{TeX Gyre Termes Math}
 \usepackage{microtype}
