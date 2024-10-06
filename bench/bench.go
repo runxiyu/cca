@@ -88,21 +88,15 @@ func connect(cid int) {
 		}
 	}
 
-	time.Sleep(120 * time.Second)
-
-	err = c.Close(websocket.StatusNormalClosure, "")
-	if err != nil {
-		panic(err)
-	}
+	var deadlock sync.Mutex
+	deadlock.Lock()
+	deadlock.Lock()
 }
 
 func main() {
-	var wg sync.WaitGroup
 	globalLock.Lock()
 	for i := range 10000 {
-		wg.Add(1)
 		go func() {
-			defer wg.Done()
 			defer func() {
 				if r := recover(); r != nil {
 					log.Printf("%d !M %v", i, r)
@@ -117,5 +111,8 @@ func main() {
 		log.Printf("waiting %d before trigger", 5-i)
 	}
 	globalLock.Unlock()
-	wg.Wait()
+
+	var deadlock sync.Mutex
+	deadlock.Lock()
+	deadlock.Lock()
 }
