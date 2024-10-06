@@ -112,9 +112,9 @@ func main() {
 		}()
 		time.Sleep(2 * time.Millisecond)
 	}
-	for i := range 10 {
+	for i := range 6 {
 		time.Sleep(1 * time.Second)
-		log.Printf("waiting %d before trigger", 10-i)
+		log.Printf("waiting %d before trigger", 5-i)
 	}
 	globalLock.Unlock()
 	wg.Wait()
