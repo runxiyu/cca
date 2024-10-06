@@ -81,7 +81,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 				"login",
 				map[string]interface{}{
 					"authURL": authURL,
-					"notes":   "You sent an invalid session cookie.",
+					"notes":   "Your session is invalid or has expired.",
 				},
 			)
 			if err != nil {
