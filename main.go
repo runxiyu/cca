@@ -52,7 +52,7 @@ func main() {
 
 	flag.StringVar(
 		&configPath,
-		"config",
+		"c",
 		"cca.scfg",
 		"path to configuration file",
 	)
