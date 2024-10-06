@@ -23,7 +23,7 @@ cd frontend
 for i in *.js
 do
 	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=8]{javascript}{frontend/%s}\n' "$i" >> "$targetfile"
+	printf '\\inputminted[breaklines, tabsize=4]{javascript}{frontend/%s}\n' "$i" >> "$targetfile"
 done
 for i in *.css
 do

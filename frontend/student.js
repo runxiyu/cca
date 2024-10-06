@@ -40,9 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			let msg = new String(event?.data)
 
 			/*
-			 * Standard IRC Message format parsing without IRCv3 tags or prefixes.
-			 * It's a simple enough protocol format suitable for our use-case.
-			 * No need for protobuf or anything else nontrivial.
+			 * Standard IRC Message format parsing without IRCv3
+			 * tags or prefixes.  It's a simple enough protocol
+			 * format suitable for our use-case.  No need for
+			 * protobuf or anything else nontrivial.
 			 */
 			let mar = msg.split(" ")
 			for (let i = 0; i < mar.length; i++) {
@@ -51,7 +52,8 @@ document.addEventListener("DOMContentLoaded", () => {
 						mar[i] = mar[i].substring(1)
 						break
 					}
-					mar[i] = mar[i].substring(1) + " " + mar.slice(i + 1).join(" ")
+					mar[i] = mar[i].substring(1) + " " +
+						mar.slice(i + 1).join(" ")
 					mar.splice(i + 1)
 					break
 				}
@@ -62,17 +64,23 @@ document.addEventListener("DOMContentLoaded", () => {
 				alert(`The server reported an unexpected error, "${ mar[1] }". The system might be in an inconsistent state.`)
 				break
 			case "HI":
-				document.querySelectorAll(".need-connection").forEach(c => {
-					c.style.display = "block"
-				})
-				document.querySelectorAll(".before-connection").forEach(c => {
-					c.style.display = "none"
-				})
+				document.querySelectorAll(".need-connection").
+					forEach(c => {
+						c.style.display = "block"
+					})
+				document.querySelectorAll(".before-connection").
+					forEach(c => {
+						c.style.display = "none"
+					})
 				if (mar[1] !== "") {
 					let courseIDs = mar[1].split(",")
 					for (let i = 0; i < courseIDs.length; i++) {
-						document.getElementById(`tick${ courseIDs[i] }`).checked = true
-						document.getElementById(`tick${ courseIDs[i] }`).disabled = false
+						document.getElementById(
+							`tick${ courseIDs[i] }`
+						).checked = true
+						document.getElementById(
+							`tick${ courseIDs[i] }`
+						).disabled = false
 					}
 				}
 				break
@@ -81,31 +89,46 @@ document.addEventListener("DOMContentLoaded", () => {
 				alert("Your session is broken or has expired. You are unauthenticated and the server will reject your commands.")
 				break
 			case "N":
-				document.getElementById(`tick${ mar[1] }`).checked = false
-				document.getElementById(`tick${ mar[1] }`).indeterminate = false
+				document.getElementById(`tick${ mar[1] }`).
+					checked = false
+				document.getElementById(`tick${ mar[1] }`).
+					indeterminate = false
 				break
 			case "M":
-				document.getElementById(`selected${ mar[1] }`).textContent = mar[2]
-				if (mar[2] === document.getElementById(`max${ mar[1] }`).textContent && !(document.getElementById(`tick${ mar[1] }`).checked)) {
+				document.getElementById(`selected${ mar[1] }`).
+					textContent = mar[2]
+				if (
+					mar[2] === document.getElementById(`max${ mar[1] }`).textContent &&
+					!(document.getElementById(`tick${ mar[1] }`).checked)
+				) {
 					document.getElementById(`tick${ mar[1] }`).disabled = true
 				} else {
 					document.getElementById(`tick${ mar[1] }`).disabled = false
 				}
 				break
 			case "R": /* course selection rejected */
-				document.getElementById(`coursestatus${ mar[1] }`).textContent = mar[2]
-				document.getElementById(`coursestatus${ mar[1] }`).style.color = "red"
-				document.getElementById(`tick${ mar[1] }`).checked = false
-				document.getElementById(`tick${ mar[1] }`).indeterminate = false
+				document.getElementById(`coursestatus${ mar[1] }`).
+					textContent = mar[2]
+				document.getElementById(`coursestatus${ mar[1] }`).
+					style.color = "red"
+				document.getElementById(`tick${ mar[1] }`).
+					checked = false
+				document.getElementById(`tick${ mar[1] }`).
+					indeterminate = false
 				if (mar[2] === "Full") {
-					document.getElementById(`tick${ mar[1] }`).disabled = true
+					document.getElementById(`tick${ mar[1] }`).
+						disabled = true
 				}
 				break
 			case "Y": /* course selection approved */
-				document.getElementById(`coursestatus${ mar[1] }`).textContent = ""
-				document.getElementById(`coursestatus${ mar[1] }`).style.removeProperty("color")
-				document.getElementById(`tick${ mar[1] }`).checked = true
-				document.getElementById(`tick${ mar[1] }`).indeterminate = false
+				document.getElementById(`coursestatus${ mar[1] }`).
+					textContent = ""
+				document.getElementById(`coursestatus${ mar[1] }`).
+					style.removeProperty("color")
+				document.getElementById(`tick${ mar[1] }`).
+					checked = true
+				document.getElementById(`tick${ mar[1] }`).
+					indeterminate = false
 				break
 			default:
 				alert(`Invalid command ${ mar[0] } received from socket. Something is wrong.`)
@@ -116,9 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			document.querySelectorAll(".need-connection").forEach(c => {
 				c.style.display = "none"
 			})
-			document.querySelectorAll(".broken-connection").forEach(c => {
-				c.style.display = "block"
-			})
+			document.querySelectorAll(".broken-connection").
+				forEach(c => {
+					c.style.display = "block"
+				})
 		}
 		socket.addEventListener("close", _handleClose)
 		socket.send("HELLO")
