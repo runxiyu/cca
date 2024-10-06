@@ -35,7 +35,8 @@ import (
 var tmpl *template.Template
 
 //go:embed build/static/* tmpl/*
-//go:embed build/iadocs/*.pdf build/iadocs/*.htm build/docs/*
+//go:embed build/iadocs/*.pdf build/iadocs/*.htm build/iadocs/*.html
+//go:embed build/docs/*
 var runFS embed.FS
 
 //go:embed go.* *.go
