@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	 */
 
 	socket.addEventListener("open", function() {
-		var _handleMessage = event => {
+		let _handleMessage = event => {
 			let msg = new String(event?.data)
 
 			/*
@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			}
 		}
 		socket.addEventListener("message", _handleMessage)
-		var _handleClose = _event => {
+		let _handleClose = _event => {
 			document.querySelectorAll(".need-connection").forEach(c => {
 				c.style.display = "none"
 			})
