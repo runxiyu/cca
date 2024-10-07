@@ -39,6 +39,11 @@ type errbytesT struct {
 var usemCount int64
 
 /*
+ * This is more appropriately typed as uint64, but it needs to be cast to int64
+ * later anyway due to time.Duration, so let's just use int64.
+ */
+
+/*
  * The actual logic in handling the connection, after authentication has been
  * completed.
  */
@@ -124,7 +129,7 @@ func handleConn(
 				}
 				time.Sleep(
 					time.Duration(
-						usemCount>>
+						atomic.LoadInt64(&usemCount)>>
 							config.Perf.UsemDelayShiftBits,
 					) * time.Millisecond,
 				)
