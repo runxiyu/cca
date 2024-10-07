@@ -83,13 +83,9 @@ perf {
 	# vulnerable to Slow Loris attacks.
 	read_header_timeout 5
 
-	# The number propagation interval per course per connection is
-	# ((course count * connection count) >> usem_delay_shift_bits)
-	# milliseconds. You may configure it here. A smaller value (i.e. longer
-	# delay) could cause more latency in how the numbers update, but a
-	# larger value (i.e. shorter delay) could cause too much lock
-	# contention and degrade the system usability overall.
-	usem_delay_shift_bits 4
+	# How long, in milliseconds, do we wait before propagating course
+	# number update events for conjunction between course and user?
+	course_update_interval 200
 
 	# Should we send a course's member count to a user as soon as they 
 	# choose the course? Setting this to true may provide a better

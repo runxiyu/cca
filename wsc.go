@@ -25,7 +25,6 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/coder/websocket"
@@ -35,8 +34,6 @@ type errbytesT struct {
 	err   error
 	bytes *[]byte
 }
-
-var usemCount int64
 
 /*
  * This is more appropriately typed as uint64, but it needs to be cast to int64
@@ -86,7 +83,6 @@ func handleConn(
 
 	usems := make(map[int]*usemT)
 	func() {
-		atomic.AddInt64(&usemCount, int64(len(courses)))
 		coursesLock.RLock()
 		defer coursesLock.RUnlock()
 		for courseID, course := range courses {
@@ -110,7 +106,6 @@ func handleConn(
 				delete(course.Usems, userID)
 			}()
 		}
-		atomic.AddInt64(&usemCount, -int64(len(courses)))
 	}()
 
 	usemParent := make(chan int)
@@ -127,12 +122,7 @@ func handleConn(
 					case usemParent <- courseID:
 					}
 				}
-				time.Sleep(
-					time.Duration(
-						atomic.LoadInt64(&usemCount)>>
-							config.Perf.UsemDelayShiftBits,
-					) * time.Millisecond,
-				)
+				time.Sleep(time.Duration(config.Perf.CourseUpdateInterval) * time.Millisecond)
 			}
 		}()
 	}
