@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"sync/atomic"
 
 	"github.com/coder/websocket"
 )
@@ -45,9 +46,9 @@ type courseT struct {
 	 * on the CPU so I'd have to look into how mutexes/semaphores are
 	 * actually implemented and how I could interact with the runtime.
 	 */
-	Selected     int
-	SelectedLock sync.RWMutex
-	Max          int
+	Selected     uint32
+	SelectedLock sync.Mutex
+	Max          uint32
 	Title        string
 	Type         courseTypeT
 	Group        courseGroupT
@@ -260,7 +261,7 @@ func (course *courseT) decrementSelectedAndPropagate(
 	func() {
 		course.SelectedLock.Lock()
 		defer course.SelectedLock.Unlock()
-		course.Selected--
+		atomic.AddUint32(&course.Selected, ^uint32(0))
 	}()
 	go propagateSelectedUpdate(course.ID)
 	err := sendSelectedUpdate(ctx, conn, course.ID)

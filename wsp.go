@@ -23,6 +23,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"sync/atomic"
 
 	"github.com/coder/websocket"
 )
@@ -93,13 +94,8 @@ func sendSelectedUpdate(
 	conn *websocket.Conn,
 	courseID int,
 ) error {
-	var selected int
-	func() {
-		course := courses[courseID]
-		course.SelectedLock.RLock()
-		defer course.SelectedLock.RUnlock()
-		selected = course.Selected
-	}()
+	course := courses[courseID]
+	selected := atomic.LoadUint32(&course.Selected)
 	err := writeText(ctx, conn, fmt.Sprintf("M %d %d", courseID, selected))
 	if err != nil {
 		return fmt.Errorf(

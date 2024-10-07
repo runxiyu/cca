@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/coder/websocket"
@@ -164,8 +165,13 @@ func messageChooseCourse(
 		ok := func() bool {
 			course.SelectedLock.Lock()
 			defer course.SelectedLock.Unlock()
+			/*
+			 * The read here doesn't have to be atomic because the
+			 * lock guarantees that no other goroutine is writing to
+			 * it.
+			 */
 			if course.Selected < course.Max {
-				course.Selected++
+				atomic.AddUint32(&course.Selected, 1)
 				return true
 			}
 			return false
