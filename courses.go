@@ -22,7 +22,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -95,12 +94,6 @@ func checkCourseType(ct courseTypeT) bool {
 func checkCourseGroup(cg courseGroupT) bool {
 	return courseGroups[cg]
 }
-
-var (
-	errInvalidCourseType         = errors.New("invalid course type")
-	errInvalidCourseGroup        = errors.New("invalid course group")
-	errMultipleChoicesInOneGroup = errors.New("multiple choices per group per user")
-)
 
 /*
  * The courses are simply stored in a map indexed by the course ID, although

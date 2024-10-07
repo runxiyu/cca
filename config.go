@@ -22,7 +22,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -107,14 +106,6 @@ var config struct {
 		PropagateImmediate  bool
 	} `scfg:"perf"`
 }
-
-var (
-	errCannotProcessConfig = errors.New("cannot process configuration file")
-	errCannotOpenConfig    = errors.New("cannot open configuration file")
-	errCannotDecodeConfig  = errors.New("cannot decode configuration file")
-	errMissingConfigValue  = errors.New("missing configuration value")
-	errIllegalConfig       = errors.New("illegal configuration")
-)
 
 func fetchConfig(path string) (retErr error) {
 	defer func() {

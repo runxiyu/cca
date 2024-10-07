@@ -22,15 +22,12 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var db *pgxpool.Pool
-
-var errUnsupportedDatabaseType = errors.New("unsupported db type")
 
 const pgErrUniqueViolation = "23505"
 

@@ -37,12 +37,6 @@ import (
 
 var myKeyfunc keyfunc.Keyfunc
 
-var (
-	errInsufficientFields         = errors.New("insufficient fields")
-	errAccessTokenIncompleteError = errors.New("access token has unpopulated error fields")
-	errTokenEndpointReturnedError = errors.New("token endpoint returned error")
-)
-
 const tokenLength = 20
 
 /*
@@ -293,7 +287,7 @@ func setupJwks() error {
 	var err error
 	myKeyfunc, err = keyfunc.NewDefault([]string{config.Auth.Jwks})
 	if err != nil {
-		return fmt.Errorf("error setting up jwks: %w", err)
+		return fmt.Errorf("%w: %w", errCannotSetupJwks, err)
 	}
 	return nil
 }
@@ -314,14 +308,14 @@ func getDepartment(ctx context.Context, accessToken string) (string, error) {
 		nil,
 	)
 	if err != nil {
-		return "", fmt.Errorf("error getting department: %w", err)
+		return "", fmt.Errorf("%w: %w", errCannotGetDepartment, err)
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 
 	client := &http.Client{} //exhaustruct:ignore
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("error getting department: %w", err)
+		return "", fmt.Errorf("%w: %w", errCannotGetDepartment, err)
 	}
 	defer resp.Body.Close()
 
@@ -332,7 +326,7 @@ func getDepartment(ctx context.Context, accessToken string) (string, error) {
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&departmentWrap)
 	if err != nil {
-		return "", fmt.Errorf("error getting department: %w", err)
+		return "", fmt.Errorf("%w: %w", errCannotGetDepartment, err)
 	}
 
 	if departmentWrap.Department == nil {
@@ -341,11 +335,11 @@ func getDepartment(ctx context.Context, accessToken string) (string, error) {
 		 * "department" field, which hopefully doesn't occur as we
 		 * have specified $select=department in the OData query.
 		 */
-		return "",
-			fmt.Errorf(
-				"error getting department: %w",
-				errInsufficientFields,
-			)
+		return "", fmt.Errorf(
+			"%w: %w",
+			errCannotGetDepartment,
+			errInsufficientFields,
+		)
 	}
 
 	return *(departmentWrap.Department), nil
@@ -388,12 +382,12 @@ func getAccessToken(
 	)
 	if err != nil {
 		return accessToken,
-			fmt.Errorf("error making access token request: %w", err)
+			fmt.Errorf("%w: %w", errCannotFetchAccessToken, err)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return accessToken,
-			fmt.Errorf("error requesting access token: %w", err)
+			fmt.Errorf("%w: %w", errCannotFetchAccessToken, err)
 	}
 	defer resp.Body.Close()
 
@@ -401,13 +395,13 @@ func getAccessToken(
 	err = decoder.Decode(&accessToken)
 	if err != nil {
 		return accessToken,
-			fmt.Errorf("error decoding access token: %w", err)
+			fmt.Errorf("%w: %w", errCannotFetchAccessToken, err)
 	}
 	if accessToken.Error != nil || accessToken.ErrorCodes != nil ||
 		accessToken.ErrorDescription != nil {
 		if accessToken.Error == nil || accessToken.ErrorCodes == nil ||
 			accessToken.ErrorDescription == nil {
-			return accessToken, errAccessTokenIncompleteError
+			return accessToken, errCannotFetchAccessToken
 		}
 		return accessToken,
 			fmt.Errorf(
