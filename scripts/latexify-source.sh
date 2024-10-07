@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -xeu
+set -eu
 
 targetfile="$(realpath -- build/iadocs/source.gen)"
 
