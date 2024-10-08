@@ -86,24 +86,37 @@ func handleConn(
 	/* TODO: Tell the user their current choices here. Deprecate HELLO. */
 
 	usems := make(map[int]*usemT)
-	func() {
-		atomic.AddInt64(&usemCount, int64(len(courses)))
-		coursesLock.RLock()
-		defer coursesLock.RUnlock()
-		for courseID, course := range courses {
-			usem := &usemT{} //exhaustruct:ignore
-			usem.init()
-			course.Usems.Store(userID, usem)
-			usems[courseID] = usem
+
+	/* TODO: Check if the LoadUint32 here is a bit too much overhead */
+	atomic.AddInt64(&usemCount, int64(atomic.LoadUint32(&numCourses)))
+	courses.Range(func(key, value interface{}) bool {
+		/* TODO: Remember to change this too when changing the courseID type */
+		courseID, ok := key.(int)
+		if !ok {
+			panic("courses map has non-\"int\" keys")
 		}
-	}()
+		course, ok := value.(*courseT)
+		if !ok {
+			panic("courses map has non-\"*courseT\" items")
+		}
+		usem := &usemT{} //exhaustruct:ignore
+		usem.init()
+		course.Usems.Store(userID, usem)
+		usems[courseID] = usem
+		return true
+	})
+
 	defer func() {
-		coursesLock.RLock()
-		defer coursesLock.RUnlock()
-		for _, course := range courses {
+		courses.Range(func(key, value interface{}) bool {
+			_ = key
+			course, ok := value.(*courseT)
+			if !ok {
+				panic("courses map has non-\"*courseT\" items")
+			}
 			course.Usems.Delete(userID)
-		}
-		atomic.AddInt64(&usemCount, -int64(len(courses)))
+			return true
+		})
+		atomic.AddInt64(&usemCount, -int64(atomic.LoadUint32(&numCourses)))
 	}()
 
 	usemParent := make(chan int)

@@ -80,8 +80,7 @@ func makeReportError(ctx context.Context, conn *websocket.Conn) reportErrorT {
 	}
 }
 
-func propagateSelectedUpdate(courseID int) {
-	course := courses[courseID]
+func propagateSelectedUpdate(course *courseT) {
 	course.Usems.Range(func(key, value interface{}) bool {
 		_ = key
 		usem, ok := value.(*usemT)
@@ -98,7 +97,17 @@ func sendSelectedUpdate(
 	conn *websocket.Conn,
 	courseID int,
 ) error {
-	course := courses[courseID]
+	_course, ok := courses.Load(courseID)
+	if !ok {
+		return fmt.Errorf("%w: %d", errNoSuchCourse, courseID)
+	}
+	course, ok := _course.(*courseT)
+	if !ok {
+		panic("courses map has non-\"*courseT\" items")
+	}
+	if course == nil {
+		return fmt.Errorf("%w: %d", errNoSuchCourse, courseID)
+	}
 	selected := atomic.LoadUint32(&course.Selected)
 	err := writeText(ctx, conn, fmt.Sprintf("M %d %d", courseID, selected))
 	if err != nil {

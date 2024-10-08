@@ -44,4 +44,5 @@ var (
 	errCannotGenerateRandomString = errors.New("cannot generate random string")
 	errContextCancelled           = errors.New("context cancelled")
 	errCannotReceiveMessage       = errors.New("cannot receive message")
+	errNoSuchCourse               = errors.New("no such course")
 )

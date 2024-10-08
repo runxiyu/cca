@@ -94,24 +94,9 @@ func checkCourseGroup(cg courseGroupT) bool {
 	return courseGroups[cg]
 }
 
-/*
- * The courses are simply stored in a map indexed by the course ID, although
- * the course struct itself also contains an ID field. A lock is embedded
- * inside the struct; we use a lock here instead of a pointer to a lock as
- * it would be easy to forget to initialize the lock when creating the
- * struct. However, this means that the struct could not be copied (though
- * this should only ever happen during creation anyways), therefore we use a
- * pointer to the struct as the value of the map, instead of the struct itself.
- */
-var courses map[int](*courseT)
+var courses sync.Map /* int, *courseT */
 
-/*
- * This RWMutex is only for massive modifications of the course struct, since
- * locking it on every write would be inefficient; in normal operation the only
- * write that could occur to the courses struct is changing the Selected
- * number, which should be handled with courseT.SelectedLock.
- */
-var coursesLock sync.RWMutex
+var numCourses uint32
 
 /*
  * Read course information from the database. This should be called during
@@ -119,11 +104,6 @@ var coursesLock sync.RWMutex
  * a null pointer dereference.
  */
 func setupCourses() error {
-	coursesLock.Lock()
-	defer coursesLock.Unlock()
-
-	courses = make(map[int](*courseT))
-
 	rows, err := db.Query(
 		context.Background(),
 		"SELECT id, nmax, title, ctype, cgroup, teacher, location FROM courses",
@@ -184,7 +164,8 @@ func setupCourses() error {
 				err,
 			)
 		}
-		courses[currentCourse.ID] = &currentCourse
+		courses.Store(currentCourse.ID, &currentCourse)
+		atomic.AddUint32(&numCourses, 1)
 	}
 
 	return nil
@@ -231,11 +212,19 @@ func populateUserCourseGroups(
 			)
 		}
 		var thisGroupName courseGroupT
-		func() {
-			coursesLock.RLock()
-			defer coursesLock.RUnlock()
-			thisGroupName = courses[thisCourseID].Group
-		}()
+		_course, ok := courses.Load(thisCourseID)
+		if !ok {
+			return fmt.Errorf(
+				"%w: %d",
+				errNoSuchCourse,
+				thisCourseID,
+			)
+		}
+		course, ok := _course.(*courseT)
+		if !ok {
+			panic("courses map has non-\"*courseT\" items")
+		}
+		thisGroupName = course.Group
 		if _, ok := (*userCourseGroups)[thisGroupName]; ok {
 			return fmt.Errorf(
 				"%w: user %v, group %v",
@@ -258,7 +247,7 @@ func (course *courseT) decrementSelectedAndPropagate(
 		defer course.SelectedLock.Unlock()
 		atomic.AddUint32(&course.Selected, ^uint32(0))
 	}()
-	go propagateSelectedUpdate(course.ID)
+	go propagateSelectedUpdate(course)
 	err := sendSelectedUpdate(ctx, conn, course.ID)
 	if err != nil {
 		return fmt.Errorf(
@@ -268,10 +257,4 @@ func (course *courseT) decrementSelectedAndPropagate(
 		)
 	}
 	return nil
-}
-
-func getCourseByID(courseID int) *courseT {
-	coursesLock.RLock()
-	defer coursesLock.RUnlock()
-	return courses[courseID]
 }

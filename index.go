@@ -109,9 +109,26 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	/*
+	 * Copy courses to _courses. The former is a sync.Map and the latter is
+	 * a map[int]*courseT, and the former is very difficult to access from
+	 * HTML templates.
+	 */
+	_courses := make(map[int]*courseT)
+	courses.Range(func(key, value interface{}) bool {
+		courseID, ok := key.(int)
+		if !ok {
+			panic("courses map has non-\"int\" keys")
+		}
+		course, ok := value.(*courseT)
+		if !ok {
+			panic("courses map has non-\"*courseT\" items")
+		}
+		_courses[courseID] = course
+		return true
+	})
+
 	err = func() error {
-		coursesLock.RLock()
-		defer coursesLock.RUnlock()
 		return tmpl.ExecuteTemplate(
 			w,
 			"student",
@@ -121,7 +138,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 					"Name":       userName,
 					"Department": userDepartment,
 				},
-				"courses": courses,
+				"courses": &_courses,
 			},
 		)
 	}()

@@ -104,15 +104,20 @@ func messageChooseCourse(
 		return reportError("Course ID must be an integer")
 	}
 	courseID := int(_courseID)
-	course := getCourseByID(courseID)
 
+	_course, ok := courses.Load(courseID)
+	if !ok {
+		return reportError("no such course")
+	}
+	course, ok := _course.(*courseT)
+	if !ok {
+		panic("courses map has non-\"*courseT\" items")
+	}
 	if course == nil {
-		return reportError("nil course")
+		return reportError("couse is nil")
 	}
 
-	thisCourseGroup := course.Group
-
-	if _, ok := (*userCourseGroups)[thisCourseGroup]; ok {
+	if _, ok := (*userCourseGroups)[course.Group]; ok {
 		err := writeText(ctx, c, "R "+mar[1]+" :Group conflict")
 		if err != nil {
 			return fmt.Errorf(
@@ -181,7 +186,7 @@ func messageChooseCourse(
 		}()
 
 		if ok {
-			go propagateSelectedUpdate(courseID)
+			go propagateSelectedUpdate(course)
 			err := tx.Commit(ctx)
 			if err != nil {
 				err := course.decrementSelectedAndPropagate(ctx, c)
@@ -201,7 +206,7 @@ func messageChooseCourse(
 			 * This would race if message handlers could run
 			 * concurrently for one connection.
 			 */
-			(*userCourseGroups)[thisCourseGroup] = struct{}{}
+			(*userCourseGroups)[course.Group] = struct{}{}
 
 			err = writeText(ctx, c, "Y "+mar[1])
 			if err != nil {
@@ -275,10 +280,17 @@ func messageUnchooseCourse(
 		return reportError("Course ID must be an integer")
 	}
 	courseID := int(_courseID)
-	course := getCourseByID(courseID)
 
+	_course, ok := courses.Load(courseID)
+	if !ok {
+		return reportError("no such course")
+	}
+	course, ok := _course.(*courseT)
+	if !ok {
+		panic("courses map has non-\"*courseT\" items")
+	}
 	if course == nil {
-		return reportError("nil course")
+		return reportError("couse is nil")
 	}
 
 	ct, err := db.Exec(
@@ -302,16 +314,23 @@ func messageUnchooseCourse(
 				err,
 			)
 		}
-		var thisCourseGroup courseGroupT
-		func() {
-			coursesLock.RLock()
-			defer coursesLock.RUnlock()
-			thisCourseGroup = courses[courseID].Group
-		}()
-		if _, ok := (*userCourseGroups)[thisCourseGroup]; !ok {
+
+		_course, ok := courses.Load(courseID)
+		if !ok {
+			return reportError("no such course")
+		}
+		course, ok := _course.(*courseT)
+		if !ok {
+			panic("courses map has non-\"*courseT\" items")
+		}
+		if course == nil {
+			return reportError("couse is nil")
+		}
+
+		if _, ok := (*userCourseGroups)[course.Group]; !ok {
 			return reportError("inconsistent user course groups")
 		}
-		delete(*userCourseGroups, thisCourseGroup)
+		delete(*userCourseGroups, course.Group)
 	}
 
 	err = writeText(ctx, c, "N "+mar[1])
