@@ -142,7 +142,7 @@ func handleConn(
 	 * userCourseGroups stores whether the user has already chosen a course
 	 * in the courseGroup.
 	 */
-	var userCourseGroups userCourseGroupsT = make(map[courseGroupT]bool)
+	var userCourseGroups userCourseGroupsT = make(map[courseGroupT]struct{})
 	err := populateUserCourseGroups(newCtx, &userCourseGroups, userID)
 	if err != nil {
 		return reportError(

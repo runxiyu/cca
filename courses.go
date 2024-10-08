@@ -193,7 +193,7 @@ func setupCourses() error {
 	return nil
 }
 
-type userCourseGroupsT map[courseGroupT]bool
+type userCourseGroupsT map[courseGroupT]struct{}
 
 func populateUserCourseGroups(
 	ctx context.Context,
@@ -239,7 +239,7 @@ func populateUserCourseGroups(
 			defer coursesLock.RUnlock()
 			thisGroupName = courses[thisCourseID].Group
 		}()
-		if (*userCourseGroups)[thisGroupName] {
+		if _, ok := (*userCourseGroups)[thisGroupName]; ok {
 			return fmt.Errorf(
 				"%w: user %v, group %v",
 				errMultipleChoicesInOneGroup,
@@ -247,7 +247,7 @@ func populateUserCourseGroups(
 				thisGroupName,
 			)
 		}
-		(*userCourseGroups)[thisGroupName] = true
+		(*userCourseGroups)[thisGroupName] = struct{}{}
 	}
 	return nil
 }

@@ -112,7 +112,7 @@ func messageChooseCourse(
 
 	thisCourseGroup := course.Group
 
-	if (*userCourseGroups)[thisCourseGroup] {
+	if _, ok := (*userCourseGroups)[thisCourseGroup]; ok {
 		err := writeText(ctx, c, "R "+mar[1]+" :Group conflict")
 		if err != nil {
 			return fmt.Errorf(
@@ -201,7 +201,7 @@ func messageChooseCourse(
 			 * This would race if message handlers could run
 			 * concurrently for one connection.
 			 */
-			(*userCourseGroups)[thisCourseGroup] = true
+			(*userCourseGroups)[thisCourseGroup] = struct{}{}
 
 			err = writeText(ctx, c, "Y "+mar[1])
 			if err != nil {
@@ -308,10 +308,10 @@ func messageUnchooseCourse(
 			defer coursesLock.RUnlock()
 			thisCourseGroup = courses[courseID].Group
 		}()
-		if !(*userCourseGroups)[thisCourseGroup] {
+		if _, ok := (*userCourseGroups)[thisCourseGroup]; !ok {
 			return reportError("inconsistent user course groups")
 		}
-		(*userCourseGroups)[thisCourseGroup] = false
+		delete(*userCourseGroups, thisCourseGroup)
 	}
 
 	err = writeText(ctx, c, "N "+mar[1])
