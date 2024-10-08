@@ -194,6 +194,14 @@ th.min, td.min {
 	white-space: nowrap;
 }
 
+/* Workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=217769 */
+tbody:empty {
+	display: none;
+}
+table > tbody:after {
+	content: "";
+}
+
 /*
  * Input elements, which are usually in tables anyway
  */
