@@ -47,7 +47,8 @@ func messageHello(
 	select {
 	case <-ctx.Done():
 		return fmt.Errorf(
-			"context done when handling hello: %w",
+			"%w: %w",
+			errContextCancelled,
 			ctx.Err(),
 		)
 	default:
@@ -68,7 +69,7 @@ func messageHello(
 
 	err = writeText(ctx, c, "HI :"+strings.Join(courseIDs, ","))
 	if err != nil {
-		return fmt.Errorf("error replying to HELLO: %w", err)
+		return fmt.Errorf("%w: %w", errCannotSend, err)
 	}
 
 	return nil
@@ -88,7 +89,8 @@ func messageChooseCourse(
 	select {
 	case <-ctx.Done():
 		return fmt.Errorf(
-			"context done when handling choose: %w",
+			"%w: %w",
+			errContextCancelled,
 			ctx.Err(),
 		)
 	default:
@@ -114,7 +116,8 @@ func messageChooseCourse(
 		err := writeText(ctx, c, "R "+mar[1]+" :Group conflict")
 		if err != nil {
 			return fmt.Errorf(
-				"error rejecting course choice due to group conflict: %w",
+				"%w: %w",
+				errCannotSend,
 				err,
 			)
 		}
@@ -184,7 +187,8 @@ func messageChooseCourse(
 				err := course.decrementSelectedAndPropagate(ctx, c)
 				if err != nil {
 					return fmt.Errorf(
-						"error decrementing and notifying: %w",
+						"%w: %w",
+						errCannotSend,
 						err,
 					)
 				}
@@ -202,7 +206,8 @@ func messageChooseCourse(
 			err = writeText(ctx, c, "Y "+mar[1])
 			if err != nil {
 				return fmt.Errorf(
-					"error affirming course choice: %w",
+					"%w: %w",
+					errCannotSend,
 					err,
 				)
 			}
@@ -211,7 +216,8 @@ func messageChooseCourse(
 				err = sendSelectedUpdate(ctx, c, courseID)
 				if err != nil {
 					return fmt.Errorf(
-						"error notifying after increment: %w",
+						"%w: %w",
+						errCannotSend,
 						err,
 					)
 				}
@@ -226,7 +232,8 @@ func messageChooseCourse(
 			err = writeText(ctx, c, "R "+mar[1]+" :Full")
 			if err != nil {
 				return fmt.Errorf(
-					"error rejecting course choice: %w",
+					"%w: %w",
+					errCannotSend,
 					err,
 				)
 			}
@@ -252,7 +259,11 @@ func messageUnchooseCourse(
 
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf("context done when handling unchoose: %w", ctx.Err())
+		return fmt.Errorf(
+			"%w: %w",
+			errContextCancelled,
+			ctx.Err(),
+		)
 	default:
 	}
 
@@ -286,7 +297,8 @@ func messageUnchooseCourse(
 		err := course.decrementSelectedAndPropagate(ctx, c)
 		if err != nil {
 			return fmt.Errorf(
-				"error decrementing and notifying: %w",
+				"%w: %w",
+				errCannotSend,
 				err,
 			)
 		}
@@ -305,7 +317,8 @@ func messageUnchooseCourse(
 	err = writeText(ctx, c, "N "+mar[1])
 	if err != nil {
 		return fmt.Errorf(
-			"error replying that course has been deselected: %w",
+			"%w: %w",
+			errCannotSend,
 			err,
 		)
 	}

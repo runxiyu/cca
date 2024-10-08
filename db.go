@@ -42,7 +42,7 @@ func setupDatabase() error {
 	}
 	db, err = pgxpool.New(context.Background(), config.DB.Conn)
 	if err != nil {
-		return fmt.Errorf("error opening database: %w", err)
+		return fmt.Errorf("%w: %w", errUnexpectedDBError, err)
 	}
 	return nil
 }

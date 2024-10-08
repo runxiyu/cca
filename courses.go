@@ -130,7 +130,7 @@ func setupCourses() error {
 		"SELECT id, nmax, title, ctype, cgroup, teacher, location FROM courses",
 	)
 	if err != nil {
-		return fmt.Errorf("error fetching courses: %w", err)
+		return fmt.Errorf("%w: %w", errUnexpectedDBError, err)
 	}
 
 	for {
@@ -138,7 +138,8 @@ func setupCourses() error {
 			err := rows.Err()
 			if err != nil {
 				return fmt.Errorf(
-					"error fetching courses: %w",
+					"%w: %w",
+					errUnexpectedDBError,
 					err,
 				)
 			}
@@ -157,7 +158,7 @@ func setupCourses() error {
 			&currentCourse.Location,
 		)
 		if err != nil {
-			return fmt.Errorf("error fetching courses: %w", err)
+			return fmt.Errorf("%w: %w", errUnexpectedDBError, err)
 		}
 		if !checkCourseType(currentCourse.Type) {
 			return fmt.Errorf(
@@ -181,7 +182,8 @@ func setupCourses() error {
 		).Scan(&currentCourse.Selected)
 		if err != nil {
 			return fmt.Errorf(
-				"error querying course member number: %w",
+				"%w: %w",
+				errUnexpectedDBError,
 				err,
 			)
 		}
@@ -205,7 +207,8 @@ func populateUserCourseGroups(
 	)
 	if err != nil {
 		return fmt.Errorf(
-			"error querying user's choices while populating course groups: %w",
+			"%w: %w",
+			errUnexpectedDBError,
 			err,
 		)
 	}
@@ -214,7 +217,8 @@ func populateUserCourseGroups(
 			err := rows.Err()
 			if err != nil {
 				return fmt.Errorf(
-					"error iterating user's choices while populating course groups: %w",
+					"%w: %w",
+					errUnexpectedDBError,
 					err,
 				)
 			}
@@ -224,7 +228,8 @@ func populateUserCourseGroups(
 		err := rows.Scan(&thisCourseID)
 		if err != nil {
 			return fmt.Errorf(
-				"error fetching user's choices while populating course groups: %w",
+				"%w: %w",
+				errUnexpectedDBError,
 				err,
 			)
 		}
@@ -260,7 +265,8 @@ func (course *courseT) decrementSelectedAndPropagate(
 	err := sendSelectedUpdate(ctx, conn, course.ID)
 	if err != nil {
 		return fmt.Errorf(
-			"error sending selected update on decrement: %w",
+			"%w: %w",
+			errCannotSend,
 			err,
 		)
 	}

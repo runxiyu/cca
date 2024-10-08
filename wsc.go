@@ -80,6 +80,7 @@ func handleConn(
 			 */
 			_ = writeText(ctx, c, "E :Context canceled")
 		}
+		/* TODO: Report errors properly */
 	}()
 
 	/* TODO: Tell the user their current choices here. Deprecate HELLO. */
@@ -225,7 +226,8 @@ func handleConn(
 			 * cases
 			 */
 			return fmt.Errorf(
-				"context done in main event loop: %w",
+				"%w: %w",
+				errContextCancelled,
 				newCtx.Err(),
 			)
 			/*
@@ -242,7 +244,8 @@ func handleConn(
 			err := sendSelectedUpdate(newCtx, c, courseID)
 			if err != nil {
 				return fmt.Errorf(
-					"error acting on usem: %w",
+					"%w: %w",
+					errCannotSend,
 					err,
 				)
 			}
@@ -250,7 +253,8 @@ func handleConn(
 		case errbytes := <-recv:
 			if errbytes.err != nil {
 				return fmt.Errorf(
-					"error fetching message from recv channel: %w",
+					"%w: %w",
+					errCannotReceiveMessage,
 					errbytes.err,
 				)
 				/*
