@@ -93,11 +93,7 @@ func handleConn(
 		for courseID, course := range courses {
 			usem := &usemT{} //exhaustruct:ignore
 			usem.init()
-			func() {
-				course.UsemsLock.Lock()
-				defer course.UsemsLock.Unlock()
-				course.Usems[userID] = usem
-			}()
+			course.Usems.Store(userID, usem)
 			usems[courseID] = usem
 		}
 	}()
@@ -105,11 +101,7 @@ func handleConn(
 		coursesLock.RLock()
 		defer coursesLock.RUnlock()
 		for _, course := range courses {
-			func() {
-				course.UsemsLock.Lock()
-				defer course.UsemsLock.Unlock()
-				delete(course.Usems, userID)
-			}()
+			course.Usems.Delete(userID)
 		}
 		atomic.AddInt64(&usemCount, -int64(len(courses)))
 	}()

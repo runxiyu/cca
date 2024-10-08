@@ -53,8 +53,7 @@ type courseT struct {
 	Group        courseGroupT
 	Teacher      string
 	Location     string
-	Usems        map[string](*usemT)
-	UsemsLock    sync.RWMutex
+	Usems        sync.Map /* string, *usemT */
 }
 
 const (
@@ -145,9 +144,7 @@ func setupCourses() error {
 			}
 			break
 		}
-		currentCourse := courseT{
-			Usems: make(map[string]*usemT),
-		} //exhaustruct:ignore
+		currentCourse := courseT{} //exhaustruct:ignore
 		err = rows.Scan(
 			&currentCourse.ID,
 			&currentCourse.Max,

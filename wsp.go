@@ -82,11 +82,15 @@ func makeReportError(ctx context.Context, conn *websocket.Conn) reportErrorT {
 
 func propagateSelectedUpdate(courseID int) {
 	course := courses[courseID]
-	course.UsemsLock.RLock()
-	defer course.UsemsLock.RUnlock()
-	for _, usem := range course.Usems {
+	course.Usems.Range(func(key, value interface{}) bool {
+		_ = key
+		usem, ok := value.(*usemT)
+		if !ok {
+			panic("Usems contains non-\"*usemT\" value")
+		}
 		usem.set()
-	}
+		return true
+	})
 }
 
 func sendSelectedUpdate(
