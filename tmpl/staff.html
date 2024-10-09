@@ -48,7 +48,18 @@
 			</p>
 		</div>
 		<div class="reading-width">
-			<a href="./export" class="btn-primary btn">Export all choices as a spreadsheet</a>
+			<p><a href="./export" class="btn-primary btn">Export all choices as a spreadsheet</a></p>
+			{{- if ge .State 1 }}
+			<p><a href="./state/0" class="btn-danger btn">Disable student access</a></p>
+			{{- if ge .State 2 }}
+			<p><a href="./state/1" class="btn-danger btn">Stop course selections</a></p>
+			{{- else }}
+			<p><a href="./state/2" class="btn-primary btn">Start course selections</a></p>
+			{{- end }}
+			{{- else }}
+			<p><a href="./state/1" class="btn-primary btn">Enable student access</a></p>
+			{{- end }}
+			</p>
 		</div>
 	</body>
 </html>

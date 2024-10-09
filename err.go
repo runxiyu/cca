@@ -45,4 +45,5 @@ var (
 	errContextCancelled           = errors.New("context cancelled")
 	errCannotReceiveMessage       = errors.New("cannot receive message")
 	errNoSuchCourse               = errors.New("no such course")
+	errInvalidState               = errors.New("invalid state")
 )

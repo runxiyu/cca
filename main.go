@@ -119,6 +119,7 @@ func main() {
 	http.HandleFunc("/export", handleExport)
 	http.HandleFunc("/auth", handleAuth)
 	http.HandleFunc("/ws", handleWs)
+	http.HandleFunc("/state/{s}", handleState)
 
 	var l net.Listener
 
@@ -173,6 +174,11 @@ func main() {
 
 	log.Println("Setting up database")
 	if err := setupDatabase(); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Loading state")
+	if err := loadState(); err != nil {
 		log.Fatal(err)
 	}
 

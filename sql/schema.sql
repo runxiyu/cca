@@ -24,3 +24,7 @@ CREATE TABLE choices (
 	FOREIGN KEY(courseid) REFERENCES courses(id),
 	UNIQUE (userid, courseid)
 );
+CREATE TABLE misc (
+	key TEXT PRIMARY KEY NOT NULL,
+	value INTEGER NOT NULL
+);

@@ -112,9 +112,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			w,
 			"staff",
 			struct {
-				Name string
+				Name  string
+				State uint32
 			}{
 				userName,
+				state,
 			},
 		)
 		if err != nil {
