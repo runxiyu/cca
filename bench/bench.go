@@ -22,7 +22,7 @@ var (
 
 var (
 	errUnexpectedStatusCode = errors.New("unexpected status code")
-	courses                 = big.NewInt(5)
+	courses                 = big.NewInt(13)
 	globalLock              sync.RWMutex
 )
 
