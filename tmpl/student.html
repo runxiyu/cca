@@ -178,8 +178,7 @@
 				search.addEventListener("input", () => {
 					const s = search.value.toLowerCase().trim().normalize('NFD')
 					document.querySelectorAll(".courseitem").forEach(c => {
-						const m = c.textContent.toLowerCase().normalize('NFD').includes(s)
-						c.hidden = (!m) && (s.length > 0)
+						c.hidden = (!c.textContent.toLowerCase().normalize('NFD').includes(s)) && (s.length > 0)
 					})
 				})
 			})
