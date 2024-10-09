@@ -118,6 +118,8 @@
 						<thead>
 							<tr>
 								<th scope="col">Tick</th>
+								<th scope="col">Selected</th>
+								<th scope="col">Max</th>
 								<th scope="col">Name</th>
 								<th scope="col">Type</th>
 								<th scope="col">Teacher</th>
@@ -131,14 +133,19 @@
 						</thead>
 						<tbody>
 							{{- range .Groups }}
-							<tr><th colspan="6">{{ .Name }}</th></tr>
+							<tr><th colspan="7">{{ .Name }}</th></tr>
 							{{- range .Courses }}
 							<tr class="courseitem" id="course{{.ID}}" data-group="{{.Group}}">
 								<th style="font-weight: normal" scope="row">
 									<input aria-label="Enroll in course" class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}" data-group="{{.Group}}" {{ if ge .Selected .Max }}disabled{{ end }} ></input>
 									<span id="coursestatus{{.ID}}"></span>
-									<span id="selected{{.ID}}">{{.Selected}}</span>/<span id="max{{.ID}}">{{.Max}}</span>
 								</th>
+								<td>
+									<span id="selected{{.ID}}">{{.Selected}}</span>
+								</td>
+								<td>
+									<span id="max{{.ID}}">{{.Max}}</span>
+								</td>
 								<td>{{.Title}}</td>
 								<td id="type{{.ID}}">{{.Type}}</td>
 								<td>{{.Teacher}}</td>
