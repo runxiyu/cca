@@ -29,10 +29,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-/*
- * Serve the index page. Also handles the login page in case the user doesn't
- * have any valid login cookies.
- */
 func handleIndex(w http.ResponseWriter, req *http.Request) {
 	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
@@ -140,7 +136,6 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 	})
 
 	err = func() error {
-		/* Horrifying syntax */
 		return tmpl.ExecuteTemplate(
 			w,
 			"student",

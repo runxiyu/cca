@@ -20,6 +20,12 @@
 
 package main
 
+/*
+ * usemT is basically a semaphore capped at 1. Adding is always non-blocking;
+ * adding it multiple times without a read in between is equivalent to setting
+ * it once. Reading blocks after the first read after the last set.
+ */
+
 type usemT struct {
 	ch (chan struct{})
 }

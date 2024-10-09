@@ -129,7 +129,7 @@ func messageChooseCourse(
 		return nil
 	}
 
-	err = func() (returnedError error) { /* Named returns so I could modify them in defer */
+	err = func() (returnedError error) {
 		tx, err := db.Begin(ctx)
 		if err != nil {
 			return reportError(
@@ -155,7 +155,8 @@ func messageChooseCourse(
 		)
 		if err != nil {
 			var pgErr *pgconn.PgError
-			if errors.As(err, &pgErr) && pgErr.Code == pgErrUniqueViolation {
+			if errors.As(err, &pgErr) &&
+				pgErr.Code == pgErrUniqueViolation {
 				err := writeText(ctx, c, "Y "+mar[1])
 				if err != nil {
 					return fmt.Errorf(

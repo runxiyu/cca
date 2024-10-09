@@ -177,6 +177,7 @@ func handleConn(
 			 * So we pass the original connection context, which
 			 * would get cancelled anyway once we close the
 			 * connection.
+			 * See: https://github.com/coder/websocket/issues/242
 			 * We still need to take care of this while sending so
 			 * we don't infinitely block, and leak goroutines and
 			 * cause the channel to remain out of reach of the

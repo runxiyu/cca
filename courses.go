@@ -37,13 +37,9 @@ type (
 type courseT struct {
 	ID int
 	/*
-	 * TODO: There will be a lot of lock contention over Selected. It is
-	 * probably more appropriate to directly use atomics.
-	 * Except that it's actually hard to use atomics directly here
-	 * because I need to "increment if less than Max"... I think I could
-	 * just do compare and swap in a loop, but the loop would be intensive
-	 * on the CPU so I'd have to look into how mutexes/semaphores are
-	 * actually implemented and how I could interact with the runtime.
+	 * Selected is usually accessed atomically, but a lock is still
+	 * necessary as we need to sequentialize compare-with-Max-and-increment
+	 * operations.
 	 */
 	Selected     uint32
 	SelectedLock sync.Mutex
@@ -102,8 +98,7 @@ var numCourses uint32
 
 /*
  * Read course information from the database. This should be called during
- * setup. Failure to do so before accessing course information may lead to
- * a null pointer dereference.
+ * setup.
  */
 func setupCourses() error {
 	rows, err := db.Query(

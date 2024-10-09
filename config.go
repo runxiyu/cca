@@ -32,9 +32,9 @@ import (
 /*
  * We use two structs. The first has all of its values as pointers, and scfg
  * unmarshals the configuration to it. Then we take each value, dereference
- * it, and throw it into a normal config struct without pointers.
- * This means that any missing configuration options will simply cause a
- * segmentation fault.
+ * it, and throw it into a normal config struct without pointers, reporting
+ * missing values.
+ * We should probably use reflection instead.
  */
 
 var configWithPointers struct {

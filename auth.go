@@ -280,9 +280,6 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
 
-/*
- * Setting up JSON Web Keys. Note that myKeyfunc is a global variable.
- */
 func setupJwks() error {
 	var err error
 	myKeyfunc, err = keyfunc.NewDefault([]string{config.Auth.Jwks})
@@ -357,10 +354,6 @@ type accessTokenT struct {
 	ErrorCodes        *[]int  `json:"error_codes"`
 }
 
-/*
- * Obtain an access token from the token endpoint with an existing
- * authorization code.
- */
 func getAccessToken(
 	ctx context.Context,
 	authorizationCode string,
