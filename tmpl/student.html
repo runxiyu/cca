@@ -114,7 +114,7 @@
 			</div>
 			<div class="need-connection">
 				<div id="alreadyopen" class="reading-width">
-					<table id="table-of-courses">
+					<table class="table-of-courses">
 						<thead>
 							<tr>
 								<th scope="col">Tick</th>
@@ -131,6 +131,8 @@
 							</tr>
 						</thead>
 						<tbody>
+							{{- range .Groups }}
+							<tr><th colspan="6">{{ .Name }}</th></tr>
 							{{- range .Courses }}
 							<tr class="courseitem" id="course{{.ID}}">
 								{{ if lt .Selected .Max -}}
@@ -144,6 +146,7 @@
 								<td>{{.Teacher}}</td>
 								<td>{{.Location}}</td>
 							</tr>
+							{{- end }}
 							{{- end }}
 						</tbody>
 						<tfoot>

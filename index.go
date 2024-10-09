@@ -111,12 +111,21 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	/*
-	 * Copy courses to _courses. The former is a sync.Map and the latter is
-	 * a map[int]*courseT, and the former is very difficult to access from
-	 * HTML templates.
-	 */
-	_courses := make(map[int]*courseT)
+	/* TODO: The below should be completed on-update. */
+	type groupT struct {
+		Handle  courseGroupT
+		Name    string
+		Courses *map[int]*courseT
+	}
+	_groups := make(map[courseGroupT]groupT)
+	for k, v := range courseGroups {
+		_coursemap := make(map[int]*courseT)
+		_groups[k] = groupT{
+			Handle:  k,
+			Name:    v,
+			Courses: &_coursemap,
+		}
+	}
 	courses.Range(func(key, value interface{}) bool {
 		courseID, ok := key.(int)
 		if !ok {
@@ -126,7 +135,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		if !ok {
 			panic("courses map has non-\"*courseT\" items")
 		}
-		_courses[courseID] = course
+		(*_groups[course.Group].Courses)[courseID] = course
 		return true
 	})
 
@@ -139,12 +148,12 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 				Open       bool
 				Name       string
 				Department string
-				Courses    *map[int]*courseT
+				Groups     *map[courseGroupT]groupT
 			}{
 				true,
 				userName,
 				userDepartment,
-				&_courses,
+				&_groups,
 			},
 		)
 	}()

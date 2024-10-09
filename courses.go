@@ -77,21 +77,23 @@ const (
 	tt3 courseGroupT = "TT3"
 )
 
-var courseGroups = map[courseGroupT]bool{
-	mw1: true,
-	mw2: true,
-	mw3: true,
-	tt1: true,
-	tt2: true,
-	tt3: true,
+var courseGroups = map[courseGroupT]string{
+	mw1: "Monday/Wednesday CCA1",
+	mw2: "Monday/Wednesday CCA2",
+	mw3: "Monday/Wednesday CCA3",
+	tt1: "Tuesday/Thursday CCA1",
+	tt2: "Tuesday/Thursday CCA2",
+	tt3: "Tuesday/Thursday CCA3",
 }
 
 func checkCourseType(ct courseTypeT) bool {
-	return courseTypes[ct]
+	_, ok := courseTypes[ct]
+	return ok
 }
 
 func checkCourseGroup(cg courseGroupT) bool {
-	return courseGroups[cg]
+	_, ok := courseGroups[cg]
+	return ok
 }
 
 var courses sync.Map /* int, *courseT */
