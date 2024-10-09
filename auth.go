@@ -238,7 +238,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	 */
 	_, err = db.Exec(
 		req.Context(),
-		"INSERT INTO users (id, name, email, department, session, expr) VALUES ($1, $2, $3, $4, $5, $6)",
+		"INSERT INTO users (id, name, email, department, session, expr, confirmed) VALUES ($1, $2, $3, $4, $5, $6, false)",
 		claims.Oid,
 		claims.Name,
 		claims.Email,

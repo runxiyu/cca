@@ -13,7 +13,8 @@ CREATE TABLE users (
 	email TEXT NOT NULL,
 	department TEXT NOT NULL,
 	session TEXT,
-	expr BIGINT -- seconds
+	expr BIGINT, -- seconds
+	confirmed BOOLEAN NOT NULL
 );
 CREATE TABLE choices (
 	PRIMARY KEY (userid, courseid),
