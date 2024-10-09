@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			case true:
 				c.indeterminate = true
 				document.querySelectorAll(".coursecheckbox").forEach(d => {
-					if (d.checked === true && d.dataset.group === c.dataset.group) {
+					if (d.checked === true && d.dataset.group === c.dataset.group && c.id !== d.id) {
 						d.indeterminate = true
 						socket.send(`N ${ d.id.slice(4) }`)
 					}
