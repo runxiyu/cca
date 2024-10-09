@@ -193,7 +193,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	switch {
 	case department == "SJ Co-Curricular Activities Office 松江课外项目办公室" ||
 		department == "High School Teaching & Learning 高中教学部门":
-		department = "Staff"
+		department = staffDepartment
 	case department == "Y9" || department == "Y10" ||
 		department == "Y11" || department == "Y12":
 	default:

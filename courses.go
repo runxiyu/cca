@@ -99,6 +99,8 @@ var courses sync.Map /* int, *courseT */
 
 var numCourses uint32 /* atomic */
 
+const staffDepartment = "Staff"
+
 /*
  * Read course information from the database. This should be called during
  * setup.

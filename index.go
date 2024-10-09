@@ -107,6 +107,22 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if userDepartment == staffDepartment {
+		err := tmpl.ExecuteTemplate(
+			w,
+			"staff",
+			struct {
+				Name string
+			}{
+				userName,
+			},
+		)
+		if err != nil {
+			log.Println(err)
+		}
+		return
+	}
+
 	/* TODO: The below should be completed on-update. */
 	type groupT struct {
 		Handle  courseGroupT
