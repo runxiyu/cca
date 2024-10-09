@@ -1,5 +1,13 @@
-INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Floorball', 'Sport', 'MW1', 'Chen Xiaojia', 'Gym', 1000);
-INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Flag Football', 'Sport', 'MW2', 'Ding Zhaoyuan', 'Pitch', 1000);
-INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Chamber Music', 'Enrichment', 'TT1', '(?)', 'Music Rooms', 1000);
-INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Math and Computer Science', 'Enrichment', 'TT2', 'Jeff Zhang', '2307', 1000);
-INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Chinese Drama', 'Culture', 'TT2', 'Monica Chen (?)', 'Black Box (?)', 1000);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Floorball', 'Sport', 'MW1', 'Chen Xiaojia', 'Gym', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Fakeball', 'Sport', 'MW1', 'Foo Bar', 'Gym', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Chamber Music', 'Enrichment', 'MW1', 'Bar Baz', 'Music Rooms', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Programming Club', 'Enrichment', 'MW1', 'Foo Baz', 'Library', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Flag Football', 'Sport', 'MW2', 'Ding Zhaoyuan', 'Pitch', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Table Tennis', 'Sport', 'MW2', 'Somebody', 'Table Tennis Room', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Spinning', 'Sport', 'MW2', 'Somebody', 'Spinning Room', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Some Music', 'Enrichment', 'TT1', 'Eeeee', 'Music Rooms', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Some More Music', 'Enrichment', 'TT1', 'Eeeee', 'Music Rooms', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Math and Computer Science', 'Enrichment', 'TT2', 'Jeff Zhang', '2307', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Basketball', 'Sport', 'TT2', 'Somebody', 'Gym', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Chinese Drama', 'Culture', 'TT2', 'Monica Chen (?)', 'Black Box (?)', 65535);
+INSERT INTO courses (title, ctype, cgroup, teacher, location, nmax) VALUES('Actually Flag Football', 'Sport', 'TT3', 'Hmm', 'Pitch', 65535);
