@@ -56,22 +56,18 @@ func handleConn(
 	reportError := makeReportError(ctx, c)
 	newCtx, newCancel := context.WithCancel(ctx)
 
-	func() {
-		cancelPoolLock.Lock()
-		defer cancelPoolLock.Unlock()
-		cancel := cancelPool[userID]
-		if cancel != nil {
+	_cancel, ok := cancelPool.Load(userID)
+	if ok {
+		cancel, ok := _cancel.(*context.CancelFunc)
+		if ok && cancel != nil {
 			(*cancel)()
-			/* TODO: Make the cancel synchronous */
 		}
-		cancelPool[userID] = &newCancel
-	}()
+		/* TODO: Make the cancel synchronous */
+	}
+	cancelPool.Store(userID, &newCancel)
+
 	defer func() {
-		cancelPoolLock.Lock()
-		defer cancelPoolLock.Unlock()
-		if cancelPool[userID] == &newCancel {
-			delete(cancelPool, userID)
-		}
+		cancelPool.CompareAndDelete(userID, &newCancel)
 		if errors.Is(retErr, context.Canceled) {
 			/*
 			 * Only works if it's newCtx that has been cancelled
@@ -316,11 +312,4 @@ func handleConn(
 	}
 }
 
-var (
-	cancelPool = make(map[string](*context.CancelFunc))
-	/*
-	 * Normal Go maps are not thread safe, so we protect large cancelPool
-	 * operations such as addition and deletion under a RWMutex.
-	 */
-	cancelPoolLock sync.RWMutex
-)
+var cancelPool sync.Map /* string, *context.CancelFunc */
