@@ -35,14 +35,17 @@ type (
 )
 
 type courseT struct {
-	ID int
 	/*
 	 * Selected is usually accessed atomically, but a lock is still
 	 * necessary as we need to sequentialize compare-with-Max-and-increment
 	 * operations.
+	 * We put Selected before other values to ensure 64-bit alignment on
+	 * all systems, because it needs to be accessed atomically. See the
+	 * "Bugs" section of sync/atomic.
 	 */
-	Selected     uint32
+	Selected     uint32 /* atomic */
 	SelectedLock sync.Mutex
+	ID           int
 	Max          uint32
 	Title        string
 	Type         courseTypeT
@@ -94,7 +97,7 @@ func checkCourseGroup(cg courseGroupT) bool {
 
 var courses sync.Map /* int, *courseT */
 
-var numCourses uint32
+var numCourses uint32 /* atomic */
 
 /*
  * Read course information from the database. This should be called during

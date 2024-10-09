@@ -36,7 +36,7 @@ type errbytesT struct {
 	bytes *[]byte
 }
 
-var usemCount int64
+var usemCount int64 /* atomic */
 
 /*
  * This is more appropriately typed as uint64, but it needs to be cast to int64
