@@ -1,0 +1,60 @@
+{{- define "student_disabled" -}}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>
+			{{ .Name }} &ndash; CCA Selection System
+		</title>
+		<link rel="stylesheet" href="/static/style.css" />
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="YK Pao School CCA Selection System" />
+	</head>
+	<body>
+		<div style="font-size: 150%; color: red; font-weight: bold;" class="broken-styling-warning">
+			The fact that you see this message means that the CSS styling information for this site is not loading correctly, and usability would be severely impacted. Check your network connection, and if this issue persists, you should contact the system administrator.
+		</div>
+		<header>
+			<div class="header-content">
+				<div class="header-left">
+					<h1><a id="site-title" href="./">CCA Selection System</a></h1>
+				</div>
+				<div class="header-middle">
+					<nav>
+						<ul>
+							<li>
+								<a href="./">Home</a>
+							</li>
+							<li>
+								<a href="./docs/">Docs</a>
+							</li>
+							<li>
+								<a href="./iadocs/">IA Docs</a>
+							</li>
+							<li>
+								<a href="./src/">Source</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+				<div class="header-right">
+					<p>{{- .Name }} ({{ .Department -}})</p>
+				</div>
+			</div>
+		</header>
+		<div class="reading-width" id="wip-notice">
+			<p>
+			This site is still a work in progress and may contain bugs! Please contact <a href="mailto:s22537@stu.ykpaoschool.cn">Runxi Yu</a> for any issues.
+			</p>
+		</div>
+		<div class="reading-width">
+			<p>
+			Student access is currently disabled.
+			</p>
+			<p>
+			Please check back later.
+			</p>
+		</div>
+	</body>
+</html>
+{{- end -}}

@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync/atomic"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -125,6 +126,24 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if atomic.LoadUint32(&state) == 0 {
+		err := tmpl.ExecuteTemplate(
+			w,
+			"student_disabled",
+			struct {
+				Name       string
+				Department string
+			}{
+				userName,
+				userDepartment,
+			},
+		)
+		if err != nil {
+			log.Println(err)
+		}
+		return
+	}
+
 	/* TODO: The below should be completed on-update. */
 	type groupT struct {
 		Handle  courseGroupT
@@ -153,23 +172,19 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		return true
 	})
 
-	err = func() error {
-		return tmpl.ExecuteTemplate(
-			w,
-			"student",
-			struct {
-				Open       bool
-				Name       string
-				Department string
-				Groups     *map[courseGroupT]groupT
-			}{
-				true,
-				userName,
-				userDepartment,
-				&_groups,
-			},
-		)
-	}()
+	err = tmpl.ExecuteTemplate(
+		w,
+		"student",
+		struct {
+			Name       string
+			Department string
+			Groups     *map[courseGroupT]groupT
+		}{
+			userName,
+			userDepartment,
+			&_groups,
+		},
+	)
 	if err != nil {
 		log.Println(err)
 		return

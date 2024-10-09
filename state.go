@@ -84,6 +84,12 @@ func setState(ctx context.Context, newState uint32) error {
 		return err
 	}
 	atomic.StoreUint32(&state, newState)
+	/*
+	 * TODO: Various actions about connections during state changes:
+	 * If set to 0, kill all connections. If set to 2, send all channels
+	 * a message that selections are open. If set to 1, send all channels
+	 * a message saying that selections are closed.
+	 */
 	return nil
 }
 
