@@ -3,7 +3,7 @@
 <html lang="en">
 	<head>
 		<title>
-			{{ .user.Name }} &ndash; CCA Selection System
+			{{ .Name }} &ndash; CCA Selection System
 		</title>
 		<link rel="stylesheet" href="/static/style.css" />
 		<meta charset="utf-8" />
@@ -38,7 +38,7 @@
 					</nav>
 				</div>
 				<div class="header-right">
-					<p>{{- .user.Name }} ({{ .user.Department -}})</p>
+					<p>{{- .Name }} ({{ .Department -}})</p>
 				</div>
 			</div>
 		</header>
@@ -131,7 +131,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{{- range .courses }}
+							{{- range .Courses }}
 							<tr class="courseitem" id="course{{.ID}}">
 								{{ if lt .Selected .Max -}}
 								<th scope="row"><input aria-label="Enroll in course" class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}"></input><span id="coursestatus{{.ID}}"></span></td>

@@ -48,13 +48,13 @@
 		<main>
 			<div id="login-box">
 				<p>
-				{{- .notes -}}
+				{{- if eq .Notes "" -}}{{- .Notes -}}{{- end -}}
 				</p>
 				<p>
 					You have not authenticated. You must sign in to use this service.
 				</p>
 				<p>
-					<a class="btn btn-primary" href="{{- .authURL -}}">Sign in with Microsoft</a>
+					<a class="btn btn-primary" href="{{- .AuthURL -}}">Sign in with Microsoft</a>
 				</p>
 			</div>
 		</main>

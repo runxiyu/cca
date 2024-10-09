@@ -48,13 +48,12 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		err = tmpl.ExecuteTemplate(
 			w,
 			"login",
-			map[string]string{
-				"authURL": authURL,
-				/*
-				 * We directly generate the login URL here
-				 * instead of doing so in a redirect to save
-				 * requests.
-				 */
+			struct {
+				AuthURL string
+				Notes   string
+			}{
+				authURL,
+				"",
 			},
 		)
 		if err != nil {
@@ -87,9 +86,12 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			err = tmpl.ExecuteTemplate(
 				w,
 				"login",
-				map[string]interface{}{
-					"authURL": authURL,
-					"notes":   "Your session is invalid or has expired.",
+				struct {
+					AuthURL string
+					Notes   string
+				}{
+					authURL,
+					"Your session is invalid or has expired.",
 				},
 			)
 			if err != nil {
@@ -129,16 +131,20 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 	})
 
 	err = func() error {
+		/* Horrifying syntax */
 		return tmpl.ExecuteTemplate(
 			w,
 			"student",
-			map[string]interface{}{
-				"open": true,
-				"user": map[string]interface{}{
-					"Name":       userName,
-					"Department": userDepartment,
-				},
-				"courses": &_courses,
+			struct {
+				Open       bool
+				Name       string
+				Department string
+				Courses    *map[int]*courseT
+			}{
+				true,
+				userName,
+				userDepartment,
+				&_courses,
 			},
 		)
 	}()
