@@ -229,13 +229,6 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 
 	http.SetCookie(w, &cookie)
 
-	/*
-	 * TODO: Here we attempt to insert and call update if we receive a
-	 * conflict. This works but is not idiomatic (and could confuse the
-	 * database administrator with database integrity warnings in the log.
-	 * The INSERT statement actually supports updating on conflict:
-	 * https://www.postgresql.org/docs/current/sql-insert.html
-	 */
 	_, err = db.Exec(
 		req.Context(),
 		"INSERT INTO users (id, name, email, department, session, expr, confirmed) VALUES ($1, $2, $3, $4, $5, $6, false)",
