@@ -224,25 +224,28 @@ func handleConn(
 		select {
 		case <-newCtx.Done():
 			/*
-			 * TODO: Somehow prioritize this case over all other
-			 * cases
+			 * We select this context done channel when entering
+			 * other cases too (see below) because we need to
+			 * make sure the context cancel works even if both
+			 * the cancel signal and another event arrive while
+			 * processing a select cycle.
 			 */
 			return fmt.Errorf(
 				"%w: %w",
 				errContextCancelled,
 				newCtx.Err(),
 			)
-			/*
-			 * There are other times when the context could be
-			 * cancelled, and apparently some WebSocket functions
-			 * just close the connection when the context is
-			 * cancelled. So it's kinda impossible to reliably
-			 * send this message due to newCtx cancellation.
-			 * But in any case, the WebSocket connection would
-			 * be closed, and the user would see the connection
-			 * closed page which should explain it.
-			 */
 		case courseID := <-usemParent:
+			select {
+			case <-newCtx.Done():
+				return fmt.Errorf(
+					"%w: %w",
+					errContextCancelled,
+					newCtx.Err(),
+				)
+			default:
+			}
+
 			err := sendSelectedUpdate(newCtx, c, courseID)
 			if err != nil {
 				return fmt.Errorf(
@@ -253,6 +256,16 @@ func handleConn(
 			}
 			continue
 		case errbytes := <-recv:
+			select {
+			case <-newCtx.Done():
+				return fmt.Errorf(
+					"%w: %w",
+					errContextCancelled,
+					newCtx.Err(),
+				)
+			default:
+			}
+
 			if errbytes.err != nil {
 				return fmt.Errorf(
 					"%w: %w",
