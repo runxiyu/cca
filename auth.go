@@ -328,16 +328,11 @@ func getDepartment(ctx context.Context, accessToken string) (string, error) {
 	return *(departmentWrap.Department), nil
 }
 
-/*
- * TODO: Access token expiration is not checked anywhere.
- */
 type accessTokenT struct {
-	OriginalExpiresIn *int `json:"expires_in"` /* Original time to expr */
-	Expiration        time.Time
-	Content           *string `json:"access_token"`
-	Error             *string `json:"error"`
-	ErrorDescription  *string `json:"error_description"`
-	ErrorCodes        *[]int  `json:"error_codes"`
+	Content          *string `json:"access_token"`
+	Error            *string `json:"error"`
+	ErrorDescription *string `json:"error_description"`
+	ErrorCodes       *[]int  `json:"error_codes"`
 }
 
 func getAccessToken(
@@ -345,7 +340,6 @@ func getAccessToken(
 	authorizationCode string,
 ) (accessTokenT, error) {
 	var accessToken accessTokenT
-	t := time.Now()
 	v := url.Values{}
 	v.Set("client_id", config.Auth.Client)
 	v.Set("scope", "https://graph.microsoft.com/User.Read")
@@ -389,16 +383,13 @@ func getAccessToken(
 				*accessToken.ErrorDescription,
 			)
 	}
-	if accessToken.Content == nil || accessToken.OriginalExpiresIn == nil {
+	if accessToken.Content == nil {
 		return accessToken,
 			fmt.Errorf(
 				"error extracting access token: %w",
 				errInsufficientFields,
 			)
 	}
-	accessToken.Expiration = t.Add(
-		time.Duration(*(accessToken.OriginalExpiresIn)) * time.Second,
-	)
 
 	return accessToken, nil
 }
