@@ -44,12 +44,12 @@ func handleExport(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var userID, userName, userDepartment string
+	var userDepartment string
 	err = db.QueryRow(
 		req.Context(),
-		"SELECT id, name, department FROM users WHERE session = $1",
+		"SELECT department FROM users WHERE session = $1",
 		sessionCookie.Value,
-	).Scan(&userID, &userName, &userDepartment)
+	).Scan(&userDepartment)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			wstr(
