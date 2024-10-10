@@ -1,4 +1,4 @@
-# YKPS CCA Selection System (WIP)
+# YKPS CCA Selection System
 
 This is my internal assessment for the IB Diploma Programme&rsquo;s Computer
 Science (Higher Level) course. The `iadocs` directory contains documentation
