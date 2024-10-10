@@ -113,7 +113,6 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 			).Unix(),
 		)
 		if err != nil && config.Auth.Fake != 4712 {
-			/* TODO check pgerr */
 			err := writeText(
 				req.Context(),
 				c,
