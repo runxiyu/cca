@@ -222,6 +222,9 @@ input[type=password] {
 	width: 100%;
 	box-sizing: border-box;
 }
+input[type=file] {
+	width: fit-content;
+}
 td.tdinput, th.tdinput {
 	padding: 0rem !important;
 }
@@ -259,7 +262,7 @@ th.tdinput input[type=password] {
 }
 .btn-normal,
 input[type=file]::file-selector-button {
-	background: var(--box-contrast);
+	background: var(--box);
 	border: var(--border) 1px solid !important;
 	color: var(--box-contrast);
 }
@@ -274,6 +277,9 @@ input[type=file]::file-selector-button {
 	font-size: 0.9rem;
 	transition: background .1s linear;
 	cursor: pointer;
+}
+input[type=file].no-file-selector-button::file-selector-button {
+	display: none;
 }
 a.btn {
 	text-decoration: none;
