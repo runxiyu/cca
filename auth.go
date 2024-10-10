@@ -53,13 +53,6 @@ type msclaimsT struct {
 }
 
 func generateAuthorizationURL() (string, error) {
-	/*
-	 * TODO: Handle nonces and anti-replay. Incremental nonces would be
-	 * nice on memory and speed (depending on how maps are implemented in
-	 * Go, hopefully it's some sort of btree), but that requires either
-	 * hacky atomics or having a multiple goroutines to handle
-	 * authentication, neither of which are desirable.
-	 */
 	nonce, err := randomString(tokenLength)
 	if err != nil {
 		return "", err
