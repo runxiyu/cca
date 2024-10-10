@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	 */
 
 	socket.addEventListener("open", function() {
+		let gstate = 0
 		let _handleMessage = event => {
 			let msg = new String(event?.data)
 
@@ -78,9 +79,11 @@ document.addEventListener("DOMContentLoaded", () => {
 						document.getElementById(
 							`tick${ courseIDs[i] }`
 						).checked = true
-						document.getElementById(
-							`tick${ courseIDs[i] }`
-						).disabled = false
+						if (gstate === 1) {
+							document.getElementById(
+								`tick${ courseIDs[i] }`
+							).disabled = false
+						}
 					}
 				}
 				break
@@ -102,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					!(document.getElementById(`tick${ mar[1] }`).checked)
 				) {
 					document.getElementById(`tick${ mar[1] }`).disabled = true
-				} else {
+				} else if (gstate === 1) {
 					document.getElementById(`tick${ mar[1] }`).disabled = false
 				}
 				break
@@ -129,6 +132,24 @@ document.addEventListener("DOMContentLoaded", () => {
 					checked = true
 				document.getElementById(`tick${ mar[1] }`).
 					indeterminate = false
+				break
+			case "STOP":
+				gstate = 0
+				document.getElementById("stateindicator").textContent = "disabled"
+				document.getElementById("confirmbutton").disabled = true
+				document.querySelectorAll(".coursecheckbox").forEach(c => {
+					c.disabled = true
+				})
+				break
+			case "START":
+				gstate = 1
+				document.querySelectorAll(".courseitem").forEach(c => {
+					if (c.querySelector(".selected-number").textContent !== c.querySelector(".max-number").textContent || c.querySelector(".coursecheckbox").checked) {
+						c.querySelector(".coursecheckbox").disabled = false
+					}
+				})
+				document.getElementById("confirmbutton").disabled = false
+				document.getElementById("stateindicator").textContent = "enabled"
 				break
 			default:
 				alert(`Invalid command ${ mar[0] } received from socket. Something is wrong.`)

@@ -30,7 +30,7 @@ import (
 func writeText(ctx context.Context, c *websocket.Conn, msg string) error {
 	err := c.Write(ctx, websocket.MessageText, []byte(msg))
 	if err != nil {
-		return fmt.Errorf("error writing to connection: %w", err)
+		return fmt.Errorf("%w: %w", errWebSocketWrite, err)
 	}
 	return nil
 }

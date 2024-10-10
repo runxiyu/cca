@@ -46,4 +46,5 @@ var (
 	errCannotReceiveMessage       = errors.New("cannot receive message")
 	errNoSuchCourse               = errors.New("no such course")
 	errInvalidState               = errors.New("invalid state")
+	errWebSocketWrite             = errors.New("error writing to websocket")
 )

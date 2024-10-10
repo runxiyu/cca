@@ -87,9 +87,9 @@ func setState(ctx context.Context, newState uint32) error {
 			return false
 		})
 	case 1:
-		/* TODO: Send message to all connections saying "stop" */
+		propagate("STOP")
 	case 2:
-		/* TODO: Send message to all connections saying "start" */
+		propagate("START")
 	default:
 		return errInvalidState
 	}

@@ -337,6 +337,17 @@ table.table-of-courses {
 	width: 100%;
 }
 
+:disabled {
+	background: repeating-linear-gradient(
+		135deg,
+		grey,
+		grey 5px,
+		dimgrey 5px,
+		dimgrey 10px
+	);
+}
+
+
 /*
  * .need-connection is the content that should actually display when we are
  * connected via WebSocket. The JavaScript would change display from none to

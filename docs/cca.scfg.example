@@ -95,4 +95,8 @@ perf {
 	# choose the course? Setting this to true may provide a better
 	# user experience but would have a major performance impact.
 	propagate_immediate true
+
+	# How long should the send queue be, for messages sequentially
+	# propagated through a queue, rather than usems?
+	senq 10
 }

@@ -95,6 +95,9 @@
 						You logged in on another session.
 					</li>
 					<li>
+						CCA staff disabled the student portal.
+					</li>
+					<li>
 						The network is over-saturated and connections cannot be maintained.
 					</li>
 					<li>
@@ -113,7 +116,7 @@
 				</p>
 			</div>
 			<div class="need-connection">
-				<div id="alreadyopen" class="reading-width">
+				<div class="reading-width">
 					<table class="table-of-courses">
 						<thead>
 							<tr>
@@ -136,15 +139,15 @@
 							<tr><th colspan="7">{{ .Name }}</th></tr>
 							{{- range .Courses }}
 							<tr class="courseitem" id="course{{.ID}}" data-group="{{.Group}}">
-								<th style="font-weight: normal" scope="row">
-									<input aria-label="Enroll in course" class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}" data-group="{{.Group}}" {{ if ge .Selected .Max }}disabled{{ end }} ></input>
+								<th style="font-weight: normal;" scope="row">
+									<input aria-label="Enroll in course" class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}" data-group="{{.Group}}" disabled ></input>
 									<span id="coursestatus{{.ID}}"></span>
 								</th>
 								<td>
-									<span id="selected{{.ID}}">{{.Selected}}</span>
+									<span class="selected-number" id="selected{{.ID}}">{{.Selected}}</span>
 								</td>
 								<td>
-									<span id="max{{.ID}}">{{.Max}}</span>
+									<span class="max-number" id="max{{.ID}}">{{.Max}}</span>
 								</td>
 								<td>{{.Title}}</td>
 								<td id="type{{.ID}}">{{.Type}}</td>
@@ -159,9 +162,10 @@
 								<td class="th-like" colspan="7">
 									<div class="flex-justify">
 										<div class="left">
+											Course selections are <span id="stateindicator">disabled</span>
 										</div>
 										<div class="right">
-											<button id="confirmbutton" class="btn-primary btn">Confirm</button>
+											<button id="confirmbutton" class="btn-primary btn" disabled>Confirm</button>
 										</div>
 									</div>
 								</td>
@@ -169,14 +173,6 @@
 						</tfoot>
 					</table>
 				</div>
-				<!--
-					This should be handled in the JavaScript sometime later.
-					<div id="notopenyet" class="message-box">
-						<p>
-						CCA selections are not currently open.
-						</p>
-					</div>
-				-->
 			</div>
 		</div>
 		<script src="static/student.js"></script>

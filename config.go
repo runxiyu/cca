@@ -64,6 +64,7 @@ var configWithPointers struct {
 		Expr      *int    `scfg:"expr"`
 	} `scfg:"auth"`
 	Perf struct {
+		SendQ               *int  `scfg:"sendq"`
 		MessageArgumentsCap *int  `scfg:"msg_args_cap"`
 		MessageBytesCap     *int  `scfg:"msg_bytes_cap"`
 		ReadHeaderTimeout   *int  `scfg:"read_header_timeout"`
@@ -99,6 +100,7 @@ var config struct {
 		Expr      int
 	}
 	Perf struct {
+		SendQ               int
 		MessageArgumentsCap int
 		MessageBytesCap     int
 		ReadHeaderTimeout   int
@@ -253,6 +255,14 @@ func fetchConfig(path string) (retErr error) {
 		return fmt.Errorf("%w: auth.expr", errMissingConfigValue)
 	}
 	config.Auth.Expr = *(configWithPointers.Auth.Expr)
+
+	if configWithPointers.Perf.SendQ == nil {
+		return fmt.Errorf(
+			"%w: perf.sendq",
+			errMissingConfigValue,
+		)
+	}
+	config.Perf.SendQ = *(configWithPointers.Perf.SendQ)
 
 	if configWithPointers.Perf.MessageArgumentsCap == nil {
 		return fmt.Errorf(

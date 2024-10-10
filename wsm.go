@@ -67,6 +67,12 @@ func messageHello(
 		return reportError("error collecting choices")
 	}
 
+	if atomic.LoadUint32(&state) == 2 {
+		err = writeText(ctx, c, "START")
+		if err != nil {
+			return fmt.Errorf("%w: %w", errCannotSend, err)
+		}
+	}
 	err = writeText(ctx, c, "HI :"+strings.Join(courseIDs, ","))
 	if err != nil {
 		return fmt.Errorf("%w: %w", errCannotSend, err)
@@ -85,6 +91,18 @@ func messageChooseCourse(
 	userCourseGroups *userCourseGroupsT,
 ) error {
 	_ = session
+
+	if atomic.LoadUint32(&state) != 2 {
+		err := writeText(ctx, c, "E :Course selections are not open")
+		if err != nil {
+			return fmt.Errorf(
+				"%w: %w",
+				errCannotSend,
+				err,
+			)
+		}
+		return nil
+	}
 
 	select {
 	case <-ctx.Done():
@@ -262,6 +280,18 @@ func messageUnchooseCourse(
 	userCourseGroups *userCourseGroupsT,
 ) error {
 	_ = session
+
+	if atomic.LoadUint32(&state) != 2 {
+		err := writeText(ctx, c, "E :Course selections are not open")
+		if err != nil {
+			return fmt.Errorf(
+				"%w: %w",
+				errCannotSend,
+				err,
+			)
+		}
+		return nil
+	}
 
 	select {
 	case <-ctx.Done():
