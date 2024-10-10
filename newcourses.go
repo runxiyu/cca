@@ -277,6 +277,30 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 				)
 				return false
 			}
+			if !checkCourseType(courseTypeT(line[typeIndex])) {
+				wstr(
+					w,
+					http.StatusBadRequest,
+					fmt.Sprintf(
+						"Line %d has invalid course type \"%s\"",
+						lineNumber,
+						line[typeIndex],
+					),
+				)
+				return false
+			}
+			if !checkCourseGroup(courseGroupT(line[groupIndex])) {
+				wstr(
+					w,
+					http.StatusBadRequest,
+					fmt.Sprintf(
+						"Line %d has invalid course group \"%s\"",
+						lineNumber,
+						line[groupIndex],
+					),
+				)
+				return false
+			}
 			_, err = tx.Exec(
 				ctx,
 				"INSERT INTO courses(nmax, title, teacher, location, ctype, cgroup) VALUES ($1, $2, $3, $4, $5, $6)",
