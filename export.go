@@ -148,7 +148,7 @@ func handleExport(w http.ResponseWriter, req *http.Request) {
 			if found {
 				currentStudentID = before
 			} else {
-				currentStudentID = currentUserEmail /* TODO */
+				currentStudentID = currentUserEmail
 			}
 			userCacheMap[currentUserID] = userCacheT{
 				Name:       currentUserName,
