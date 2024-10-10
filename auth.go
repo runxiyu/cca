@@ -214,7 +214,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) {
 	cookie := http.Cookie{
 		Name:     "session",
 		Value:    cookieValue,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteStrictMode,
 		HttpOnly: true,
 		Secure:   config.Prod,
 		Expires:  expr,
