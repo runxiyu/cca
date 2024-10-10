@@ -320,16 +320,6 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 				return false
 			}
 		}
-		courses.Clear()
-		err = setupCourses(ctx)
-		if err != nil {
-			wstr(
-				w,
-				http.StatusInternalServerError,
-				"Error setting up course table again",
-			)
-			return false
-		}
 		err = tx.Commit(ctx)
 		if err != nil {
 			wstr(
@@ -342,6 +332,17 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 		return true
 	}(req.Context())
 	if !ok {
+		return
+	}
+
+	courses.Clear()
+	err = setupCourses(req.Context())
+	if err != nil {
+		wstr(
+			w,
+			http.StatusInternalServerError,
+			"Error setting up course table again, the data might be corrupted!",
+		)
 		return
 	}
 
