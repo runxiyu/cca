@@ -76,20 +76,28 @@ func saveStateValue(ctx context.Context, newState uint32) error {
 }
 
 func setState(ctx context.Context, newState uint32) error {
-	if newState > 2 {
-		return fmt.Errorf("%w: %d", errInvalidState, newState)
+	switch newState {
+	case 0:
+		cancelPool.Range(func(_, value interface{}) bool {
+			cancel, ok := value.(*context.CancelFunc)
+			if !ok {
+				panic("chanPool has non-\"*contect.CancelFunc\" values")
+			}
+			(*cancel)()
+			return false
+		})
+	case 1:
+		/* TODO: Send message to all connections saying "stop" */
+	case 2:
+		/* TODO: Send message to all connections saying "start" */
+	default:
+		return errInvalidState
 	}
 	err := saveStateValue(ctx, newState)
 	if err != nil {
 		return err
 	}
 	atomic.StoreUint32(&state, newState)
-	/*
-	 * TODO: Various actions about connections during state changes:
-	 * If set to 0, kill all connections. If set to 2, send all channels
-	 * a message that selections are open. If set to 1, send all channels
-	 * a message saying that selections are closed.
-	 */
 	return nil
 }
 
