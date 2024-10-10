@@ -73,7 +73,7 @@ do
 	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
 	printf '\\inputminted[breaklines, tabsize=8]{css}{docs/%s}\n' "$i" >> "$targetfile"
 done
-for i in cca.scfg.example
+for i in cca.scfg.example *.csv
 do
 	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
 	printf '\\inputminted[breaklines, tabsize=8]{text}{docs/%s}\n' "$i" >> "$targetfile"
