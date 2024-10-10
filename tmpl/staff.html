@@ -3,7 +3,7 @@
 <html lang="en">
 	<head>
 		<title>
-			{{ .Name }} (Staff) &ndash; CCA Selection System
+			Staff Home &ndash; CCA Selection System
 		</title>
 		<link rel="stylesheet" href="/static/style.css" />
 		<meta charset="utf-8" />
@@ -48,7 +48,7 @@
 			</p>
 		</div>
 		<div class="reading-width">
-			<p><a href="./export" class="btn-primary btn">Export all choices as a spreadsheet</a></p>
+			<p><a href="./export" class="btn-normal btn">Export all choices as a spreadsheet</a></p>
 			{{- if ge .State 1 }}
 			<p><a href="./state/0" class="btn-danger btn">Disable student access</a></p>
 			{{- if ge .State 2 }}
@@ -59,7 +59,64 @@
 			{{- else }}
 			<p><a href="./state/1" class="btn-primary btn">Enable student access</a></p>
 			{{- end }}
-			</p>
+			<table class="table-of-courses">
+				<thead>
+					<tr>
+						<th scope="col">ID</th>
+						<th scope="col">Selected</th>
+						<th scope="col">Max</th>
+						<th scope="col">Name</th>
+						<th scope="col">Type</th>
+						<th scope="col">Teacher</th>
+						<th scope="col">Location</th>
+					</tr>
+					<tr>
+						<th colspan="7" class="tdinput">
+							<input type="text" id="search" placeholder="Search..." />
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{- range .Groups }}
+					<tr><th colspan="7">{{ .Name }}</th></tr>
+					{{- range .Courses }}
+					<tr class="courseitem" id="course{{.ID}}" data-group="{{.Group}}">
+						<th scope="row">
+							{{.ID}}
+						</th>
+						<td>
+							<span id="selected{{.ID}}">{{.Selected}}</span>
+						</td>
+						<td>
+							<span id="max{{.ID}}">{{.Max}}</span>
+						</td>
+						<td>{{.Title}}</td>
+						<td id="type{{.ID}}">{{.Type}}</td>
+						<td>{{.Teacher}}</td>
+						<td>{{.Location}}</td>
+					</tr>
+					{{- end }}
+					{{- end }}
+				</tbody>
+				{{- if eq .State 0 }}
+				<tfoot>
+					<tr>
+						<td class="th-like" colspan="7">
+							<form method="POST" enctype="multipart/form-data" action="/newcourses">
+								<div class="flex-justify">
+									<div class="left">
+									</div>
+									<div class="right">
+										<input title="Upload course list (CSV)" type="file" id="coursecsv" name="coursecsv" accept=".csv" />
+										<input type="submit" value="Delete all choices and reset courses" class="btn btn-danger" />
+									</div>
+								</div>
+							</form>
+						</td>
+					</tr>
+				</tfoot>
+				{{- end }}
+			</table>
 		</div>
 	</body>
 </html>

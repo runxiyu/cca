@@ -31,6 +31,8 @@
 	--theme-contrast: white;
 	--box: #f2f2f2;
 	--box-contrast: var(--primary-fg);
+	--button: #e2e2e2;
+	--button-contrast: var(--primary-fg);
 	--danger: #d32535;
 	--danger-contrast: white;
 	--white: white;
@@ -50,6 +52,8 @@
 		--theme-contrast: #f8f9fa;
 		--box: #30363B;
 		--box-contrast: #f8f9fa;
+		--button: #40464B;
+		--button-contrast: #f8f9fa;
 		--danger: #d32535;
 		--danger-contrast: #f8f9fa;
 		--white: #202020;
@@ -259,12 +263,14 @@ th.tdinput input[type=password] {
 	background: var(--white);
 	color: var(--white-contrast);
 	border: var(--border) 1px solid;
+	font-weight: bold;
 }
 .btn-normal,
 input[type=file]::file-selector-button {
-	background: var(--box);
+	background: var(--button);
 	border: var(--border) 1px solid !important;
-	color: var(--box-contrast);
+	color: var(--button-contrast);
+	font-weight: bold;
 }
 .btn,
 input[type=submit],

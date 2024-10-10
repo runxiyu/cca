@@ -108,42 +108,6 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if userDepartment == staffDepartment {
-		err := tmpl.ExecuteTemplate(
-			w,
-			"staff",
-			struct {
-				Name  string
-				State uint32
-			}{
-				userName,
-				state,
-			},
-		)
-		if err != nil {
-			log.Println(err)
-		}
-		return
-	}
-
-	if atomic.LoadUint32(&state) == 0 {
-		err := tmpl.ExecuteTemplate(
-			w,
-			"student_disabled",
-			struct {
-				Name       string
-				Department string
-			}{
-				userName,
-				userDepartment,
-			},
-		)
-		if err != nil {
-			log.Println(err)
-		}
-		return
-	}
-
 	/* TODO: The below should be completed on-update. */
 	type groupT struct {
 		Handle  courseGroupT
@@ -171,6 +135,44 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		(*_groups[course.Group].Courses)[courseID] = course
 		return true
 	})
+
+	if userDepartment == staffDepartment {
+		err := tmpl.ExecuteTemplate(
+			w,
+			"staff",
+			struct {
+				Name   string
+				State  uint32
+				Groups *map[courseGroupT]groupT
+			}{
+				userName,
+				state,
+				&_groups,
+			},
+		)
+		if err != nil {
+			log.Println(err)
+		}
+		return
+	}
+
+	if atomic.LoadUint32(&state) == 0 {
+		err := tmpl.ExecuteTemplate(
+			w,
+			"student_disabled",
+			struct {
+				Name       string
+				Department string
+			}{
+				userName,
+				userDepartment,
+			},
+		)
+		if err != nil {
+			log.Println(err)
+		}
+		return
+	}
 
 	err = tmpl.ExecuteTemplate(
 		w,

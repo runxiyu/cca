@@ -105,9 +105,9 @@ const staffDepartment = "Staff"
  * Read course information from the database. This should be called during
  * setup.
  */
-func setupCourses() error {
+func setupCourses(ctx context.Context) error {
 	rows, err := db.Query(
-		context.Background(),
+		ctx,
 		"SELECT id, nmax, title, ctype, cgroup, teacher, location FROM courses",
 	)
 	if err != nil {
@@ -155,7 +155,8 @@ func setupCourses() error {
 				currentCourse.Group,
 			)
 		}
-		err := db.QueryRow(context.Background(),
+		err := db.QueryRow(
+			ctx,
 			"SELECT COUNT (*) FROM choices WHERE courseid = $1",
 			currentCourse.ID,
 		).Scan(&currentCourse.Selected)

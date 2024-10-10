@@ -21,6 +21,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"embed"
 	"flag"
@@ -120,6 +121,7 @@ func main() {
 	http.HandleFunc("/auth", handleAuth)
 	http.HandleFunc("/ws", handleWs)
 	http.HandleFunc("/state/{s}", handleState)
+	http.HandleFunc("/newcourses", handleNewCourses)
 
 	var l net.Listener
 
@@ -183,7 +185,7 @@ func main() {
 	}
 
 	log.Println("Setting up courses")
-	err = setupCourses()
+	err = setupCourses(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
