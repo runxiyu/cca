@@ -118,6 +118,17 @@
 				{{- end }}
 			</table>
 		</div>
+		<script>
+			document.addEventListener("DOMContentLoaded", () => {
+				const search = document.getElementById("search")
+				search.addEventListener("input", () => {
+					const s = search.value.toLowerCase().trim().normalize('NFD')
+					document.querySelectorAll(".courseitem").forEach(c => {
+						c.hidden = (!c.textContent.toLowerCase().normalize('NFD').includes(s)) && (s.length > 0)
+					})
+				})
+			})
+		</script>
 	</body>
 </html>
 {{- end -}}
