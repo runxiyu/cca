@@ -157,13 +157,6 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	/*
 	 * Now that we have an authenticated request, this WebSocket connection
 	 * may be simply associated with the session and userID.
-	 * TODO: There are various race conditions that could occur if one user
-	 * creates multiple connections, with the same or different session
-	 * cookies. The last situation could occur in normal use when a user
-	 * opens multiple instances of the page in one browser, and is not
-	 * unique to custom clients or malicious users. Some effort must be
-	 * taken to ensure that each user may only have one connection at a
-	 * time.
 	 */
 	err = handleConn(
 		req.Context(),
