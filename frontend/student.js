@@ -17,7 +17,7 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-	const socket = new WebSocket("wss://localhost.runxiyu.org:8080/ws")
+	const socket = new WebSocket("wss://cca.runxiyu.org/ws")
 
 	/*
 	 * TODO I want to make this easily configurable somehow, but I'm unsure
