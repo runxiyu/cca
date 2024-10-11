@@ -56,15 +56,13 @@ type courseT struct {
 }
 
 const (
-	sport      courseTypeT = "Sport"
-	enrichment courseTypeT = "Enrichment"
-	culture    courseTypeT = "Culture"
+	sport    courseTypeT = "Sport"
+	nonSport courseTypeT = "Non-sport"
 )
 
 var courseTypes = map[courseTypeT]struct{}{
-	sport:      {},
-	enrichment: {},
-	culture:    {},
+	sport:    {},
+	nonSport: {},
 }
 
 const (
