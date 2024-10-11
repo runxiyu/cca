@@ -52,7 +52,7 @@ build/iadocs/appendix.pdf: iadocs/appendix.tex build/iadocs/source.gen build/iad
 	mkdir -p build/iadocs
 	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
 	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
-build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.js templates/* scripts/latexify-source.sh docs/* sql/* scripts/*
+build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.js templates/* scripts/latexify-source.sh docs/* sql/* scripts/* iadocs/*.tex iadocs/*.inc
 	mkdir -p build/iadocs
 	scripts/latexify-source.sh
 build/iadocs/%.inc: iadocs/%.inc

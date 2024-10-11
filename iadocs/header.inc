@@ -1,3 +1,5 @@
+% This file is to be \input{}'ed into the preamble of other documents
+
 \documentclass[numbers=endperiod, parskip=half-]{scrartcl}
 
 \subject{IBDP Computer Science Internal Assessment}

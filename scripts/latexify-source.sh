@@ -46,3 +46,7 @@ cd ../docs
 printfile html 2 ./docs *.html
 printfile css 8 ./docs *.css
 printfile text 8 ./docs *.csv cca.scfg.example
+
+printf '\\chapter{IA documentation}\n' >> "$targetfile"
+cd ../iadocs
+printfile latex 8 ./iadocs *.tex *.inc
