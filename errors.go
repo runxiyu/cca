@@ -50,6 +50,7 @@ var (
 	errCannotCheckCookie          = errors.New("error checking cookie")
 	errNoCookie                   = errors.New("no cookie found")
 	errNoSuchUser                 = errors.New("no such user")
+	errNoSuchYearGroup            = errors.New("no such year group")
 )
 
 func wrapError(a, b error) error {

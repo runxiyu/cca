@@ -69,6 +69,24 @@ var configWithPointers struct {
 		UsemDelayShiftBits  *int  `scfg:"usem_delay_shift_bits"`
 		PropagateImmediate  *bool `scfg:"propagate_immediate"`
 	} `scfg:"perf"`
+	Req struct {
+		Y9 struct {
+			Sport    *int `scfg:"sport"`
+			NonSport *int `scfg:"non_sport"`
+		} `scfg:"y9"`
+		Y10 struct {
+			Sport    *int `scfg:"sport"`
+			NonSport *int `scfg:"non_sport"`
+		} `scfg:"y10"`
+		Y11 struct {
+			Sport    *int `scfg:"sport"`
+			NonSport *int `scfg:"non_sport"`
+		} `scfg:"y11"`
+		Y12 struct {
+			Sport    *int `scfg:"sport"`
+			NonSport *int `scfg:"non_sport"`
+		} `scfg:"y12"`
+	} `scfg:"req"`
 }
 
 var config struct {
@@ -103,7 +121,25 @@ var config struct {
 		ReadHeaderTimeout   int
 		UsemDelayShiftBits  int
 		PropagateImmediate  bool
-	} `scfg:"perf"`
+	}
+	Req struct {
+		Y9 struct {
+			Sport    int
+			NonSport int
+		}
+		Y10 struct {
+			Sport    int
+			NonSport int
+		}
+		Y11 struct {
+			Sport    int
+			NonSport int
+		}
+		Y12 struct {
+			Sport    int
+			NonSport int
+		}
+	}
 }
 
 func fetchConfig(path string) (retErr error) {
@@ -258,6 +294,63 @@ func fetchConfig(path string) (retErr error) {
 		)
 	}
 	config.Perf.PropagateImmediate = *(configWithPointers.Perf.PropagateImmediate)
+
+	if configWithPointers.Req.Y9.Sport == nil {
+		return fmt.Errorf(
+			"%w: req.y9.sport",
+			errMissingConfigValue,
+		)
+	}
+	config.Req.Y9.Sport = *(configWithPointers.Req.Y9.Sport)
+	if configWithPointers.Req.Y9.NonSport == nil {
+		return fmt.Errorf(
+			"%w: req.y9.non_sport",
+			errMissingConfigValue,
+		)
+	}
+	config.Req.Y9.NonSport = *(configWithPointers.Req.Y9.NonSport)
+	if configWithPointers.Req.Y10.Sport == nil {
+		return fmt.Errorf(
+			"%w: req.y10.non_sport",
+			errMissingConfigValue,
+		)
+	}
+	config.Req.Y10.Sport = *(configWithPointers.Req.Y10.Sport)
+	if configWithPointers.Req.Y10.NonSport == nil {
+		return fmt.Errorf(
+			"%w: req.y10.non_sport",
+			errMissingConfigValue,
+		)
+	}
+	config.Req.Y10.NonSport = *(configWithPointers.Req.Y10.NonSport)
+	if configWithPointers.Req.Y11.Sport == nil {
+		return fmt.Errorf(
+			"%w: req.y11.sport",
+			errMissingConfigValue,
+		)
+	}
+	config.Req.Y11.Sport = *(configWithPointers.Req.Y11.Sport)
+	if configWithPointers.Req.Y11.NonSport == nil {
+		return fmt.Errorf(
+			"%w: req.y11.non_sport",
+			errMissingConfigValue,
+		)
+	}
+	config.Req.Y11.NonSport = *(configWithPointers.Req.Y11.NonSport)
+	if configWithPointers.Req.Y12.Sport == nil {
+		return fmt.Errorf(
+			"%w: req.y12.sport",
+			errMissingConfigValue,
+		)
+	}
+	config.Req.Y12.Sport = *(configWithPointers.Req.Y12.Sport)
+	if configWithPointers.Req.Y12.NonSport == nil {
+		return fmt.Errorf(
+			"%w: req.y12.non_sport",
+			errMissingConfigValue,
+		)
+	}
+	config.Req.Y12.NonSport = *(configWithPointers.Req.Y12.NonSport)
 
 	return nil
 }

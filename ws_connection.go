@@ -51,6 +51,7 @@ func handleConn(
 	ctx context.Context,
 	c *websocket.Conn,
 	userID string,
+	department string,
 ) (retErr error) {
 	send := make(chan string, config.Perf.SendQ)
 	chanPool.Store(userID, &send)
@@ -142,16 +143,13 @@ func handleConn(
 		}()
 	}
 
-	/*
-	 * userCourseGroups stores whether the user has already chosen a course
-	 * in the courseGroup.
-	 */
 	var userCourseGroups userCourseGroupsT = make(map[string]struct{})
-	err := populateUserCourseGroups(newCtx, &userCourseGroups, userID)
+	var userCourseTypes userCourseTypesT = make(map[string]int)
+	err := populateUserCourseTypesAndGroups(newCtx, &userCourseTypes, &userCourseGroups, userID)
 	if err != nil {
 		return reportError(
 			fmt.Sprintf(
-				"cannot populate user course groups: %v",
+				"cannot populate user course types/groups: %v",
 				err,
 			),
 		)
@@ -311,6 +309,7 @@ func handleConn(
 					mar,
 					userID,
 					&userCourseGroups,
+					&userCourseTypes,
 				)
 				if err != nil {
 					return err
@@ -323,6 +322,20 @@ func handleConn(
 					mar,
 					userID,
 					&userCourseGroups,
+					&userCourseTypes,
+				)
+				if err != nil {
+					return err
+				}
+			case "C":
+				err := messageConfirm(
+					newCtx,
+					c,
+					reportError,
+					mar,
+					userID,
+					department,
+					&userCourseTypes,
 				)
 				if err != nil {
 					return err

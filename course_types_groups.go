@@ -1,5 +1,5 @@
 /*
- * Course groups
+ * Course types and groups
  *
  * Copyright (C) 2024  Runxi Yu <https://runxiyu.org>
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -24,6 +24,70 @@ import (
 	"context"
 	"fmt"
 )
+
+/* Course types, e.g. Sport */
+
+const (
+	sport    string = "Sport"
+	nonSport string = "Non-sport"
+)
+
+var courseTypes = map[string]struct{}{
+	sport:    {},
+	nonSport: {},
+}
+
+func checkCourseType(ct string) bool {
+	_, ok := courseTypes[ct]
+	return ok
+}
+
+type userCourseTypesT map[string]int
+
+func getCourseTypeMinimumForYearGroup(yearGroup, courseType string) (int, error) {
+	switch yearGroup {
+	case "Y9":
+		switch courseType {
+		case sport:
+			return config.Req.Y9.Sport, nil
+		case nonSport:
+			return config.Req.Y9.NonSport, nil
+		default:
+			return 0, errInvalidCourseType
+		}
+	case "Y10":
+		switch courseType {
+		case sport:
+			return config.Req.Y10.Sport, nil
+		case nonSport:
+			return config.Req.Y10.NonSport, nil
+		default:
+			return 0, errInvalidCourseType
+		}
+	case "Y11":
+		switch courseType {
+		case sport:
+			return config.Req.Y11.Sport, nil
+		case nonSport:
+			return config.Req.Y11.NonSport, nil
+		default:
+			return 0, errInvalidCourseType
+		}
+	case "Y12":
+		switch courseType {
+		case sport:
+			return config.Req.Y12.Sport, nil
+		case nonSport:
+			return config.Req.Y12.NonSport, nil
+		default:
+			return 0, errInvalidCourseType
+		}
+	default:
+		return 0, errNoSuchYearGroup
+	}
+}
+
+/* Course groups, e.g. MW1 */
 
 type userCourseGroupsT map[string]struct{}
 
@@ -50,8 +114,11 @@ var courseGroups = map[string]string{
 	tt3: "Tuesday/Thursday CCA3",
 }
 
-func populateUserCourseGroups(
+/* Populate both */
+
+func populateUserCourseTypesAndGroups(
 	ctx context.Context,
+	userCourseTypes *userCourseTypesT,
 	userCourseGroups *userCourseGroupsT,
 	userID string,
 ) error {
@@ -85,7 +152,7 @@ func populateUserCourseGroups(
 				err,
 			)
 		}
-		var thisGroupName string
+		var thisGroupName, thisTypeName string
 		_course, ok := courses.Load(thisCourseID)
 		if !ok {
 			return fmt.Errorf(
@@ -99,6 +166,7 @@ func populateUserCourseGroups(
 			panic("courses map has non-\"*courseT\" items")
 		}
 		thisGroupName = course.Group
+		thisTypeName = course.Type
 		if _, ok := (*userCourseGroups)[thisGroupName]; ok {
 			return fmt.Errorf(
 				"%w: user %v, group %v",
@@ -108,6 +176,7 @@ func populateUserCourseGroups(
 			)
 		}
 		(*userCourseGroups)[thisGroupName] = struct{}{}
+		(*userCourseTypes)[thisTypeName]++
 	}
 	return nil
 }

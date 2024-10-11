@@ -40,6 +40,7 @@ func messageChooseCourse(
 	mar []string,
 	userID string,
 	userCourseGroups *userCourseGroupsT,
+	userCourseTypes *userCourseTypesT,
 ) error {
 	if atomic.LoadUint32(&state) != 2 {
 		err := writeText(ctx, c, "E :Course selections are not open")
@@ -171,6 +172,7 @@ func messageChooseCourse(
 			 * concurrently for one connection.
 			 */
 			(*userCourseGroups)[course.Group] = struct{}{}
+			(*userCourseTypes)[course.Type]++
 
 			err = writeText(ctx, c, "Y "+mar[1])
 			if err != nil {
