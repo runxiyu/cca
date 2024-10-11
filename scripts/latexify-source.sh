@@ -28,8 +28,8 @@ printfile javascript 4 ./frontend *.js
 printfile javascript 8 ./frontend *.css
 
 printf '\\section{HTML templates}\n' >> "$targetfile"
-cd ../tmpl
-printfile html 2 ./tmpl *.html
+cd ../templates
+printfile html 2 ./templates *.html
 
 printf '\\section{Build system and auxiliary scripts}\n' >> "$targetfile"
 cd ..

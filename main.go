@@ -35,14 +35,14 @@ import (
 
 var tmpl *template.Template
 
-//go:embed build/static/* tmpl/*
+//go:embed build/static/* templates/*
 //go:embed build/iadocs/*.pdf build/iadocs/*.htm build/iadocs/*.html
 //go:embed build/docs/*
 var runFS embed.FS
 
 //go:embed go.* *.go
 //go:embed docs/* iadocs/*
-//go:embed frontend/* tmpl/*
+//go:embed frontend/* templates/*
 //go:embed README.md LICENSE Makefile .editorconfig .gitignore
 //go:embed scripts/* sql/*
 var srcFS embed.FS
@@ -65,7 +65,7 @@ func main() {
 	}
 
 	log.Println("Setting up templates")
-	tmpl, err = template.ParseFS(runFS, "tmpl/*")
+	tmpl, err = template.ParseFS(runFS, "templates/*")
 	if err != nil {
 		log.Fatal(err)
 	}
