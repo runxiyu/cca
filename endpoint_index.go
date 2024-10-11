@@ -57,8 +57,8 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		)
 		if err2 != nil {
 			log.Println(err2)
-			return
 		}
+		return
 	} else if err != nil {
 		wstr(w, http.StatusInternalServerError, fmt.Sprintf("Error: %v", err))
 	}
