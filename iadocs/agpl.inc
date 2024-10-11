@@ -1,7 +1,7 @@
 \begin{center}
 	{\LARGE\bfseries GNU Affero General Public License}
 
-	Copyright \copyright\  2007 Free Software Foundation, Inc. \texttt{https://fsf.org/}
+	Copyright \copyright\  2007 Free Software Foundation, Inc. \url{https://fsf.org/}
 
 	\bigskip
 	Everyone is permitted to copy and distribute verbatim copies of this\\
@@ -678,6 +678,6 @@ specific requirements.
 You should also get your employer (if you work as a programmer) or
 school, if any, to sign a ``copyright disclaimer'' for the program, if
 necessary.  For more information on this, and how to apply and follow
-the GNU AGPL, see \texttt{https://www.gnu.org/licenses/}.
+the GNU AGPL, see \url{https://www.gnu.org/licenses/}.
 
 \end{enumerate}
