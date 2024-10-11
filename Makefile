@@ -48,7 +48,7 @@ build/iadocs/%.pdf: iadocs/%.tex build/iadocs/header.inc
 	mkdir -p build/iadocs
 	lualatex -interaction batchmode -output-directory=build/iadocs $<
 	lualatex -interaction batchmode -output-directory=build/iadocs $<
-build/iadocs/appendix.pdf: iadocs/appendix.tex build/iadocs/header.inc build/iadocs/source.gen
+build/iadocs/appendix.pdf: iadocs/appendix.tex build/iadocs/header.inc build/iadocs/source.gen build/iadocs/agpl.inc
 	mkdir -p build/iadocs
 	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
 	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
