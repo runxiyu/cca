@@ -43,8 +43,8 @@ type courseT struct {
 	ID           int
 	Max          uint32
 	Title        string
-	Type         courseTypeT
-	Group        courseGroupT
+	Type         string
+	Group        string
 	Teacher      string
 	Location     string
 	Usems        sync.Map /* string, *usemT */

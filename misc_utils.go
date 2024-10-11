@@ -51,3 +51,11 @@ func randomString(sz int) (string, error) {
 	}
 	return base64.RawURLEncoding.EncodeToString(r), nil
 }
+
+func getKeysOfMap[K comparable, V any](i map[K]V) []K {
+	o := make([]K, 0, len(i))
+	for k := range i {
+		o = append(o, k)
+	}
+	return o
+}

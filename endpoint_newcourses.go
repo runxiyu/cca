@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"sync/atomic"
 
 	"github.com/jackc/pgx/v5"
@@ -243,26 +244,28 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 				)
 				return false
 			}
-			if !checkCourseType(courseTypeT(line[typeIndex])) {
+			if !checkCourseType(line[typeIndex]) {
 				wstr(
 					w,
 					http.StatusBadRequest,
 					fmt.Sprintf(
-						"Line %d has invalid course type \"%s\"",
+						"Line %d has invalid course type \"%s\"\nAllowed course types: %s",
 						lineNumber,
 						line[typeIndex],
+						strings.Join(getKeysOfMap(courseTypes), ", "),
 					),
 				)
 				return false
 			}
-			if !checkCourseGroup(courseGroupT(line[groupIndex])) {
+			if !checkCourseGroup(line[groupIndex]) {
 				wstr(
 					w,
 					http.StatusBadRequest,
 					fmt.Sprintf(
-						"Line %d has invalid course group \"%s\"",
+						"Line %d has invalid course group \"%s\"\nAllowed course groups: %s",
 						lineNumber,
 						line[groupIndex],
+						strings.Join(getKeysOfMap(courseGroups), ", "),
 					),
 				)
 				return false

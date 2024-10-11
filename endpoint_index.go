@@ -65,11 +65,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 
 	/* TODO: The below should be completed on-update. */
 	type groupT struct {
-		Handle  courseGroupT
+		Handle  string
 		Name    string
 		Courses *map[int]*courseT
 	}
-	_groups := make(map[courseGroupT]groupT)
+	_groups := make(map[string]groupT)
 	for k, v := range courseGroups {
 		_coursemap := make(map[int]*courseT)
 		_groups[k] = groupT{
@@ -98,7 +98,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			struct {
 				Name   string
 				State  uint32
-				Groups *map[courseGroupT]groupT
+				Groups *map[string]groupT
 			}{
 				username,
 				state,
@@ -135,7 +135,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		struct {
 			Name       string
 			Department string
-			Groups     *map[courseGroupT]groupT
+			Groups     *map[string]groupT
 		}{
 			username,
 			department,

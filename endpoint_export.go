@@ -151,7 +151,7 @@ func handleExport(w http.ResponseWriter, req *http.Request) {
 				currentStudentID,
 				currentDepartment,
 				course.Title,
-				string(course.Group),
+				course.Group,
 			},
 		)
 	}

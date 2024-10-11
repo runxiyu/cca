@@ -25,25 +25,23 @@ import (
 	"fmt"
 )
 
-type userCourseGroupsT map[courseGroupT]struct{}
+type userCourseGroupsT map[string]struct{}
 
-type courseGroupT string
-
-func checkCourseGroup(cg courseGroupT) bool {
+func checkCourseGroup(cg string) bool {
 	_, ok := courseGroups[cg]
 	return ok
 }
 
 const (
-	mw1 courseGroupT = "MW1"
-	mw2 courseGroupT = "MW2"
-	mw3 courseGroupT = "MW3"
-	tt1 courseGroupT = "TT1"
-	tt2 courseGroupT = "TT2"
-	tt3 courseGroupT = "TT3"
+	mw1 string = "MW1"
+	mw2 string = "MW2"
+	mw3 string = "MW3"
+	tt1 string = "TT1"
+	tt2 string = "TT2"
+	tt3 string = "TT3"
 )
 
-var courseGroups = map[courseGroupT]string{
+var courseGroups = map[string]string{
 	mw1: "Monday/Wednesday CCA1",
 	mw2: "Monday/Wednesday CCA2",
 	mw3: "Monday/Wednesday CCA3",
@@ -87,7 +85,7 @@ func populateUserCourseGroups(
 				err,
 			)
 		}
-		var thisGroupName courseGroupT
+		var thisGroupName string
 		_course, ok := courses.Load(thisCourseID)
 		if !ok {
 			return fmt.Errorf(

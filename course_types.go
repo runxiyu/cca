@@ -20,19 +20,17 @@
 
 package main
 
-type courseTypeT string
-
 const (
-	sport    courseTypeT = "Sport"
-	nonSport courseTypeT = "Non-sport"
+	sport    string = "Sport"
+	nonSport string = "Non-sport"
 )
 
-var courseTypes = map[courseTypeT]struct{}{
+var courseTypes = map[string]struct{}{
 	sport:    {},
 	nonSport: {},
 }
 
-func checkCourseType(ct courseTypeT) bool {
+func checkCourseType(ct string) bool {
 	_, ok := courseTypes[ct]
 	return ok
 }
