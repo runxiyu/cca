@@ -6,75 +6,43 @@ targetfile="$(realpath -- build/iadocs/source.gen)"
 
 printf '\n' > "$targetfile"
 
+printfile() {
+	lang="$1"
+	tabsize="$2"
+	base="$3"
+	shift 3
+	for i in "$@"
+	do
+		printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
+		printf '\\inputminted[breaklines, tabsize=%s]{%s}{%s/%s}\n' "$tabsize" "$lang" "$base" "$i" >> "$targetfile"
+	done
+}
+
 printf '\\section{Backend source code}\n' >> "$targetfile"
-for i in *.go
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=8]{go}{%s}\n' "$i" >> "$targetfile"
-done
-for i in go.*
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=8]{text}{%s}\n' "$i" >> "$targetfile"
-done
+printfile go 8 ./ *.go
+printfile text 8 ./ go.*
 
 printf '\\section{Frontend source code}\n' >> "$targetfile"
 cd frontend
-for i in *.js
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=4]{javascript}{frontend/%s}\n' "$i" >> "$targetfile"
-done
-for i in *.css
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=8]{css}{frontend/%s}\n' "$i" >> "$targetfile"
-done
+printfile javascript 4 ./frontend *.js
+printfile javascript 8 ./frontend *.css
 
 printf '\\section{HTML templates}\n' >> "$targetfile"
 cd ../tmpl
-for i in *.html
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=2]{html}{tmpl/%s}\n' "$i" >> "$targetfile"
-done
+printfile html 2 ./tmpl *.html
 
 printf '\\section{Build system and auxiliary scripts}\n' >> "$targetfile"
 cd ..
-for i in Makefile
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=8]{makefile}{%s}\n' "$i" >> "$targetfile"
-done
+printfile makefile 8 ./ Makefile
 cd scripts
-for i in *
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=8]{bash}{scripts/%s}\n' "$i" >> "$targetfile"
-done
+printfile bash 8 ./scripts *.sh
 
 printf '\\section{SQL scripts}\n' >> "$targetfile"
 cd ../sql
-for i in *
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=8]{postgresql}{sql/%s}\n' "$i" >> "$targetfile"
-done
+printfile postgresql 8 ./sql *.sql
 
 printf '\\section{Production documentation}\n' >> "$targetfile"
 cd ../docs
-for i in *.html
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=2]{html}{docs/%s}\n' "$i" >> "$targetfile"
-done
-for i in *.css
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=8]{css}{docs/%s}\n' "$i" >> "$targetfile"
-done
-for i in cca.scfg.example *.csv
-do
-	printf '\\subsection{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-	printf '\\inputminted[breaklines, tabsize=8]{text}{docs/%s}\n' "$i" >> "$targetfile"
-done
+printfile html 2 ./docs *.html
+printfile css 8 ./docs *.css
+printfile text 8 ./docs *.csv cca.scfg.example
