@@ -23,7 +23,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 
 	"git.sr.ht/~emersion/go-scfg"
@@ -55,7 +54,6 @@ var configWithPointers struct {
 		Conn *string `scfg:"conn"`
 	} `scfg:"db"`
 	Auth struct {
-		Fake      *int    `scfg:"fake"`
 		Client    *string `scfg:"client"`
 		Authorize *string `scfg:"authorize"`
 		Jwks      *string `scfg:"jwks"`
@@ -91,7 +89,6 @@ var config struct {
 		Conn string
 	}
 	Auth struct {
-		Fake      int
 		Client    string
 		Authorize string
 		Jwks      string
@@ -183,31 +180,6 @@ func fetchConfig(path string) (retErr error) {
 		return fmt.Errorf("%w: db.conn", errMissingConfigValue)
 	}
 	config.DB.Conn = *(configWithPointers.DB.Conn)
-
-	if configWithPointers.Auth.Fake == nil {
-		config.Auth.Fake = 0
-	} else {
-		config.Auth.Fake = *(configWithPointers.Auth.Fake)
-		switch config.Auth.Fake {
-		case 0:
-			/* It's okay to set it to 0 in production */
-		case 4712, 9080: /* Don't use them unless you know what you're doing */
-			if config.Prod {
-				return fmt.Errorf(
-					"%w: fake authentication is incompatible with production mode",
-					errIllegalConfig,
-				)
-			}
-			log.Println(
-				"!!! WARNING: Fake authentication is enabled. Any WebSocket connection would have a fake account. This is a HUGE security hole. You should only use this while benchmarking.",
-			)
-		default:
-			return fmt.Errorf(
-				"%w: invalid option for auth.fake",
-				errIllegalConfig,
-			)
-		}
-	}
 
 	if configWithPointers.Auth.Client == nil {
 		return fmt.Errorf("%w: auth.client", errMissingConfigValue)

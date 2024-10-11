@@ -34,54 +34,19 @@ import (
 
 func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
-		wstr(
-			w,
-			http.StatusMethodNotAllowed,
-			"Only POST is allowed here",
-		)
+		wstr(w, http.StatusMethodNotAllowed, "Only POST is allowed here")
 		return
 	}
 
-	sessionCookie, err := req.Cookie("session")
-	if errors.Is(err, http.ErrNoCookie) {
-		wstr(
-			w,
-			http.StatusUnauthorized,
-			"No session cookie, which is required for this endpoint",
-		)
-		return
-	} else if err != nil {
-		wstr(w, http.StatusBadRequest, "Error: Unable to check cookie.")
-		return
-	}
-
-	var userDepartment string
-	err = db.QueryRow(
-		req.Context(),
-		"SELECT department FROM users WHERE session = $1",
-		sessionCookie.Value,
-	).Scan(&userDepartment)
+	_, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			wstr(
-				w,
-				http.StatusForbidden,
-				"Invalid session cookie",
-			)
-			return
-		}
 		wstr(
 			w,
 			http.StatusInternalServerError,
-			fmt.Sprintf(
-				"Error: Unexpected database error: %s",
-				err,
-			),
+			fmt.Sprintf("Error: %v", err),
 		)
-		return
 	}
-
-	if userDepartment != staffDepartment {
+	if department != staffDepartment {
 		wstr(
 			w,
 			http.StatusForbidden,
@@ -98,6 +63,7 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 		)
 		return
 	}
+
 	/* TODO: Potential race. The global state may need to be write-locked. */
 
 	file, fileHeader, err := req.FormFile("coursecsv")

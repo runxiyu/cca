@@ -1,5 +1,5 @@
 /*
- * WebSocket endpoint handler
+ * Let staff update state
  *
  * Copyright (C) 2024  Runxi Yu <https://runxiyu.org>
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -21,50 +21,48 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"net/http"
-
-	"github.com/coder/websocket"
+	"strconv"
 )
 
-/*
- * Handle requests to the WebSocket endpoint and establish a connection.
- * Authentication is handled here, but afterwards, the connection is really
- * handled in handleConn.
- */
-func handleWs(w http.ResponseWriter, req *http.Request) {
-	wsOptions := &websocket.AcceptOptions{
-		Subprotocols: []string{"cca1"},
-	} //exhaustruct:ignore
-	c, err := websocket.Accept(
-		w,
-		req,
-		wsOptions,
-	)
+func handleState(w http.ResponseWriter, req *http.Request) {
+	_, _, department, err := getUserInfoFromRequest(req)
+	if err != nil {
+		wstr(
+			w,
+			http.StatusInternalServerError,
+			fmt.Sprintf("Error: %v", err),
+		)
+	}
+	if department != staffDepartment {
+		wstr(
+			w,
+			http.StatusForbidden,
+			"You are not authorized to view this page",
+		)
+		return
+	}
+
+	basePath := req.PathValue("s")
+	newState, err := strconv.ParseUint(basePath, 10, 32)
 	if err != nil {
 		wstr(
 			w,
 			http.StatusBadRequest,
-			"This endpoint only supports valid WebSocket connections.",
+			"State must be an unsigned 32-bit integer",
 		)
 		return
 	}
-	defer func() {
-		_ = c.CloseNow()
-	}()
-
-	userID, _, _, err := getUserInfoFromRequest(req)
+	err = setState(req.Context(), uint32(newState))
 	if err != nil {
-		err := writeText(req.Context(), c, "U")
-		if err != nil {
-			log.Println(err)
-		}
+		wstr(
+			w,
+			http.StatusInternalServerError,
+			"Failed setting state, please return to previous page; are you sure it's within limits?",
+		)
 		return
 	}
 
-	err = handleConn(req.Context(), c, userID)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	http.Redirect(w, req, "/", http.StatusSeeOther)
 }

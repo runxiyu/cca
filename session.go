@@ -1,5 +1,5 @@
 /*
- * WebSocket endpoint handler
+ * Session checking functions
  *
  * Copyright (C) 2024  Runxi Yu <https://runxiyu.org>
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -21,50 +21,34 @@
 package main
 
 import (
-	"log"
+	"errors"
 	"net/http"
 
-	"github.com/coder/websocket"
+	"github.com/jackc/pgx/v5"
 )
 
-/*
- * Handle requests to the WebSocket endpoint and establish a connection.
- * Authentication is handled here, but afterwards, the connection is really
- * handled in handleConn.
- */
-func handleWs(w http.ResponseWriter, req *http.Request) {
-	wsOptions := &websocket.AcceptOptions{
-		Subprotocols: []string{"cca1"},
-	} //exhaustruct:ignore
-	c, err := websocket.Accept(
-		w,
-		req,
-		wsOptions,
-	)
-	if err != nil {
-		wstr(
-			w,
-			http.StatusBadRequest,
-			"This endpoint only supports valid WebSocket connections.",
-		)
+func getUserInfoFromRequest(req *http.Request) (userID, username, department string, retErr error) {
+	sessionCookie, err := req.Cookie("session")
+	if errors.Is(err, http.ErrNoCookie) {
+		retErr = wrapError(errNoCookie, err)
+		return
+	} else if err != nil {
+		retErr = wrapError(errCannotCheckCookie, err)
 		return
 	}
-	defer func() {
-		_ = c.CloseNow()
-	}()
 
-	userID, _, _, err := getUserInfoFromRequest(req)
+	err = db.QueryRow(
+		req.Context(),
+		"SELECT id, name, department FROM users WHERE session = $1",
+		sessionCookie.Value,
+	).Scan(&userID, &username, &department)
 	if err != nil {
-		err := writeText(req.Context(), c, "U")
-		if err != nil {
-			log.Println(err)
+		if errors.Is(err, pgx.ErrNoRows) {
+			retErr = errNoSuchUser
+			return
 		}
+		retErr = wrapError(errUnexpectedDBError, err)
 		return
 	}
-
-	err = handleConn(req.Context(), c, userID)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	return
 }

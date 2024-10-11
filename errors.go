@@ -35,7 +35,6 @@ var (
 	errCannotOpenConfig           = errors.New("cannot open configuration file")
 	errCannotDecodeConfig         = errors.New("cannot decode configuration file")
 	errMissingConfigValue         = errors.New("missing configuration value")
-	errIllegalConfig              = errors.New("illegal configuration")
 	errInvalidCourseType          = errors.New("invalid course type")
 	errInvalidCourseGroup         = errors.New("invalid course group")
 	errMultipleChoicesInOneGroup  = errors.New("multiple choices per group per user")
@@ -48,6 +47,9 @@ var (
 	errNoSuchCourse               = errors.New("no such course")
 	errInvalidState               = errors.New("invalid state")
 	errWebSocketWrite             = errors.New("error writing to websocket")
+	errCannotCheckCookie          = errors.New("error checking cookie")
+	errNoCookie                   = errors.New("no cookie found")
+	errNoSuchUser                 = errors.New("no such user")
 )
 
 func wrapError(a, b error) error {

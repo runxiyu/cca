@@ -26,15 +26,13 @@ import (
 	"log"
 	"net/http"
 	"sync/atomic"
-
-	"github.com/jackc/pgx/v5"
 )
 
 func handleIndex(w http.ResponseWriter, req *http.Request) {
-	sessionCookie, err := req.Cookie("session")
-	if errors.Is(err, http.ErrNoCookie) {
-		authURL, err := generateAuthorizationURL()
-		if err != nil {
+	_, username, department, err := getUserInfoFromRequest(req)
+	if errors.Is(err, errNoCookie) || errors.Is(err, errNoSuchUser) {
+		authURL, err2 := generateAuthorizationURL()
+		if err2 != nil {
 			wstr(
 				w,
 				http.StatusInternalServerError,
@@ -42,7 +40,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			)
 			return
 		}
-		err = tmpl.ExecuteTemplate(
+		var noteString string
+		if errors.Is(err, errNoSuchUser) {
+			noteString = "Your browser provided an invalid session cookie."
+		}
+		err2 = tmpl.ExecuteTemplate(
 			w,
 			"login",
 			struct {
@@ -50,62 +52,15 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 				Notes   string
 			}{
 				authURL,
-				"",
+				noteString,
 			},
 		)
-		if err != nil {
-			log.Println(err)
+		if err2 != nil {
+			log.Println(err2)
 			return
 		}
-		return
 	} else if err != nil {
-		wstr(w, http.StatusBadRequest, "Error: Unable to check cookie.")
-		return
-	}
-
-	var userID, userName, userDepartment string
-	err = db.QueryRow(
-		req.Context(),
-		"SELECT id, name, department FROM users WHERE session = $1",
-		sessionCookie.Value,
-	).Scan(&userID, &userName, &userDepartment)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			authURL, err := generateAuthorizationURL()
-			if err != nil {
-				wstr(
-					w,
-					http.StatusInternalServerError,
-					"Cannot generate authorization URL",
-				)
-				return
-			}
-			err = tmpl.ExecuteTemplate(
-				w,
-				"login",
-				struct {
-					AuthURL string
-					Notes   string
-				}{
-					authURL,
-					"Your session is invalid or has expired.",
-				},
-			)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			return
-		}
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			fmt.Sprintf(
-				"Error: Unexpected database error: %s",
-				err,
-			),
-		)
-		return
+		wstr(w, http.StatusInternalServerError, fmt.Sprintf("Error: %v", err))
 	}
 
 	/* TODO: The below should be completed on-update. */
@@ -136,7 +91,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		return true
 	})
 
-	if userDepartment == staffDepartment {
+	if department == staffDepartment {
 		err := tmpl.ExecuteTemplate(
 			w,
 			"staff",
@@ -145,7 +100,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 				State  uint32
 				Groups *map[courseGroupT]groupT
 			}{
-				userName,
+				username,
 				state,
 				&_groups,
 			},
@@ -164,8 +119,8 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 				Name       string
 				Department string
 			}{
-				userName,
-				userDepartment,
+				username,
+				department,
 			},
 		)
 		if err != nil {
@@ -182,8 +137,8 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			Department string
 			Groups     *map[courseGroupT]groupT
 		}{
-			userName,
-			userDepartment,
+			username,
+			department,
 			&_groups,
 		},
 	)

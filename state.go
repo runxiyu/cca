@@ -23,9 +23,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
-	"net/http"
-	"strconv"
 	"sync/atomic"
 
 	"github.com/jackc/pgx/v5"
@@ -99,76 +96,4 @@ func setState(ctx context.Context, newState uint32) error {
 	}
 	atomic.StoreUint32(&state, newState)
 	return nil
-}
-
-func handleState(w http.ResponseWriter, req *http.Request) {
-	sessionCookie, err := req.Cookie("session")
-	if errors.Is(err, http.ErrNoCookie) {
-		wstr(
-			w,
-			http.StatusUnauthorized,
-			"No session cookie, which is required for this endpoint",
-		)
-		return
-	} else if err != nil {
-		wstr(w, http.StatusBadRequest, "Error: Unable to check cookie.")
-		return
-	}
-
-	var userID, userName, userDepartment string
-	err = db.QueryRow(
-		req.Context(),
-		"SELECT id, name, department FROM users WHERE session = $1",
-		sessionCookie.Value,
-	).Scan(&userID, &userName, &userDepartment)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			wstr(
-				w,
-				http.StatusForbidden,
-				"Invalid session cookie",
-			)
-			return
-		}
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			fmt.Sprintf(
-				"Error: Unexpected database error: %s",
-				err,
-			),
-		)
-		return
-	}
-
-	if userDepartment != staffDepartment {
-		wstr(
-			w,
-			http.StatusForbidden,
-			"You are not authorized to view this page",
-		)
-		return
-	}
-
-	basePath := req.PathValue("s")
-	newState, err := strconv.ParseUint(basePath, 10, 32)
-	if err != nil {
-		wstr(
-			w,
-			http.StatusBadRequest,
-			"State must be an unsigned 32-bit integer",
-		)
-		return
-	}
-	err = setState(req.Context(), uint32(newState))
-	if err != nil {
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			"Failed setting state, please return to previous page; are you sure it's within limits?",
-		)
-		return
-	}
-
-	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
