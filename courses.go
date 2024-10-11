@@ -61,10 +61,10 @@ const (
 	culture    courseTypeT = "Culture"
 )
 
-var courseTypes = map[courseTypeT]bool{
-	sport:      true,
-	enrichment: true,
-	culture:    true,
+var courseTypes = map[courseTypeT]struct{}{
+	sport:      {},
+	enrichment: {},
+	culture:    {},
 }
 
 const (
