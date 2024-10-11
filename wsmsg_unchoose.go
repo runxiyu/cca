@@ -35,11 +35,8 @@ func messageUnchooseCourse(
 	reportError reportErrorT,
 	mar []string,
 	userID string,
-	session string,
 	userCourseGroups *userCourseGroupsT,
 ) error {
-	_ = session
-
 	if atomic.LoadUint32(&state) != 2 {
 		err := writeText(ctx, c, "E :Course selections are not open")
 		if err != nil {

@@ -50,7 +50,6 @@ var usemCount int64 /* atomic */
 func handleConn(
 	ctx context.Context,
 	c *websocket.Conn,
-	session string,
 	userID string,
 ) (retErr error) {
 	send := make(chan string, config.Perf.SendQ)
@@ -306,7 +305,6 @@ func handleConn(
 					reportError,
 					mar,
 					userID,
-					session,
 				)
 				if err != nil {
 					return err
@@ -318,7 +316,6 @@ func handleConn(
 					reportError,
 					mar,
 					userID,
-					session,
 					&userCourseGroups,
 				)
 				if err != nil {
@@ -331,7 +328,6 @@ func handleConn(
 					reportError,
 					mar,
 					userID,
-					session,
 					&userCourseGroups,
 				)
 				if err != nil {

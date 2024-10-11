@@ -161,7 +161,6 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	err = handleConn(
 		req.Context(),
 		c,
-		session,
 		userID,
 	)
 	if err != nil {

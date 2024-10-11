@@ -36,9 +36,8 @@ func messageHello(
 	reportError reportErrorT,
 	mar []string,
 	userID string,
-	session string,
 ) error {
-	_, _ = mar, session
+	_ = mar
 
 	select {
 	case <-ctx.Done():
