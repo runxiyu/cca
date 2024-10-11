@@ -25,7 +25,7 @@ printfile text 8 ./ go.*
 printf '\\section{Frontend source code}\n' >> "$targetfile"
 cd frontend
 printfile javascript 4 ./frontend *.js
-printfile javascript 8 ./frontend *.css
+printfile css 8 ./frontend *.css
 
 printf '\\section{HTML templates}\n' >> "$targetfile"
 cd ../templates
