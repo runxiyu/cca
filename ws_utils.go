@@ -1,5 +1,5 @@
 /*
- * WebSocket-based protocol auxiliary functions
+ * WebSocket auxiliary functions
  *
  * Copyright (C) 2024  Runxi Yu <https://runxiyu.org>
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -23,6 +23,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"sync/atomic"
 
 	"github.com/coder/websocket"
@@ -138,6 +139,33 @@ func sendSelectedUpdate(
 			"error sending to websocket for course selected update: %w",
 			err,
 		)
+	}
+	return nil
+}
+
+func propagate(msg string) {
+	chanPool.Range(func(_userID, _ch interface{}) bool {
+		ch, ok := _ch.(*chan string)
+		if !ok {
+			panic("chanPool has non-\"*chan string\" key")
+		}
+		select {
+		case *ch <- msg:
+		default:
+			userID, ok := _userID.(string)
+			if !ok {
+				panic("chanPool has non-string key")
+			}
+			log.Println("WARNING: SendQ exceeded for " + userID)
+		}
+		return true
+	})
+}
+
+func writeText(ctx context.Context, c *websocket.Conn, msg string) error {
+	err := c.Write(ctx, websocket.MessageText, []byte(msg))
+	if err != nil {
+		return fmt.Errorf("%w: %w", errWebSocketWrite, err)
 	}
 	return nil
 }

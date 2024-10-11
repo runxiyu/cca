@@ -1,5 +1,5 @@
 /*
- * Generic WebSocket auxiliary functions
+ * Course types
  *
  * Copyright (C) 2024  Runxi Yu <https://runxiyu.org>
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -20,17 +20,19 @@
 
 package main
 
-import (
-	"context"
-	"fmt"
+type courseTypeT string
 
-	"github.com/coder/websocket"
+const (
+	sport    courseTypeT = "Sport"
+	nonSport courseTypeT = "Non-sport"
 )
 
-func writeText(ctx context.Context, c *websocket.Conn, msg string) error {
-	err := c.Write(ctx, websocket.MessageText, []byte(msg))
-	if err != nil {
-		return fmt.Errorf("%w: %w", errWebSocketWrite, err)
-	}
-	return nil
+var courseTypes = map[courseTypeT]struct{}{
+	sport:    {},
+	nonSport: {},
+}
+
+func checkCourseType(ct courseTypeT) bool {
+	_, ok := courseTypes[ct]
+	return ok
 }

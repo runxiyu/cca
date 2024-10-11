@@ -24,7 +24,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -348,22 +347,3 @@ func handleConn(
 var cancelPool sync.Map /* string, *context.CancelFunc */
 
 var chanPool sync.Map /* string, *chan string */
-
-func propagate(msg string) {
-	chanPool.Range(func(_userID, _ch interface{}) bool {
-		ch, ok := _ch.(*chan string)
-		if !ok {
-			panic("chanPool has non-\"*chan string\" key")
-		}
-		select {
-		case *ch <- msg:
-		default:
-			userID, ok := _userID.(string)
-			if !ok {
-				panic("chanPool has non-string key")
-			}
-			log.Println("WARNING: SendQ exceeded for " + userID)
-		}
-		return true
-	})
-}

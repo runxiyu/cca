@@ -29,11 +29,6 @@ import (
 	"github.com/coder/websocket"
 )
 
-type (
-	courseTypeT  string
-	courseGroupT string
-)
-
 type courseT struct {
 	/*
 	 * Selected is usually accessed atomically, but a lock is still
@@ -53,44 +48,6 @@ type courseT struct {
 	Teacher      string
 	Location     string
 	Usems        sync.Map /* string, *usemT */
-}
-
-const (
-	sport    courseTypeT = "Sport"
-	nonSport courseTypeT = "Non-sport"
-)
-
-var courseTypes = map[courseTypeT]struct{}{
-	sport:    {},
-	nonSport: {},
-}
-
-const (
-	mw1 courseGroupT = "MW1"
-	mw2 courseGroupT = "MW2"
-	mw3 courseGroupT = "MW3"
-	tt1 courseGroupT = "TT1"
-	tt2 courseGroupT = "TT2"
-	tt3 courseGroupT = "TT3"
-)
-
-var courseGroups = map[courseGroupT]string{
-	mw1: "Monday/Wednesday CCA1",
-	mw2: "Monday/Wednesday CCA2",
-	mw3: "Monday/Wednesday CCA3",
-	tt1: "Tuesday/Thursday CCA1",
-	tt2: "Tuesday/Thursday CCA2",
-	tt3: "Tuesday/Thursday CCA3",
-}
-
-func checkCourseType(ct courseTypeT) bool {
-	_, ok := courseTypes[ct]
-	return ok
-}
-
-func checkCourseGroup(cg courseGroupT) bool {
-	_, ok := courseGroups[cg]
-	return ok
 }
 
 var courses sync.Map /* int, *courseT */
@@ -169,73 +126,6 @@ func setupCourses(ctx context.Context) error {
 		atomic.AddUint32(&numCourses, 1)
 	}
 
-	return nil
-}
-
-type userCourseGroupsT map[courseGroupT]struct{}
-
-func populateUserCourseGroups(
-	ctx context.Context,
-	userCourseGroups *userCourseGroupsT,
-	userID string,
-) error {
-	rows, err := db.Query(
-		ctx,
-		"SELECT courseid FROM choices WHERE userid = $1",
-		userID,
-	)
-	if err != nil {
-		return fmt.Errorf(
-			"%w: %w",
-			errUnexpectedDBError,
-			err,
-		)
-	}
-	for {
-		if !rows.Next() {
-			err := rows.Err()
-			if err != nil {
-				return fmt.Errorf(
-					"%w: %w",
-					errUnexpectedDBError,
-					err,
-				)
-			}
-			break
-		}
-		var thisCourseID int
-		err := rows.Scan(&thisCourseID)
-		if err != nil {
-			return fmt.Errorf(
-				"%w: %w",
-				errUnexpectedDBError,
-				err,
-			)
-		}
-		var thisGroupName courseGroupT
-		_course, ok := courses.Load(thisCourseID)
-		if !ok {
-			return fmt.Errorf(
-				"%w: %d",
-				errNoSuchCourse,
-				thisCourseID,
-			)
-		}
-		course, ok := _course.(*courseT)
-		if !ok {
-			panic("courses map has non-\"*courseT\" items")
-		}
-		thisGroupName = course.Group
-		if _, ok := (*userCourseGroups)[thisGroupName]; ok {
-			return fmt.Errorf(
-				"%w: user %v, group %v",
-				errMultipleChoicesInOneGroup,
-				userID,
-				thisGroupName,
-			)
-		}
-		(*userCourseGroups)[thisGroupName] = struct{}{}
-	}
 	return nil
 }
 
