@@ -1,22 +1,48 @@
-\input{header.inc}
+\documentclass[numbers=endperiod, parskip=half-]{scrreprt}
 
 \title{Appendix}
+\subject{IBDP Computer Science Internal Assessment}
+\author{Runxi Yu}
+\date{\today}
+
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{Latin Modern Mono}
+\usepackage{unicode-math}
+\setmathfont{TeX Gyre Termes Math}
+\usepackage{microtype}
+
+\usepackage{xcolor}
+\usepackage[colorlinks, allcolors={white!40!blue!50!black}]{hyperref}
 
 \usepackage{minted}
+
 \usepackage{geometry}
 \geometry{
 	margin=0.5in,
 	includefoot,
 }
-\AddToHook{cmd/section/before}{\clearpage}
+\usepackage{multicol}
+
+\makeatletter
+% https://tex.stackexchange.com/questions/390842
+% Two-column table of contents
+\let\@starttocorg\@starttoc
+\def\@starttoc#1{%
+	\begin{multicols*}{2}%
+		\@starttocorg{#1}%
+	\end{multicols*}}%
+\makeatother
 
 \begin{document}
 \maketitle
+
 \tableofcontents
 
 \input{source.gen}
 
-\section{Copyright license}
+\chapter{Copyright license}
 
 \input{agpl.inc}
 
