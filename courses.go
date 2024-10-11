@@ -66,15 +66,14 @@ func setupCourses(ctx context.Context) error {
 		"SELECT id, nmax, title, ctype, cgroup, teacher, location FROM courses",
 	)
 	if err != nil {
-		return fmt.Errorf("%w: %w", errUnexpectedDBError, err)
+		return wrapError(errUnexpectedDBError, err)
 	}
 
 	for {
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				return fmt.Errorf(
-					"%w: %w",
+				return wrapError(
 					errUnexpectedDBError,
 					err,
 				)
@@ -92,7 +91,7 @@ func setupCourses(ctx context.Context) error {
 			&currentCourse.Location,
 		)
 		if err != nil {
-			return fmt.Errorf("%w: %w", errUnexpectedDBError, err)
+			return wrapError(errUnexpectedDBError, err)
 		}
 		if !checkCourseType(currentCourse.Type) {
 			return fmt.Errorf(
@@ -116,8 +115,7 @@ func setupCourses(ctx context.Context) error {
 			currentCourse.ID,
 		).Scan(&currentCourse.Selected)
 		if err != nil {
-			return fmt.Errorf(
-				"%w: %w",
+			return wrapError(
 				errUnexpectedDBError,
 				err,
 			)
@@ -141,8 +139,7 @@ func (course *courseT) decrementSelectedAndPropagate(
 	go propagateSelectedUpdate(course)
 	err := sendSelectedUpdate(ctx, conn, course.ID)
 	if err != nil {
-		return fmt.Errorf(
-			"%w: %w",
+		return wrapError(
 			errCannotSend,
 			err,
 		)

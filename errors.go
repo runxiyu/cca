@@ -22,6 +22,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 )
 
 var (
@@ -48,3 +49,10 @@ var (
 	errInvalidState               = errors.New("invalid state")
 	errWebSocketWrite             = errors.New("error writing to websocket")
 )
+
+func wrapError(a, b error) error {
+	if a == nil && b == nil {
+		return nil
+	}
+	return fmt.Errorf("%w: %w", a, b)
+}

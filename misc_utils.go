@@ -23,7 +23,6 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -48,7 +47,7 @@ func randomString(sz int) (string, error) {
 	r := make([]byte, 3*sz)
 	_, err := rand.Read(r)
 	if err != nil {
-		return "", fmt.Errorf("%w: %w", errCannotGenerateRandomString, err)
+		return "", wrapError(errCannotGenerateRandomString, err)
 	}
 	return base64.RawURLEncoding.EncodeToString(r), nil
 }

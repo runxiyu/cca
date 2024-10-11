@@ -22,7 +22,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"sync/atomic"
 
@@ -40,8 +39,7 @@ func messageUnchooseCourse(
 	if atomic.LoadUint32(&state) != 2 {
 		err := writeText(ctx, c, "E :Course selections are not open")
 		if err != nil {
-			return fmt.Errorf(
-				"%w: %w",
+			return wrapError(
 				errCannotSend,
 				err,
 			)
@@ -51,8 +49,7 @@ func messageUnchooseCourse(
 
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf(
-			"%w: %w",
+		return wrapError(
 			errContextCancelled,
 			ctx.Err(),
 		)
@@ -95,8 +92,7 @@ func messageUnchooseCourse(
 	if ct.RowsAffected() != 0 {
 		err := course.decrementSelectedAndPropagate(ctx, c)
 		if err != nil {
-			return fmt.Errorf(
-				"%w: %w",
+			return wrapError(
 				errCannotSend,
 				err,
 			)
@@ -122,8 +118,7 @@ func messageUnchooseCourse(
 
 	err = writeText(ctx, c, "N "+mar[1])
 	if err != nil {
-		return fmt.Errorf(
-			"%w: %w",
+		return wrapError(
 			errCannotSend,
 			err,
 		)

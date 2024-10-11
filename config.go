@@ -111,36 +111,19 @@ var config struct {
 
 func fetchConfig(path string) (retErr error) {
 	defer func() {
-		if v := recover(); v != nil {
-			s, ok := v.(error)
-			if ok {
-				retErr = fmt.Errorf(
-					"%w: %w",
-					errCannotProcessConfig,
-					s,
-				)
-			}
-			retErr = fmt.Errorf("%w: %v", errCannotProcessConfig, v)
-			return
-		}
 		if retErr != nil {
-			retErr = fmt.Errorf(
-				"%w: %w",
-				errCannotProcessConfig,
-				retErr,
-			)
-			return
+			retErr = wrapError(errCannotProcessConfig, retErr)
 		}
 	}()
 
 	f, err := os.Open(path)
 	if err != nil {
-		return fmt.Errorf("%w: %w", errCannotOpenConfig, err)
+		return wrapError(errCannotOpenConfig, err)
 	}
 
 	err = scfg.NewDecoder(bufio.NewReader(f)).Decode(&configWithPointers)
 	if err != nil {
-		return fmt.Errorf("%w: %w", errCannotDecodeConfig, err)
+		return wrapError(errCannotDecodeConfig, err)
 	}
 
 	if configWithPointers.URL == nil {

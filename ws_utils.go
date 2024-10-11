@@ -165,7 +165,7 @@ func propagate(msg string) {
 func writeText(ctx context.Context, c *websocket.Conn, msg string) error {
 	err := c.Write(ctx, websocket.MessageText, []byte(msg))
 	if err != nil {
-		return fmt.Errorf("%w: %w", errWebSocketWrite, err)
+		return wrapError(errWebSocketWrite, err)
 	}
 	return nil
 }

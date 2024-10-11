@@ -233,16 +233,14 @@ func handleConn(
 			 * the cancel signal and another event arrive while
 			 * processing a select cycle.
 			 */
-			return fmt.Errorf(
-				"%w: %w",
+			return wrapError(
 				errContextCancelled,
 				newCtx.Err(),
 			)
 		case sendText := <-send:
 			select {
 			case <-newCtx.Done():
-				return fmt.Errorf(
-					"%w: %w",
+				return wrapError(
 					errContextCancelled,
 					newCtx.Err(),
 				)
@@ -256,8 +254,7 @@ func handleConn(
 		case courseID := <-usemParent:
 			select {
 			case <-newCtx.Done():
-				return fmt.Errorf(
-					"%w: %w",
+				return wrapError(
 					errContextCancelled,
 					newCtx.Err(),
 				)
@@ -266,8 +263,7 @@ func handleConn(
 
 			err := sendSelectedUpdate(newCtx, c, courseID)
 			if err != nil {
-				return fmt.Errorf(
-					"%w: %w",
+				return wrapError(
 					errCannotSend,
 					err,
 				)
@@ -276,8 +272,7 @@ func handleConn(
 		case errbytes := <-recv:
 			select {
 			case <-newCtx.Done():
-				return fmt.Errorf(
-					"%w: %w",
+				return wrapError(
 					errContextCancelled,
 					newCtx.Err(),
 				)
@@ -285,8 +280,7 @@ func handleConn(
 			}
 
 			if errbytes.err != nil {
-				return fmt.Errorf(
-					"%w: %w",
+				return wrapError(
 					errCannotReceiveMessage,
 					errbytes.err,
 				)

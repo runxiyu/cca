@@ -63,8 +63,7 @@ func populateUserCourseGroups(
 		userID,
 	)
 	if err != nil {
-		return fmt.Errorf(
-			"%w: %w",
+		return wrapError(
 			errUnexpectedDBError,
 			err,
 		)
@@ -73,8 +72,7 @@ func populateUserCourseGroups(
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				return fmt.Errorf(
-					"%w: %w",
+				return wrapError(
 					errUnexpectedDBError,
 					err,
 				)
@@ -84,8 +82,7 @@ func populateUserCourseGroups(
 		var thisCourseID int
 		err := rows.Scan(&thisCourseID)
 		if err != nil {
-			return fmt.Errorf(
-				"%w: %w",
+			return wrapError(
 				errUnexpectedDBError,
 				err,
 			)

@@ -22,7 +22,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -42,7 +41,7 @@ func setupDatabase() error {
 	}
 	db, err = pgxpool.New(context.Background(), config.DB.Conn)
 	if err != nil {
-		return fmt.Errorf("%w: %w", errUnexpectedDBError, err)
+		return wrapError(errUnexpectedDBError, err)
 	}
 	return nil
 }

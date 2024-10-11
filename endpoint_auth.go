@@ -270,7 +270,7 @@ func setupJwks() error {
 	var err error
 	myKeyfunc, err = keyfunc.NewDefault([]string{config.Auth.Jwks})
 	if err != nil {
-		return fmt.Errorf("%w: %w", errCannotSetupJwks, err)
+		return wrapError(errCannotSetupJwks, err)
 	}
 	return nil
 }
@@ -291,14 +291,14 @@ func getDepartment(ctx context.Context, accessToken string) (string, error) {
 		nil,
 	)
 	if err != nil {
-		return "", fmt.Errorf("%w: %w", errCannotGetDepartment, err)
+		return "", wrapError(errCannotGetDepartment, err)
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 
 	client := &http.Client{} //exhaustruct:ignore
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("%w: %w", errCannotGetDepartment, err)
+		return "", wrapError(errCannotGetDepartment, err)
 	}
 	defer resp.Body.Close()
 
@@ -309,7 +309,7 @@ func getDepartment(ctx context.Context, accessToken string) (string, error) {
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&departmentWrap)
 	if err != nil {
-		return "", fmt.Errorf("%w: %w", errCannotGetDepartment, err)
+		return "", wrapError(errCannotGetDepartment, err)
 	}
 
 	if departmentWrap.Department == nil {
@@ -318,8 +318,7 @@ func getDepartment(ctx context.Context, accessToken string) (string, error) {
 		 * "department" field, which hopefully doesn't occur as we
 		 * have specified $select=department in the OData query.
 		 */
-		return "", fmt.Errorf(
-			"%w: %w",
+		return "", wrapError(
 			errCannotGetDepartment,
 			errInsufficientFields,
 		)
@@ -355,12 +354,12 @@ func getAccessToken(
 	)
 	if err != nil {
 		return accessToken,
-			fmt.Errorf("%w: %w", errCannotFetchAccessToken, err)
+			wrapError(errCannotFetchAccessToken, err)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return accessToken,
-			fmt.Errorf("%w: %w", errCannotFetchAccessToken, err)
+			wrapError(errCannotFetchAccessToken, err)
 	}
 	defer resp.Body.Close()
 
@@ -368,7 +367,7 @@ func getAccessToken(
 	err = decoder.Decode(&accessToken)
 	if err != nil {
 		return accessToken,
-			fmt.Errorf("%w: %w", errCannotFetchAccessToken, err)
+			wrapError(errCannotFetchAccessToken, err)
 	}
 	if accessToken.Error != nil || accessToken.ErrorCodes != nil ||
 		accessToken.ErrorDescription != nil {

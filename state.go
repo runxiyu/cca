@@ -53,10 +53,10 @@ func loadState() error {
 				_state,
 			)
 			if err != nil {
-				return fmt.Errorf("%w: %w", errUnexpectedDBError, err)
+				return wrapError(errUnexpectedDBError, err)
 			}
 		} else {
-			return fmt.Errorf("%w: %w", errUnexpectedDBError, err)
+			return wrapError(errUnexpectedDBError, err)
 		}
 	}
 	atomic.StoreUint32(&state, _state)
@@ -70,7 +70,7 @@ func saveStateValue(ctx context.Context, newState uint32) error {
 		newState,
 	)
 	if err != nil {
-		return fmt.Errorf("%w: %w", errUnexpectedDBError, err)
+		return wrapError(errUnexpectedDBError, err)
 	}
 	return nil
 }

@@ -22,7 +22,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"sync/atomic"
 
@@ -41,8 +40,7 @@ func messageHello(
 
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf(
-			"%w: %w",
+		return wrapError(
 			errContextCancelled,
 			ctx.Err(),
 		)
@@ -65,12 +63,12 @@ func messageHello(
 	if atomic.LoadUint32(&state) == 2 {
 		err = writeText(ctx, c, "START")
 		if err != nil {
-			return fmt.Errorf("%w: %w", errCannotSend, err)
+			return wrapError(errCannotSend, err)
 		}
 	}
 	err = writeText(ctx, c, "HI :"+strings.Join(courseIDs, ","))
 	if err != nil {
-		return fmt.Errorf("%w: %w", errCannotSend, err)
+		return wrapError(errCannotSend, err)
 	}
 
 	return nil

@@ -44,8 +44,7 @@ func messageChooseCourse(
 	if atomic.LoadUint32(&state) != 2 {
 		err := writeText(ctx, c, "E :Course selections are not open")
 		if err != nil {
-			return fmt.Errorf(
-				"%w: %w",
+			return wrapError(
 				errCannotSend,
 				err,
 			)
@@ -55,8 +54,7 @@ func messageChooseCourse(
 
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf(
-			"%w: %w",
+		return wrapError(
 			errContextCancelled,
 			ctx.Err(),
 		)
@@ -87,8 +85,7 @@ func messageChooseCourse(
 	if _, ok := (*userCourseGroups)[course.Group]; ok {
 		err := writeText(ctx, c, "R "+mar[1]+" :Group conflict")
 		if err != nil {
-			return fmt.Errorf(
-				"%w: %w",
+			return wrapError(
 				errCannotSend,
 				err,
 			)
@@ -159,8 +156,7 @@ func messageChooseCourse(
 			if err != nil {
 				err := course.decrementSelectedAndPropagate(ctx, c)
 				if err != nil {
-					return fmt.Errorf(
-						"%w: %w",
+					return wrapError(
 						errCannotSend,
 						err,
 					)
@@ -178,8 +174,7 @@ func messageChooseCourse(
 
 			err = writeText(ctx, c, "Y "+mar[1])
 			if err != nil {
-				return fmt.Errorf(
-					"%w: %w",
+				return wrapError(
 					errCannotSend,
 					err,
 				)
@@ -188,8 +183,7 @@ func messageChooseCourse(
 			if config.Perf.PropagateImmediate {
 				err = sendSelectedUpdate(ctx, c, courseID)
 				if err != nil {
-					return fmt.Errorf(
-						"%w: %w",
+					return wrapError(
 						errCannotSend,
 						err,
 					)
@@ -204,8 +198,7 @@ func messageChooseCourse(
 			}
 			err = writeText(ctx, c, "R "+mar[1]+" :Full")
 			if err != nil {
-				return fmt.Errorf(
-					"%w: %w",
+				return wrapError(
 					errCannotSend,
 					err,
 				)
