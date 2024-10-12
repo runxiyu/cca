@@ -152,6 +152,8 @@ func handleExport(w http.ResponseWriter, req *http.Request) {
 				currentDepartment,
 				course.Title,
 				course.Group,
+				course.SectionID,
+				course.CourseID,
 			},
 		)
 	}
@@ -165,6 +167,8 @@ func handleExport(w http.ResponseWriter, req *http.Request) {
 		"Grade/Year",
 		"Group/Activity",
 		"Container",
+		"Section ID",
+		"Course ID",
 	})
 	if err != nil {
 		wstr(

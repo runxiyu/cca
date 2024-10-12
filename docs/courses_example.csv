@@ -1,14 +1,14 @@
-Title,Max,Teacher,Location,Type,Group
-Floorball,65535,Chen Xiaojia,Gym,Sport,MW3
-Fakeball,65535,Foo Bar,Gym,Sport,MW1
-Chamber Music,65535,Bar Baz,Music Rooms,Non-sport,MW1
-Programming Club,65535,Foo Baz,Library,Non-sport,MW1
-Flag Football,65535,Ding Zhaoyuan,Pitch,Sport,MW2
-Table Tennis,65535,Somebody,Table Tennis Room,Sport,MW2
-Spinning,65535,Somebody,Spinning Room,Sport,MW2
-Some Music,65535,Eeeee,Music Rooms,Non-sport,TT1
-Some More Music,65535,Eeeee,Music Rooms,Non-sport,TT1
-Math and Computer Science,65535,Jeff Zhang,2307,Non-sport,TT2
-Basketball,65535,Somebody,Gym,Sport,TT2
-Chinese Drama,65535,Monica Chen (?),Black Box (?),Non-sport,TT2
-Actually Flag Football,30,Hmm,Pitch,Sport,TT3
+Title,Max,Teacher,Location,Type,Group,Section ID,Course ID
+Floorball,65535,Chen Xiaojia,Gym,Sport,MW3,FL,FL
+Fakeball,65535,Foo Bar,Gym,Sport,MW1,FK,FK
+Chamber Music,65535,Bar Baz,Music Rooms,Non-sport,MW1,CM,CM
+Programming Club,65535,Foo Baz,Library,Non-sport,MW1,PC,PC
+Flag Football,65535,Ding Zhaoyuan,Pitch,Sport,MW2,FF,FF
+Table Tennis,65535,Somebody,Table Tennis Room,Sport,MW2,TT,TT
+Spinning,65535,Somebody,Spinning Room,Sport,MW2,SP,SP
+Some Music,65535,Eeeee,Music Rooms,Non-sport,TT1,SM,SM
+Some More Music,65535,Eeeee,Music Rooms,Non-sport,TT1,SMM,SMM
+Math and Computer Science,65535,Jeff Zhang,2307,Non-sport,TT2,MC,MC
+Basketball,65535,Somebody,Gym,Sport,TT2,BB,BB
+Chinese Drama,65535,Monica Chen (?),Black Box (?),Non-sport,TT2,CD,CD
+Actually Flag Football,30,Hmm,Pitch,Sport,TT3,AFF,AFF

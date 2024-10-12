@@ -5,7 +5,9 @@ CREATE TABLE courses (
 	teacher TEXT NOT NULL,
 	location TEXT NOT NULL,
 	ctype TEXT NOT NULL,
-	cgroup TEXT NOT NULL
+	cgroup TEXT NOT NULL,
+	course_id TEXT NOT NULL,
+	section_id TEXT NOT NULL
 );
 CREATE TABLE users (
 	id TEXT PRIMARY KEY NOT NULL, -- should be UUID

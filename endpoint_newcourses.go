@@ -104,16 +104,17 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 		)
 		return
 	}
-	if len(titleLine) != 6 {
+	if len(titleLine) != 8 {
 		wstr(
 			w,
 			http.StatusBadRequest,
-			"First line has more than 6 elements",
+			"First line has more than 8 elements",
 		)
 		return
 	}
 	var titleIndex, maxIndex, teacherIndex, locationIndex,
-		typeIndex, groupIndex int = -1, -1, -1, -1, -1, -1
+		typeIndex, groupIndex, sectionIDIndex,
+		courseIDIndex int = -1, -1, -1, -1, -1, -1, -1, -1
 	for i, v := range titleLine {
 		switch v {
 		case "Title":
@@ -128,6 +129,10 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 			typeIndex = i
 		case "Group":
 			groupIndex = i
+		case "Section ID":
+			sectionIDIndex = i
+		case "Course ID":
+			courseIDIndex = i
 		}
 	}
 
@@ -163,6 +168,12 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		if check("Group", groupIndex) {
+			return
+		}
+		if check("Course ID", courseIDIndex) {
+			return
+		}
+		if check("Section ID", sectionIDIndex) {
 			return
 		}
 	}
@@ -233,7 +244,7 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 				)
 				return false
 			}
-			if len(line) != 6 {
+			if len(line) != 8 {
 				wstr(
 					w,
 					http.StatusBadRequest,
@@ -272,13 +283,15 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 			}
 			_, err = tx.Exec(
 				ctx,
-				"INSERT INTO courses(nmax, title, teacher, location, ctype, cgroup) VALUES ($1, $2, $3, $4, $5, $6)",
+				"INSERT INTO courses(nmax, title, teacher, location, ctype, cgroup, section_id, course_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
 				line[maxIndex],
 				line[titleIndex],
 				line[teacherIndex],
 				line[locationIndex],
 				line[typeIndex],
 				line[groupIndex],
+				line[sectionIDIndex],
+				line[courseIDIndex],
 			)
 			if err != nil {
 				wstr(
