@@ -49,4 +49,4 @@ printfile text 8 ./docs *.csv cca.scfg.example
 
 printf '\\chapter{IA documentation}\n' >> "$targetfile"
 cd ../iadocs
-printfile latex 8 ./iadocs *.tex *.inc
+printfile latex 8 ./iadocs *.tex *.texinc

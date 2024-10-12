@@ -44,18 +44,18 @@ build/iadocs/%.htm: iadocs/%.htm
 	minify --html-keep-end-tags --html-keep-document-tags -o $@ $<
 build/iadocs/index.html: build/iadocs/cover_page.htm
 	cp $< $@
-build/iadocs/%.pdf: iadocs/%.tex build/iadocs/header.inc
+build/iadocs/%.pdf: iadocs/%.tex build/iadocs/header.texinc
 	mkdir -p build/iadocs
 	lualatex -interaction batchmode -output-directory=build/iadocs $<
 	lualatex -interaction batchmode -output-directory=build/iadocs $<
-build/iadocs/appendix.pdf: iadocs/appendix.tex build/iadocs/source.gen build/iadocs/agpl.inc
+build/iadocs/appendix.pdf: iadocs/appendix.tex build/iadocs/source.gen build/iadocs/agpl.texinc
 	mkdir -p build/iadocs
 	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
 	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
-build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.js templates/* scripts/latexify-source.sh docs/* sql/* scripts/* iadocs/*.tex iadocs/*.inc
+build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.js templates/* scripts/latexify-source.sh docs/* sql/* scripts/* iadocs/*.tex iadocs/*.texinc
 	mkdir -p build/iadocs
 	scripts/latexify-source.sh
-build/iadocs/%.inc: iadocs/%.inc
+build/iadocs/%.texinc: iadocs/%.texinc
 	mkdir -p build/iadocs
 	cp $< $@
 
