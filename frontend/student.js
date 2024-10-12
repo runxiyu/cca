@@ -205,6 +205,26 @@ document.addEventListener("DOMContentLoaded", () => {
 				document.getElementById("stateindicator").textContent = "enabled"
 				break
 			case "YC":
+				document.querySelectorAll(".confirmed-handle").forEach(c => {
+					let handle = c.textContent
+					document.getElementById(`confirmed-name-${ handle }`).textContent = ""
+					document.getElementById(`confirmed-type-${ handle }`).textContent = ""
+					document.getElementById(`confirmed-teacher-${ handle }`).textContent = ""
+					document.getElementById(`confirmed-location-${ handle }`).textContent = ""
+					document.querySelectorAll(".coursecheckbox").forEach(d => {
+						if (d.dataset.group === handle && d.checked) {
+							document.getElementById(`confirmed-name-${ handle }`).textContent =
+								d.dataset.title
+							document.getElementById(`confirmed-type-${ handle }`).textContent =
+								d.dataset.type
+							document.getElementById(`confirmed-teacher-${ handle }`).textContent =
+								d.dataset.teacher
+							document.getElementById(`confirmed-location-${ handle }`).textContent =
+								d.dataset.location
+							/* TODO: break */
+						}
+					})
+				})
 				document.querySelectorAll(".unconfirmed").forEach(c => {
 					c.style.display = "none"
 				})

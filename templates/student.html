@@ -120,11 +120,16 @@
 					<p>
 					Course selections are <span style="font-weight: bold;" id="stateindicator">disabled</span>.
 					</p>
+					<div class="neither-confirmed">
+						<p>
+						(Still loading...)
+						</p>
+					</div>
 					<div class="confirmed">
 						<table class="table-of-choices">
 							<thead>
 								<tr>
-									<th scope="col">Period</th>
+									<th scope="col">Group</th>
 									<th scope="col">Name</th>
 									<th scope="col">Type</th>
 									<th scope="col">Teacher</th>
@@ -132,6 +137,15 @@
 								</tr>
 							</thead>
 							<tbody>
+								{{- range .Groups }}
+								<tr>
+									<th class="confirmed-handle" id="confirmed-handle-{{ .Handle }}" scope="row">{{ .Handle }}</th>
+									<td id="confirmed-name-{{ .Handle }}"></td>
+									<td id="confirmed-type-{{ .Handle }}"></td>
+									<td id="confirmed-teacher-{{ .Handle }}"></td>
+									<td id="confirmed-location-{{ .Handle }}"></td>
+								</tr>
+								{{- end }}
 							</tbody>
 							<tfoot>
 								<tr>
@@ -172,7 +186,7 @@
 								{{- range .Courses }}
 								<tr class="courseitem" id="course{{.ID}}" data-group="{{.Group}}">
 									<th style="font-weight: normal;" scope="row">
-										<input aria-label="Enroll in course" class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}" data-group="{{.Group}}" disabled ></input>
+										<input aria-label="Enroll in course" class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}" data-group="{{.Group}}" data-type="{{.Type}}" data-title="{{.Title}}" data-teacher="{{.Teacher}}" data-location="{{.Location}}" disabled ></input>
 										<span id="coursestatus{{.ID}}"></span>
 									</th>
 									<td>
