@@ -45,7 +45,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		wstr(
 			w,
 			http.StatusBadRequest,
-			"This endpoint only supports valid WebSocket connections.",
+			"this endpoint only supports valid WebSocket connections: "+err.Error(),
 		)
 		return
 	}
@@ -64,7 +64,10 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 
 	err = handleConn(req.Context(), c, userID, department)
 	if err != nil {
-		log.Println(err)
+		err := writeText(req.Context(), c, "E :"+err.Error())
+		if err != nil {
+			log.Println(err)
+		}
 		return
 	}
 }

@@ -22,23 +22,17 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"sync/atomic"
 )
 
-func handleIndex(w http.ResponseWriter, req *http.Request) {
+func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	_, username, department, err := getUserInfoFromRequest(req)
 	if errors.Is(err, errNoCookie) || errors.Is(err, errNoSuchUser) {
 		authURL, err2 := generateAuthorizationURL()
 		if err2 != nil {
-			wstr(
-				w,
-				http.StatusInternalServerError,
-				"Cannot generate authorization URL",
-			)
-			return
+			return "", -1, err2
 		}
 		var noteString string
 		if errors.Is(err, errNoSuchUser) {
@@ -57,10 +51,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		)
 		if err2 != nil {
 			log.Println(err2)
+			return "", -1, wrapError(errCannotWriteTemplate, err2)
 		}
-		return
+		return "", -1, nil
 	} else if err != nil {
-		wstr(w, http.StatusInternalServerError, fmt.Sprintf("Error: %v", err))
+		return "", -1, err
 	}
 
 	/* TODO: The below should be completed on-update. */
@@ -106,9 +101,9 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			},
 		)
 		if err != nil {
-			log.Println(err)
+			return "", -1, wrapError(errCannotWriteTemplate, err)
 		}
-		return
+		return "", -1, nil
 	}
 
 	if atomic.LoadUint32(&state) == 0 {
@@ -124,17 +119,17 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			},
 		)
 		if err != nil {
-			log.Println(err)
+			return "", -1, wrapError(errCannotWriteTemplate, err)
 		}
-		return
+		return "", -1, nil
 	}
 	sportRequired, err := getCourseTypeMinimumForYearGroup(department, sport)
 	if err != nil {
-		wstr(w, http.StatusInternalServerError, "Failed to get sport requirement")
+		return "", -1, err
 	}
 	nonSportRequired, err := getCourseTypeMinimumForYearGroup(department, nonSport)
 	if err != nil {
-		wstr(w, http.StatusInternalServerError, "Failed to get non-sport requirement")
+		return "", -1, err
 	}
 
 	err = tmpl.ExecuteTemplate(
@@ -159,7 +154,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		},
 	)
 	if err != nil {
-		log.Println(err)
-		return
+		return "", -1, wrapError(errCannotWriteTemplate, err)
 	}
+	return "", -1, nil
 }

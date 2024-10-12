@@ -33,84 +33,44 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func handleNewCourses(w http.ResponseWriter, req *http.Request) {
+func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	if req.Method != http.MethodPost {
-		wstr(w, http.StatusMethodNotAllowed, "Only POST is allowed here")
-		return
+		return "", http.StatusMethodNotAllowed, errPostOnly
 	}
 
 	_, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			fmt.Sprintf("Error: %v", err),
-		)
+		return "", -1, err
 	}
 	if department != staffDepartment {
-		wstr(
-			w,
-			http.StatusForbidden,
-			"You are not authorized to view this page",
-		)
-		return
+		return "", http.StatusForbidden, errStaffOnly
 	}
 
 	if atomic.LoadUint32(&state) != 0 {
-		wstr(
-			w,
-			http.StatusBadRequest,
-			"Uploading the course table is only supported when student-access is disabled",
-		)
-		return
+		return "", http.StatusBadRequest, errDisableStudentAccessFirst
 	}
 
 	/* TODO: Potential race. The global state may need to be write-locked. */
 
 	file, fileHeader, err := req.FormFile("coursecsv")
 	if err != nil {
-		wstr(
-			w,
-			http.StatusBadRequest,
-			"Failed loading file from request... did you select a file before hitting that red button?",
-		)
-		return
+		return "", http.StatusBadRequest, wrapError(errFormNoFile, err)
 	}
 
 	if fileHeader.Header.Get("Content-Type") != "text/csv" {
-		wstr(
-			w,
-			http.StatusBadRequest,
-			"Does not look like a proper CSV file",
-		)
-		return
+		return "", http.StatusBadRequest, errNotACSV
 	}
 
 	csvReader := csv.NewReader(file)
 	titleLine, err := csvReader.Read()
 	if err != nil {
-		wstr(
-			w,
-			http.StatusBadRequest,
-			"Error reading CSV",
-		)
-		return
+		return "", http.StatusBadRequest, wrapError(errCannotReadCSV, err)
 	}
 	if titleLine == nil {
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			"Unexpected nil titleLine slice",
-		)
-		return
+		return "", -1, errUnexpectedNilCSVLine
 	}
 	if len(titleLine) != 8 {
-		wstr(
-			w,
-			http.StatusBadRequest,
-			"First line has more than 8 elements",
-		)
-		return
+		return "", -1, wrapAny(errBadCSVFormat, "expecting 8 fields on the first line")
 	}
 	var titleIndex, maxIndex, teacherIndex, locationIndex,
 		typeIndex, groupIndex, sectionIDIndex,
@@ -136,66 +96,41 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	{
-		check := func(indexName string, indexNum int) bool {
-			if indexNum == -1 {
-				wstr(
-					w,
-					http.StatusBadRequest,
-					fmt.Sprintf(
-						"Missing column \"%s\"",
-						indexName,
-					),
-				)
-				return true
-			}
-			return false
-		}
-
-		if check("Title", titleIndex) {
-			return
-		}
-		if check("Max", maxIndex) {
-			return
-		}
-		if check("Teacher", teacherIndex) {
-			return
-		}
-		if check("Location", locationIndex) {
-			return
-		}
-		if check("Type", typeIndex) {
-			return
-		}
-		if check("Group", groupIndex) {
-			return
-		}
-		if check("Course ID", courseIDIndex) {
-			return
-		}
-		if check("Section ID", sectionIDIndex) {
-			return
-		}
+	if titleIndex == -1 {
+		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Title")
+	}
+	if maxIndex == -1 {
+		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Max")
+	}
+	if teacherIndex == -1 {
+		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Teacher")
+	}
+	if locationIndex == -1 {
+		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Location")
+	}
+	if typeIndex == -1 {
+		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Type")
+	}
+	if groupIndex == -1 {
+		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Group")
+	}
+	if courseIDIndex == -1 {
+		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Course ID")
+	}
+	if sectionIDIndex == -1 {
+		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Section ID")
 	}
 
 	lineNumber := 1
-	ok := func(ctx context.Context) bool {
+	ok, statusCode, err := func(ctx context.Context) (retBool bool, retStatus int, retErr error) {
 		tx, err := db.Begin(ctx)
 		if err != nil {
-			wstr(
-				w,
-				http.StatusInternalServerError,
-				"Unexpected database error",
-			)
+			return false, -1, wrapError(errUnexpectedDBError, err)
 		}
 		defer func() {
 			err := tx.Rollback(ctx)
 			if err != nil && (!errors.Is(err, pgx.ErrTxClosed)) {
-				wstr(
-					w,
-					http.StatusInternalServerError,
-					"Unexpected database error",
-				)
+				retBool, retStatus, retErr = false, -1, wrapError(errUnexpectedDBError, err)
 				return
 			}
 		}()
@@ -204,22 +139,14 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 			"DELETE FROM choices",
 		)
 		if err != nil {
-			wstr(
-				w,
-				http.StatusInternalServerError,
-				"Unexpected database error",
-			)
+			return false, -1, wrapError(errUnexpectedDBError, err)
 		}
 		_, err = tx.Exec(
 			ctx,
 			"DELETE FROM courses",
 		)
 		if err != nil {
-			wstr(
-				w,
-				http.StatusInternalServerError,
-				"Unexpected database error",
-			)
+			return false, -1, wrapError(errUnexpectedDBError, err)
 		}
 
 		for {
@@ -229,57 +156,36 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 				if errors.Is(err, io.EOF) {
 					break
 				}
-				wstr(
-					w,
-					http.StatusInternalServerError,
-					"Error reading CSV",
-				)
-				return false
+				return false, -1, wrapError(errCannotReadCSV, err)
 			}
 			if line == nil {
-				wstr(
-					w,
-					http.StatusInternalServerError,
-					"Unexpected nil line",
-				)
-				return false
+				return false, -1, wrapError(errCannotReadCSV, errUnexpectedNilCSVLine)
 			}
 			if len(line) != 8 {
-				wstr(
-					w,
-					http.StatusBadRequest,
-					fmt.Sprintf(
-						"Line %d has insufficient items",
-						lineNumber,
-					),
-				)
-				return false
+				return false, -1, wrapAny(errInsufficientFields, fmt.Sprintf(
+					"line %d has insufficient items",
+					lineNumber,
+				))
 			}
 			if !checkCourseType(line[typeIndex]) {
-				wstr(
-					w,
-					http.StatusBadRequest,
+				return false, -1, wrapAny(errInvalidCourseType,
 					fmt.Sprintf(
-						"Line %d has invalid course type \"%s\"\nAllowed course types: %s",
+						"line %d has invalid course type \"%s\"\nallowed course types: %s",
 						lineNumber,
 						line[typeIndex],
 						strings.Join(getKeysOfMap(courseTypes), ", "),
 					),
 				)
-				return false
 			}
 			if !checkCourseGroup(line[groupIndex]) {
-				wstr(
-					w,
-					http.StatusBadRequest,
+				return false, -1, wrapAny(errInvalidCourseGroup,
 					fmt.Sprintf(
-						"Line %d has invalid course group \"%s\"\nAllowed course groups: %s",
+						"line %d has invalid course group \"%s\"\nallowed course groups: %s",
 						lineNumber,
 						line[groupIndex],
 						strings.Join(getKeysOfMap(courseGroups), ", "),
 					),
 				)
-				return false
 			}
 			_, err = tx.Exec(
 				ctx,
@@ -294,39 +200,26 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) {
 				line[courseIDIndex],
 			)
 			if err != nil {
-				wstr(
-					w,
-					http.StatusInternalServerError,
-					"Unexpected database error",
-				)
-				return false
+				return false, -1, wrapError(errUnexpectedDBError, err)
 			}
 		}
 		err = tx.Commit(ctx)
 		if err != nil {
-			wstr(
-				w,
-				http.StatusInternalServerError,
-				"Unexpected database error",
-			)
-			return false
+			return false, -1, wrapError(errUnexpectedDBError, err)
 		}
-		return true
+		return true, -1, nil
 	}(req.Context())
 	if !ok {
-		return
+		return "", statusCode, err
 	}
 
 	courses.Clear()
 	err = setupCourses(req.Context())
 	if err != nil {
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			"Error setting up course table again, the data might be corrupted!",
-		)
-		return
+		return "", -1, wrapError(errWhileSetttingUpCourseTablesAgain, err)
 	}
 
 	http.Redirect(w, req, "/", http.StatusSeeOther)
+
+	return "", -1, nil
 }

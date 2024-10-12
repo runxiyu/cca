@@ -22,49 +22,29 @@ package main
 
 import (
 	"encoding/csv"
-	"fmt"
 	"net/http"
 	"strconv"
 )
 
-func handleExportStudents(w http.ResponseWriter, req *http.Request) {
+func handleExportStudents(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	_, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			fmt.Sprintf("Error: %v", err),
-		)
+		return "", http.StatusInternalServerError, err
 	}
 	if department != staffDepartment {
-		wstr(
-			w,
-			http.StatusForbidden,
-			"You are not authorized to view this page",
-		)
-		return
+		return "", http.StatusInternalServerError, errStaffOnly
 	}
 
 	rows, err := db.Query(req.Context(), "SELECT name, email, department, confirmed FROM users")
 	if err != nil {
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			"Unexpected database error",
-		)
-		return
+		return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
 	}
 	output := make([][]string, 0)
 	for {
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				wstr(
-					w,
-					http.StatusInternalServerError,
-					"Unexpected database error",
-				)
-				return
+				return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
 			}
 			break
 		}
@@ -77,12 +57,7 @@ func handleExportStudents(w http.ResponseWriter, req *http.Request) {
 			&currentConfirmed,
 		)
 		if err != nil {
-			wstr(
-				w,
-				http.StatusInternalServerError,
-				"Unexpected database error",
-			)
-			return
+			return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
 		}
 
 		if currentDepartment == staffDepartment {
@@ -113,29 +88,16 @@ func handleExportStudents(w http.ResponseWriter, req *http.Request) {
 		"Course ID",
 	})
 	if err != nil {
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			"Error writing output",
-		)
-		return
+		return "", http.StatusInternalServerError, errHTTPWrite
 	}
 	err = csvWriter.WriteAll(output)
 	if err != nil {
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			"Error writing output",
-		)
-		return
+		return "", http.StatusInternalServerError, errHTTPWrite
 	}
 	csvWriter.Flush()
 	if csvWriter.Error() != nil {
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			"Error occurred flushing output",
-		)
-		return
+		return "", http.StatusInternalServerError, errHTTPWrite
 	}
+
+	return "", -1, nil
 }
