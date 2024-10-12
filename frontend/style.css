@@ -373,6 +373,16 @@ table.table-of-courses {
 	display: none;
 }
 
+.unconfirmed {
+	display: none;
+}
+.confirmed {
+	display: none;
+}
+.neither-confirmed {
+	display: block;
+}
+
 /*
  * This site heavily uses CSS styling to display and hide messages, so by
  * default we put a big warning about CSS being broken, which disappears
@@ -382,3 +392,4 @@ table.table-of-courses {
 .broken-styling-warning {
 	display: none;
 }
+

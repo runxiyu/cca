@@ -57,7 +57,7 @@ func messageConfirm(
 				ctx,
 				c,
 				fmt.Sprintf(
-					"NC :You chose %d out of required %d of type %s",
+					"RC :Cannot confirm choices: You chose %d out of required %d of type %s",
 					(*userCourseTypes)[courseType],
 					minimum,
 					courseType,

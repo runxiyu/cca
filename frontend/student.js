@@ -73,8 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
 					forEach(c => {
 						c.style.display = "none"
 					})
-				if (mar[2] !== "") {
-					let courseIDs = mar[2].split(",")
+				if (mar[1] !== "") {
+					let courseIDs = mar[1].split(",")
 					for (let i = 0; i < courseIDs.length; i++) {
 						document.getElementById(
 							`tick${ courseIDs[i] }`
@@ -181,12 +181,14 @@ document.addEventListener("DOMContentLoaded", () => {
 				gstate = 0
 				document.getElementById("stateindicator").textContent = "disabled"
 				document.getElementById("confirmbutton").disabled = true
+				document.getElementById("unconfirmbutton").disabled = true
 				document.querySelectorAll(".coursecheckbox").forEach(c => {
 					c.disabled = true
 				})
 				break
 			case "START":
 				gstate = 1
+				document.getElementById("unconfirmbutton").disabled = false
 				document.querySelectorAll(".courseitem").forEach(c => {
 					if (c.querySelector(".selected-number").textContent !== 
 						c.querySelector(".max-number").textContent ||
@@ -201,6 +203,31 @@ document.addEventListener("DOMContentLoaded", () => {
 						document.getElementById("confirmbutton").disabled = false
 				}
 				document.getElementById("stateindicator").textContent = "enabled"
+				break
+			case "YC":
+				document.querySelectorAll(".unconfirmed").forEach(c => {
+					c.style.display = "none"
+				})
+				document.querySelectorAll(".confirmed").forEach(c => {
+					c.style.display = "block"
+				})
+				document.querySelectorAll(".neither-confirmed").forEach(c => {
+					c.style.display = "none"
+				})
+				break
+			case "NC":
+				document.querySelectorAll(".unconfirmed").forEach(c => {
+					c.style.display = "block"
+				})
+				document.querySelectorAll(".confirmed").forEach(c => {
+					c.style.display = "none"
+				})
+				document.querySelectorAll(".neither-confirmed").forEach(c => {
+					c.style.display = "none"
+				})
+				break
+			case "RC":
+				alert(mar[1])
 				break
 			default:
 				alert(`Invalid command ${ mar[0] } received from socket. Something is wrong.`)
@@ -251,7 +278,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	})
 
 	document.getElementById("confirmbutton").addEventListener("click", () => {
-		socket.send("C")
+		socket.send("YC")
+	})
+	document.getElementById("unconfirmbutton").addEventListener("click", () => {
+		socket.send("NC")
 	})
 
 	document.querySelectorAll(".script-required").forEach(c => {

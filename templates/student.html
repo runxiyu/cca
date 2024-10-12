@@ -120,62 +120,92 @@
 					<p>
 					Course selections are <span style="font-weight: bold;" id="stateindicator">disabled</span>.
 					</p>
-					<table class="table-of-courses">
-						<thead>
-							<tr>
-								<th scope="col">Tick</th>
-								<th scope="col">Selected</th>
-								<th scope="col">Max</th>
-								<th scope="col">Name</th>
-								<th scope="col">Type</th>
-								<th scope="col">Teacher</th>
-								<th scope="col">Location</th>
-							</tr>
-							<tr>
-								<th colspan="7" class="tdinput">
-									<input type="text" id="search" placeholder="Search..." />
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-							{{- range .Groups }}
-							<tr><th colspan="7">{{ .Name }}</th></tr>
-							{{- range .Courses }}
-							<tr class="courseitem" id="course{{.ID}}" data-group="{{.Group}}">
-								<th style="font-weight: normal;" scope="row">
-									<input aria-label="Enroll in course" class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}" data-group="{{.Group}}" disabled ></input>
-									<span id="coursestatus{{.ID}}"></span>
-								</th>
-								<td>
-									<span class="selected-number" id="selected{{.ID}}">{{.Selected}}</span>
-								</td>
-								<td>
-									<span class="max-number" id="max{{.ID}}">{{.Max}}</span>
-								</td>
-								<td>{{.Title}}</td>
-								<td id="type{{.ID}}">{{.Type}}</td>
-								<td>{{.Teacher}}</td>
-								<td>{{.Location}}</td>
-							</tr>
-							{{- end }}
-							{{- end }}
-						</tbody>
-						<tfoot>
-							<tr>
-								<td class="th-like" colspan="7">
-									<div class="flex-justify">
-										<div class="left">
-											Sport: <span id="Sport-chosen">0</span>/<span id="Sport-required">{{ .Required.Sport }}</span>,
-											Non-sport: <span id="Non-sport-chosen">0</span>/<span id="Non-sport-required">{{ .Required.NonSport }}</span>
+					<div class="confirmed">
+						<table class="table-of-choices">
+							<thead>
+								<tr>
+									<th scope="col">Period</th>
+									<th scope="col">Name</th>
+									<th scope="col">Type</th>
+									<th scope="col">Teacher</th>
+									<th scope="col">Location</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+							<tfoot>
+								<tr>
+									<td class="th-like" colspan="7">
+										<div class="flex-justify">
+											<div class="left">
+											</div>
+											<div class="right">
+												<button id="unconfirmbutton" class="btn-danger btn" disabled>Unconfirm</button>
+											</div>
 										</div>
-										<div class="right">
-											<button id="confirmbutton" class="btn-primary btn" disabled>Confirm</button>
+									</td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+					<div class="unconfirmed">
+						<table class="table-of-courses">
+							<thead>
+								<tr>
+									<th scope="col">Tick</th>
+									<th scope="col">Selected</th>
+									<th scope="col">Max</th>
+									<th scope="col">Name</th>
+									<th scope="col">Type</th>
+									<th scope="col">Teacher</th>
+									<th scope="col">Location</th>
+								</tr>
+								<tr>
+									<th colspan="7" class="tdinput">
+										<input type="text" id="search" placeholder="Search..." />
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								{{- range .Groups }}
+								<tr><th colspan="7">{{ .Name }}</th></tr>
+								{{- range .Courses }}
+								<tr class="courseitem" id="course{{.ID}}" data-group="{{.Group}}">
+									<th style="font-weight: normal;" scope="row">
+										<input aria-label="Enroll in course" class="coursecheckbox" type="checkbox" id="tick{{.ID}}" name="tick{{.ID}}" value="tick{{.ID}}" data-group="{{.Group}}" disabled ></input>
+										<span id="coursestatus{{.ID}}"></span>
+									</th>
+									<td>
+										<span class="selected-number" id="selected{{.ID}}">{{.Selected}}</span>
+									</td>
+									<td>
+										<span class="max-number" id="max{{.ID}}">{{.Max}}</span>
+									</td>
+									<td>{{.Title}}</td>
+									<td id="type{{.ID}}">{{.Type}}</td>
+									<td>{{.Teacher}}</td>
+									<td>{{.Location}}</td>
+								</tr>
+								{{- end }}
+								{{- end }}
+							</tbody>
+							<tfoot>
+								<tr>
+									<td class="th-like" colspan="7">
+										<div class="flex-justify">
+											<div class="left">
+												Sport: <span id="Sport-chosen">0</span>/<span id="Sport-required">{{ .Required.Sport }}</span>,
+												Non-sport: <span id="Non-sport-chosen">0</span>/<span id="Non-sport-required">{{ .Required.NonSport }}</span>
+											</div>
+											<div class="right">
+												<button id="confirmbutton" class="btn-primary btn" disabled>Confirm</button>
+											</div>
 										</div>
-									</div>
-								</td>
-							</tr>
-						</tfoot>
-					</table>
+									</td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
 				</div>
 			</div>
 		</div>

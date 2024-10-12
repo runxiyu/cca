@@ -1,5 +1,5 @@
 /*
- * Handle the "HELLO" message
+ * Handle the "C" message
  *
  * Copyright (C) 2024  Runxi Yu <https://runxiyu.org>
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -22,14 +22,11 @@ package main
 
 import (
 	"context"
-	"strings"
-	"sync/atomic"
 
 	"github.com/coder/websocket"
-	"github.com/jackc/pgx/v5"
 )
 
-func messageHello(
+func messageUnconfirm(
 	ctx context.Context,
 	c *websocket.Conn,
 	reportError reportErrorT,
@@ -47,46 +44,18 @@ func messageHello(
 	default:
 	}
 
-	rows, err := db.Query(
+	_, err := db.Exec(
 		ctx,
-		"SELECT courseid FROM choices WHERE userid = $1",
+		"UPDATE users SET confirmed = false WHERE id = $1",
 		userID,
 	)
 	if err != nil {
-		return reportError("error fetching choices")
-	}
-	courseIDs, err := pgx.CollectRows(rows, pgx.RowTo[string])
-	if err != nil {
-		return reportError("error collecting choices")
+		return reportError("error updating database setting confirmation")
 	}
 
-	if atomic.LoadUint32(&state) == 2 {
-		err = writeText(ctx, c, "START")
-		if err != nil {
-			return wrapError(errCannotSend, err)
-		}
-	}
-
-	confirmed, err := getConfirmedStatus(ctx, userID)
-	if err != nil {
-		return err
-	}
-	if !confirmed {
-		err = writeText(ctx, c, "NC")
-		if err != nil {
-			return wrapError(errCannotSend, err)
-		}
-	} else {
-		err = writeText(ctx, c, "YC")
-		if err != nil {
-			return wrapError(errCannotSend, err)
-		}
-	}
-
-	err = writeText(ctx, c, "HI :"+strings.Join(courseIDs, ","))
-	if err != nil {
-		return wrapError(errCannotSend, err)
-	}
-
-	return nil
+	return writeText(
+		ctx,
+		c,
+		"NC",
+	)
 }

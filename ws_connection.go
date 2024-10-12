@@ -327,7 +327,7 @@ func handleConn(
 				if err != nil {
 					return err
 				}
-			case "C":
+			case "YC":
 				err := messageConfirm(
 					newCtx,
 					c,
@@ -336,6 +336,17 @@ func handleConn(
 					userID,
 					department,
 					&userCourseTypes,
+				)
+				if err != nil {
+					return err
+				}
+			case "NC":
+				err := messageUnconfirm(
+					newCtx,
+					c,
+					reportError,
+					mar,
+					userID,
 				)
 				if err != nil {
 					return err
