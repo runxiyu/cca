@@ -42,7 +42,7 @@ var (
 	errUnexpectedDBError          = errors.New("unexpected database error")
 	errCannotSend                 = errors.New("cannot send")
 	errCannotGenerateRandomString = errors.New("cannot generate random string")
-	errContextCancelled           = errors.New("context cancelled")
+	errContextCanceled            = errors.New("context canceled")
 	errCannotReceiveMessage       = errors.New("cannot receive message")
 	errNoSuchCourse               = errors.New("no such course")
 	errInvalidState               = errors.New("invalid state")

@@ -74,7 +74,7 @@ func handleConn(
 		cancelPool.CompareAndDelete(userID, &newCancel)
 		if errors.Is(retErr, context.Canceled) {
 			/*
-			 * Only works if it's newCtx that has been cancelled
+			 * Only works if it's newCtx that has been canceled
 			 * rather than the original ctx, which is kinda what
 			 * we intend
 			 */
@@ -172,7 +172,7 @@ func handleConn(
 			 * gets closed, which makes it impossible for us to
 			 * write the context expiry message to the client.
 			 * So we pass the original connection context, which
-			 * would get cancelled anyway once we close the
+			 * would get canceled anyway once we close the
 			 * connection.
 			 * See: https://github.com/coder/websocket/issues/242
 			 * We still need to take care of this while sending so
@@ -212,7 +212,7 @@ func handleConn(
 			}
 			select {
 			case <-newCtx.Done():
-				_ = writeText(ctx, c, "E :Context cancelled")
+				_ = writeText(ctx, c, "E :Context canceled")
 				/* Not a typo to use ctx here */
 				return
 			case recv <- &errbytesT{err: nil, bytes: &b}:
@@ -232,14 +232,14 @@ func handleConn(
 			 * processing a select cycle.
 			 */
 			return wrapError(
-				errContextCancelled,
+				errContextCanceled,
 				newCtx.Err(),
 			)
 		case sendText := <-send:
 			select {
 			case <-newCtx.Done():
 				return wrapError(
-					errContextCancelled,
+					errContextCanceled,
 					newCtx.Err(),
 				)
 			default:
@@ -253,7 +253,7 @@ func handleConn(
 			select {
 			case <-newCtx.Done():
 				return wrapError(
-					errContextCancelled,
+					errContextCanceled,
 					newCtx.Err(),
 				)
 			default:
@@ -271,7 +271,7 @@ func handleConn(
 			select {
 			case <-newCtx.Done():
 				return wrapError(
-					errContextCancelled,
+					errContextCanceled,
 					newCtx.Err(),
 				)
 			default:

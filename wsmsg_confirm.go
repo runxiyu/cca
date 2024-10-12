@@ -41,7 +41,7 @@ func messageConfirm(
 	select {
 	case <-ctx.Done():
 		return wrapError(
-			errContextCancelled,
+			errContextCanceled,
 			ctx.Err(),
 		)
 	default:

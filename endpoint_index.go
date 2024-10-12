@@ -152,7 +152,10 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			username,
 			department,
 			&_groups,
-			struct{Sport int; NonSport int}{sportRequired, nonSportRequired},
+			struct {
+				Sport    int
+				NonSport int
+			}{sportRequired, nonSportRequired},
 		},
 	)
 	if err != nil {
