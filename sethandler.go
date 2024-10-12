@@ -27,6 +27,12 @@ import (
 
 func setHandler(pattern string, handler func(http.ResponseWriter, *http.Request) (string, int, error)) {
 	http.HandleFunc(pattern, func(w http.ResponseWriter, req *http.Request) {
+		defer func() {
+			if e := recover(); e != nil {
+				slog.Error("panic", "arg", e)
+			}
+		}()
+
 		msg, statusCode, err := handler(w, req)
 		if err != nil {
 			if statusCode == -1 || statusCode == 0 {

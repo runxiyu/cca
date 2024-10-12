@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -122,6 +123,12 @@ func handleConn(
 	usemParent := make(chan int)
 	for courseID, usem := range usems {
 		go func() {
+			defer func() {
+				if e := recover(); e != nil {
+					slog.Error("panic", "arg", e)
+				}
+			}()
+
 			for {
 				select {
 				case <-newCtx.Done():
@@ -164,6 +171,11 @@ func handleConn(
 	 */
 	recv := make(chan *errbytesT)
 	go func() {
+		defer func() {
+			if e := recover(); e != nil {
+				slog.Error("panic", "arg", e)
+			}
+		}()
 		for {
 			/*
 			 * Here we use the original connection context instead

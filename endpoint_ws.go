@@ -33,6 +33,12 @@ import (
  * handled in handleConn.
  */
 func handleWs(w http.ResponseWriter, req *http.Request) {
+	defer func() {
+		if e := recover(); e != nil {
+			slog.Error("panic", "arg", e)
+		}
+	}()
+
 	wsOptions := &websocket.AcceptOptions{
 		Subprotocols: []string{"cca1"},
 	} //exhaustruct:ignore

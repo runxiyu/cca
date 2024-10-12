@@ -23,6 +23,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"sync"
 	"sync/atomic"
 
@@ -140,7 +141,14 @@ func (course *courseT) decrementSelectedAndPropagate(
 		defer course.SelectedLock.Unlock()
 		atomic.AddUint32(&course.Selected, ^uint32(0))
 	}()
-	go propagateSelectedUpdate(course)
+	go func() {
+		defer func() {
+			if e := recover(); e != nil {
+				slog.Error("panic", "arg", e)
+			}
+		}()
+		propagateSelectedUpdate(course)
+	}()
 	err := sendSelectedUpdate(ctx, conn, course.ID)
 	if err != nil {
 		return wrapError(

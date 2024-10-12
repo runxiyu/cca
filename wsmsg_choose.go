@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strconv"
 	"sync/atomic"
 	"time"
@@ -152,7 +153,14 @@ func messageChooseCourse(
 		}()
 
 		if ok {
-			go propagateSelectedUpdate(course)
+			go func() {
+				defer func() {
+					if e := recover(); e != nil {
+						slog.Error("panic", "arg", e)
+					}
+				}()
+				propagateSelectedUpdate(course)
+			}()
 			err := tx.Commit(ctx)
 			if err != nil {
 				err := course.decrementSelectedAndPropagate(ctx, c)
