@@ -117,7 +117,8 @@ func main() {
 
 	log.Println("Registering handlers")
 	http.HandleFunc("/{$}", handleIndex)
-	http.HandleFunc("/export", handleExport)
+	http.HandleFunc("/export/choices", handleExportChoices)
+	http.HandleFunc("/export/students", handleExportStudents)
 	http.HandleFunc("/auth", handleAuth)
 	http.HandleFunc("/ws", handleWs)
 	http.HandleFunc("/state/{s}", handleState)

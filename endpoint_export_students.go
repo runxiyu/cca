@@ -24,10 +24,10 @@ import (
 	"encoding/csv"
 	"fmt"
 	"net/http"
-	"strings"
+	"strconv"
 )
 
-func handleExport(w http.ResponseWriter, req *http.Request) {
+func handleExportStudents(w http.ResponseWriter, req *http.Request) {
 	_, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
 		wstr(
@@ -45,14 +45,7 @@ func handleExport(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	type userCacheT struct {
-		Name       string
-		StudentID  string
-		Department string
-	}
-	userCacheMap := make(map[string]userCacheT)
-
-	rows, err := db.Query(req.Context(), "SELECT userid, courseid FROM choices")
+	rows, err := db.Query(req.Context(), "SELECT name, email, department, confirmed FROM users")
 	if err != nil {
 		wstr(
 			w,
@@ -75,9 +68,14 @@ func handleExport(w http.ResponseWriter, req *http.Request) {
 			}
 			break
 		}
-		var currentUserID, currentUserName, currentStudentID, currentDepartment string
-		var currentCourseID int
-		err := rows.Scan(&currentUserID, &currentCourseID)
+		var currentUserName, currentEmail, currentDepartment string
+		var currentConfirmed bool
+		err := rows.Scan(
+			&currentUserName,
+			&currentEmail,
+			&currentDepartment,
+			&currentConfirmed,
+		)
 		if err != nil {
 			wstr(
 				w,
@@ -86,80 +84,24 @@ func handleExport(w http.ResponseWriter, req *http.Request) {
 			)
 			return
 		}
-		currentUserCache, ok := userCacheMap[currentUserID]
-		if ok {
-			currentUserName = currentUserCache.Name
-			currentDepartment = currentUserCache.Department
-			currentStudentID = currentUserCache.StudentID
-		} else {
-			var currentUserEmail string
-			err := db.QueryRow(
-				req.Context(),
-				"SELECT name, email, department FROM users WHERE id = $1",
-				currentUserID,
-			).Scan(
-				&currentUserName,
-				&currentUserEmail,
-				&currentDepartment,
-			)
-			if err != nil {
-				wstr(
-					w,
-					http.StatusInternalServerError,
-					"Unexpected database error",
-				)
-				return
-			}
-			before, _, found := strings.Cut(currentUserEmail, "@")
-			if found {
-				currentStudentID, _ = strings.CutPrefix(before, "s")
-			} else {
-				currentStudentID = currentUserEmail
-			}
-			userCacheMap[currentUserID] = userCacheT{
-				Name:       currentUserName,
-				StudentID:  currentStudentID,
-				Department: currentDepartment,
-			}
+
+		if currentDepartment == staffDepartment {
+			continue
 		}
 
-		_course, ok := courses.Load(currentCourseID)
-		if !ok {
-			wstr(
-				w,
-				http.StatusInternalServerError,
-				"Reference to non-existent course",
-			)
-			return
-		}
-		course, ok := _course.(*courseT)
-		if !ok {
-			panic("courses map has non-\"*courseT\" items")
-		}
-		if course == nil {
-			wstr(
-				w,
-				http.StatusInternalServerError,
-				"Course is nil",
-			)
-			return
-		}
 		output = append(
 			output,
 			[]string{
 				currentUserName,
-				currentStudentID,
+				currentEmail,
 				currentDepartment,
-				course.Title,
-				course.Group,
-				course.SectionID,
-				course.CourseID,
+				strconv.FormatBool(currentConfirmed),
 			},
 		)
 	}
 
 	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", "attachment;filename=cca.csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=cca_students.csv")
 	csvWriter := csv.NewWriter(w)
 	err = csvWriter.Write([]string{
 		"Student Name",
