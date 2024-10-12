@@ -66,7 +66,18 @@ func messageHello(
 			return wrapError(errCannotSend, err)
 		}
 	}
-	err = writeText(ctx, c, "HI :"+strings.Join(courseIDs, ","))
+
+	confirmed, err := getConfirmedStatus(ctx, userID)
+	if err != nil {
+		return err
+	}
+	var confirmedString string
+	if confirmed {
+		confirmedString = "1"
+	} else {
+		confirmedString = "0"
+	}
+	err = writeText(ctx, c, "HI "+confirmedString+" :"+strings.Join(courseIDs, ","))
 	if err != nil {
 		return wrapError(errCannotSend, err)
 	}

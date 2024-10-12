@@ -73,8 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
 					forEach(c => {
 						c.style.display = "none"
 					})
-				if (mar[1] !== "") {
-					let courseIDs = mar[1].split(",")
+				if (mar[2] !== "") {
+					let courseIDs = mar[2].split(",")
 					for (let i = 0; i < courseIDs.length; i++) {
 						document.getElementById(
 							`tick${ courseIDs[i] }`
