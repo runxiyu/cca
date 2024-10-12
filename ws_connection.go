@@ -187,16 +187,6 @@ func handleConn(
 			 */
 			_, b, err := c.Read(ctx)
 			if err != nil {
-				/*
-				 * TODO: Prioritize context dones... except
-				 * that it's not really possible. I would just
-				 * have placed newCtx in here but apparently
-				 * that causes the connection to be closed when
-				 * the context expires, which makes it
-				 * impossible to deliver the final error
-				 * message. Probably need to look into this
-				 * design again.
-				 */
 				select {
 				case <-newCtx.Done():
 					_ = writeText(
