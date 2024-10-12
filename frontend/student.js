@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	socket.addEventListener("open", function() {
 		let gstate = 0
+		let ustate = 0
 		let _handleMessage = event => {
 			let msg = new String(event?.data)
 
@@ -100,6 +101,38 @@ document.addEventListener("DOMContentLoaded", () => {
 							}
 						}
 					}
+				}
+				if (ustate === 1) {
+					document.querySelectorAll(".confirmed-handle").forEach(c => {
+						let handle = c.textContent
+						document.getElementById(`confirmed-name-${ handle }`).textContent = ""
+						document.getElementById(`confirmed-type-${ handle }`).textContent = ""
+						document.getElementById(`confirmed-teacher-${ handle }`).textContent = ""
+						document.getElementById(`confirmed-location-${ handle }`).textContent = ""
+						document.querySelectorAll(".coursecheckbox").forEach(d => {
+							if (d.dataset.group === handle && d.checked) {
+								document.getElementById(`confirmed-name-${ handle }`).textContent =
+									d.dataset.title
+								document.getElementById(`confirmed-type-${ handle }`).textContent =
+									d.dataset.type
+								document.getElementById(`confirmed-teacher-${ handle }`).textContent =
+									d.dataset.teacher
+								document.getElementById(`confirmed-location-${ handle }`).textContent =
+									d.dataset.location
+
+								/* TODO: break */
+							}
+						})
+					})
+					document.querySelectorAll(".unconfirmed").forEach(c => {
+						c.style.display = "none"
+					})
+					document.querySelectorAll(".confirmed").forEach(c => {
+						c.style.display = "block"
+					})
+					document.querySelectorAll(".neither-confirmed").forEach(c => {
+						c.style.display = "none"
+					})
 				}
 				break
 			case "U": /* unauthenticated */
@@ -205,6 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				document.getElementById("stateindicator").textContent = "enabled"
 				break
 			case "YC":
+				ustate = 1
 				document.querySelectorAll(".confirmed-handle").forEach(c => {
 					let handle = c.textContent
 					document.getElementById(`confirmed-name-${ handle }`).textContent = ""
@@ -237,6 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				})
 				break
 			case "NC":
+				ustate = 0
 				document.querySelectorAll(".unconfirmed").forEach(c => {
 					c.style.display = "block"
 				})
