@@ -21,6 +21,7 @@
 package main
 
 import (
+	"log/slog"
 	"net/http"
 )
 
@@ -31,12 +32,18 @@ func setHandler(pattern string, handler func(http.ResponseWriter, *http.Request)
 			if statusCode == -1 || statusCode == 0 {
 				statusCode = 500
 			}
+			slog.Error(
+				"handler",
+				"path", req.URL.Path,
+				"status", statusCode,
+				"error", err,
+			)
 			if msg != "" {
 				wstr(w, statusCode, msg+"\n"+err.Error())
 			} else {
 				wstr(w, statusCode, err.Error())
 			}
-		} else {
+		} else if msg != "" {
 			if statusCode == -1 || statusCode == 0 {
 				statusCode = 200
 			}
