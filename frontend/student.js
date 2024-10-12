@@ -85,18 +85,18 @@ document.addEventListener("DOMContentLoaded", () => {
 								textContent
 							document.getElementById(`${ courseType }-chosen`).
 								textContent = parseInt(document.
-								getElementById(`${ courseType }-chosen`).
-								textContent) + 1
+									getElementById(`${ courseType }-chosen`).
+									textContent) + 1
 						}
 						if (gstate === 1) {
 							document.getElementById(
 								`tick${ courseIDs[i] }`
 							).disabled = false
-							if (parseInt(document.getElementById(`Sport-chosen`).textContent) >=
-								parseInt(document.getElementById(`Sport-required`).textContent) &&
-								parseInt(document.getElementById(`Non-sport-chosen`).textContent) >=
-								parseInt(document.getElementById(`Non-sport-required`).textContent)) {
-									document.getElementById("confirmbutton").disabled = false
+							if (parseInt(document.getElementById("Sport-chosen").textContent) >=
+								parseInt(document.getElementById("Sport-required").textContent) &&
+								parseInt(document.getElementById("Non-sport-chosen").textContent) >=
+								parseInt(document.getElementById("Non-sport-required").textContent)) {
+								document.getElementById("confirmbutton").disabled = false
 							}
 						}
 					}
@@ -114,16 +114,16 @@ document.addEventListener("DOMContentLoaded", () => {
 				{
 					let courseType = document.getElementById(`type${ mar[1] }`).
 						textContent
-					document.getElementById(`${ courseType }-chosen`).textContent = 
+					document.getElementById(`${ courseType }-chosen`).textContent =
 						parseInt(document.
-						getElementById(`${ courseType }-chosen`).
-						textContent) - 1
+							getElementById(`${ courseType }-chosen`).
+							textContent) - 1
 				}
-				if (parseInt(document.getElementById(`Sport-chosen`).textContent) <
-					parseInt(document.getElementById(`Sport-required`).textContent) ||
-					parseInt(document.getElementById(`Non-sport-chosen`).textContent) <
-					parseInt(document.getElementById(`Non-sport-required`).textContent)) {
-						document.getElementById("confirmbutton").disabled = true
+				if (parseInt(document.getElementById("Sport-chosen").textContent) <
+					parseInt(document.getElementById("Sport-required").textContent) ||
+					parseInt(document.getElementById("Non-sport-chosen").textContent) <
+					parseInt(document.getElementById("Non-sport-required").textContent)) {
+					document.getElementById("confirmbutton").disabled = true
 				}
 				break
 			case "M":
@@ -166,15 +166,15 @@ document.addEventListener("DOMContentLoaded", () => {
 						textContent
 					document.getElementById(`${ courseType }-chosen`).textContent =
 						parseInt(document.
-						getElementById(`${ courseType }-chosen`).
-						textContent) + 1
+							getElementById(`${ courseType }-chosen`).
+							textContent) + 1
 				}
-				if (parseInt(document.getElementById(`Sport-chosen`).textContent) >=
-					parseInt(document.getElementById(`Sport-required`).textContent) &&
-					parseInt(document.getElementById(`Non-sport-chosen`).textContent) >=
-					parseInt(document.getElementById(`Non-sport-required`).textContent) &&
+				if (parseInt(document.getElementById("Sport-chosen").textContent) >=
+					parseInt(document.getElementById("Sport-required").textContent) &&
+					parseInt(document.getElementById("Non-sport-chosen").textContent) >=
+					parseInt(document.getElementById("Non-sport-required").textContent) &&
 					gstate === 1) {
-						document.getElementById("confirmbutton").disabled = false
+					document.getElementById("confirmbutton").disabled = false
 				}
 				break
 			case "STOP":
@@ -190,17 +190,17 @@ document.addEventListener("DOMContentLoaded", () => {
 				gstate = 1
 				document.getElementById("unconfirmbutton").disabled = false
 				document.querySelectorAll(".courseitem").forEach(c => {
-					if (c.querySelector(".selected-number").textContent !== 
+					if (c.querySelector(".selected-number").textContent !==
 						c.querySelector(".max-number").textContent ||
 						c.querySelector(".coursecheckbox").checked) {
 						c.querySelector(".coursecheckbox").disabled = false
 					}
 				})
-				if (parseInt(document.getElementById(`Sport-chosen`).textContent) >=
-					parseInt(document.getElementById(`Sport-required`).textContent) &&
-					parseInt(document.getElementById(`Non-sport-chosen`).textContent) >=
-					parseInt(document.getElementById(`Non-sport-required`).textContent)) {
-						document.getElementById("confirmbutton").disabled = false
+				if (parseInt(document.getElementById("Sport-chosen").textContent) >=
+					parseInt(document.getElementById("Sport-required").textContent) &&
+					parseInt(document.getElementById("Non-sport-chosen").textContent) >=
+					parseInt(document.getElementById("Non-sport-required").textContent)) {
+					document.getElementById("confirmbutton").disabled = false
 				}
 				document.getElementById("stateindicator").textContent = "enabled"
 				break
@@ -221,6 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
 								d.dataset.teacher
 							document.getElementById(`confirmed-location-${ handle }`).textContent =
 								d.dataset.location
+
 							/* TODO: break */
 						}
 					})
