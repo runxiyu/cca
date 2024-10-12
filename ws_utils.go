@@ -23,7 +23,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"sync/atomic"
 
 	"github.com/coder/websocket"
@@ -156,7 +156,11 @@ func propagate(msg string) {
 			if !ok {
 				panic("chanPool has non-string key")
 			}
-			log.Println("WARNING: SendQ exceeded for " + userID)
+			slog.Warn(
+				"sendq",
+				"user", userID,
+				"msg", msg,
+			)
 		}
 		return true
 	})

@@ -23,7 +23,7 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"log"
+	"log/slog"
 	"net/http"
 )
 
@@ -32,7 +32,11 @@ func wstr(w http.ResponseWriter, code int, msg string) {
 	w.WriteHeader(code)
 	_, err := w.Write([]byte(msg))
 	if err != nil {
-		log.Printf("Error wstr'ing to writer: %v", err)
+		slog.Error(
+			"write",
+			"writer", &w,
+			"error", err,
+		)
 	}
 }
 

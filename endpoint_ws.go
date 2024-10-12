@@ -21,7 +21,7 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/coder/websocket"
@@ -55,10 +55,7 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 
 	userID, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
-		err := writeText(req.Context(), c, "U")
-		if err != nil {
-			log.Println(err)
-		}
+		_ = writeText(req.Context(), c, "U")
 		return
 	}
 
@@ -66,7 +63,11 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		err := writeText(req.Context(), c, "E :"+err.Error())
 		if err != nil {
-			log.Println(err)
+			slog.Error(
+				"websocket",
+				"user", userID,
+				"error", err,
+			)
 		}
 		return
 	}

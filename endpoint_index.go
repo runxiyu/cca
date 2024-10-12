@@ -22,7 +22,6 @@ package main
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"sync/atomic"
 )
@@ -50,7 +49,6 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 			},
 		)
 		if err2 != nil {
-			log.Println(err2)
 			return "", -1, wrapError(errCannotWriteTemplate, err2)
 		}
 		return "", -1, nil

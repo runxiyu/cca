@@ -28,6 +28,7 @@ import (
 	"html/template"
 	"io/fs"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"time"
@@ -61,19 +62,19 @@ func main() {
 	flag.Parse()
 
 	if err := fetchConfig(configPath); err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
-	log.Println("Setting up templates")
+	slog.Info("setting up templates")
 	tmpl, err = template.ParseFS(runFS, "templates/*")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
-	log.Println("Registering static handle")
+	slog.Info("registering static handle")
 	staticFS, err := fs.Sub(runFS, "build/static")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	http.Handle("/static/",
 		http.StripPrefix(
@@ -82,10 +83,10 @@ func main() {
 		),
 	)
 
-	log.Println("Registering iadocs handle")
+	slog.Info("registering iadocs handle")
 	iaDocsFS, err := fs.Sub(runFS, "build/iadocs")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	http.Handle("/iadocs/",
 		http.StripPrefix(
@@ -94,10 +95,10 @@ func main() {
 		),
 	)
 
-	log.Println("Registering docs handle")
+	slog.Info("registering docs handle")
 	docsFS, err := fs.Sub(runFS, "build/docs")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	http.Handle(
 		"/docs/",
@@ -107,7 +108,7 @@ func main() {
 		),
 	)
 
-	log.Println("Registering source handle")
+	slog.Info("registering source handle")
 	http.Handle(
 		"/src/",
 		http.StripPrefix(
@@ -115,7 +116,7 @@ func main() {
 		),
 	)
 
-	log.Println("Registering handlers")
+	slog.Info("registering handlers")
 	http.HandleFunc("/ws", handleWs)
 	setHandler("/{$}", handleIndex)
 	setHandler("/export/choices", handleExportChoices)
@@ -128,10 +129,10 @@ func main() {
 
 	switch config.Listen.Trans {
 	case "plain":
-		log.Printf(
-			"Establishing plain listener for net \"%s\", addr \"%s\"\n",
-			config.Listen.Net,
-			config.Listen.Addr,
+		slog.Info(
+			"plain",
+			"net", config.Listen.Net,
+			"addr", config.Listen.Addr,
 		)
 		l, err = net.Listen(config.Listen.Net, config.Listen.Addr)
 		if err != nil {
@@ -155,10 +156,10 @@ func main() {
 			Certificates: []tls.Certificate{cer},
 			MinVersion:   tls.VersionTLS13,
 		} //exhaustruct:ignore
-		log.Printf(
-			"Establishing TLS listener for net \"%s\", addr \"%s\"\n",
-			config.Listen.Net,
-			config.Listen.Addr,
+		slog.Info(
+			"tls",
+			"net", config.Listen.Net,
+			"addr", config.Listen.Addr,
 		)
 		l, err = tls.Listen(
 			config.Listen.Net,
@@ -175,29 +176,29 @@ func main() {
 		log.Fatalln("listen.trans must be \"plain\" or \"tls\"")
 	}
 
-	log.Println("Setting up database")
+	slog.Info("setting up database")
 	if err := setupDatabase(); err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
-	log.Println("Loading state")
+	slog.Info("loading state")
 	if err := loadState(); err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
-	log.Println("Setting up courses")
+	slog.Info("setting up courses")
 	err = setupCourses(context.Background())
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
-	log.Println("Setting up JWKS")
+	slog.Info("setting up JWKS")
 	if err := setupJwks(); err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
 	if config.Listen.Proto == "http" {
-		log.Println("Serving http")
+		slog.Info("serving http")
 		srv := &http.Server{
 			ReadHeaderTimeout: time.Duration(
 				config.Perf.ReadHeaderTimeout,
@@ -208,6 +209,6 @@ func main() {
 		log.Fatalln("Unsupported protocol")
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }
