@@ -22,6 +22,7 @@ package main
 
 import (
 	"context"
+	"sync/atomic"
 
 	"github.com/coder/websocket"
 )
@@ -34,6 +35,17 @@ func messageUnconfirm(
 	userID string,
 ) error {
 	_ = mar
+
+	if atomic.LoadUint32(&state) != 2 {
+		err := writeText(ctx, c, "E :Course selections are not open")
+		if err != nil {
+			return wrapError(
+				errCannotSend,
+				err,
+			)
+		}
+		return nil
+	}
 
 	select {
 	case <-ctx.Done():
