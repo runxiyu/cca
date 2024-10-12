@@ -157,12 +157,12 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 
 	accessToken, err := getAccessToken(req.Context(), authorizationCode)
 	if err != nil {
-		return "", http.StatusInternalServerError, err
+		return "", -1, err
 	}
 
 	department, err := getDepartment(req.Context(), *(accessToken.Content))
 	if err != nil {
-		return "", http.StatusInternalServerError, err
+		return "", -1, err
 	}
 
 	switch {
@@ -176,7 +176,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 
 	cookieValue, err := randomString(tokenLength)
 	if err != nil {
-		return "", http.StatusInternalServerError, err
+		return "", -1, err
 	}
 
 	now := time.Now()
@@ -218,10 +218,10 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 				claims.Oid,
 			)
 			if err != nil {
-				return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
+				return "", -1, wrapError(errUnexpectedDBError, err)
 			}
 		} else {
-			return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
+			return "", -1, wrapError(errUnexpectedDBError, err)
 		}
 	}
 

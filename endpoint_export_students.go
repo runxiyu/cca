@@ -29,22 +29,22 @@ import (
 func handleExportStudents(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	_, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
-		return "", http.StatusInternalServerError, err
+		return "", -1, err
 	}
 	if department != staffDepartment {
-		return "", http.StatusInternalServerError, errStaffOnly
+		return "", -1, errStaffOnly
 	}
 
 	rows, err := db.Query(req.Context(), "SELECT name, email, department, confirmed FROM users")
 	if err != nil {
-		return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
+		return "", -1, wrapError(errUnexpectedDBError, err)
 	}
 	output := make([][]string, 0)
 	for {
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
+				return "", -1, wrapError(errUnexpectedDBError, err)
 			}
 			break
 		}
@@ -57,7 +57,7 @@ func handleExportStudents(w http.ResponseWriter, req *http.Request) (string, int
 			&currentConfirmed,
 		)
 		if err != nil {
-			return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
+			return "", -1, wrapError(errUnexpectedDBError, err)
 		}
 
 		if currentDepartment == staffDepartment {
@@ -88,15 +88,15 @@ func handleExportStudents(w http.ResponseWriter, req *http.Request) (string, int
 		"Course ID",
 	})
 	if err != nil {
-		return "", http.StatusInternalServerError, errHTTPWrite
+		return "", -1, errHTTPWrite
 	}
 	err = csvWriter.WriteAll(output)
 	if err != nil {
-		return "", http.StatusInternalServerError, errHTTPWrite
+		return "", -1, errHTTPWrite
 	}
 	csvWriter.Flush()
 	if csvWriter.Error() != nil {
-		return "", http.StatusInternalServerError, errHTTPWrite
+		return "", -1, errHTTPWrite
 	}
 
 	return "", -1, nil

@@ -22,7 +22,6 @@ package main
 
 import (
 	"encoding/csv"
-	"fmt"
 	"net/http"
 	"strings"
 )
@@ -30,11 +29,7 @@ import (
 func handleExportChoices(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	_, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
-		wstr(
-			w,
-			http.StatusInternalServerError,
-			fmt.Sprintf("Error: %v", err),
-		)
+		return "", -1, err
 	}
 	if department != staffDepartment {
 		return "", http.StatusForbidden, errStaffOnly
@@ -49,14 +44,14 @@ func handleExportChoices(w http.ResponseWriter, req *http.Request) (string, int,
 
 	rows, err := db.Query(req.Context(), "SELECT userid, courseid FROM choices")
 	if err != nil {
-		return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
+		return "", -1, wrapError(errUnexpectedDBError, err)
 	}
 	output := make([][]string, 0)
 	for {
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
+				return "", -1, wrapError(errUnexpectedDBError, err)
 			}
 			break
 		}
@@ -64,7 +59,7 @@ func handleExportChoices(w http.ResponseWriter, req *http.Request) (string, int,
 		var currentCourseID int
 		err := rows.Scan(&currentUserID, &currentCourseID)
 		if err != nil {
-			return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
+			return "", -1, wrapError(errUnexpectedDBError, err)
 		}
 		currentUserCache, ok := userCacheMap[currentUserID]
 		if ok {
@@ -83,7 +78,7 @@ func handleExportChoices(w http.ResponseWriter, req *http.Request) (string, int,
 				&currentDepartment,
 			)
 			if err != nil {
-				return "", http.StatusInternalServerError, wrapError(errUnexpectedDBError, err)
+				return "", -1, wrapError(errUnexpectedDBError, err)
 			}
 			before, _, found := strings.Cut(currentUserEmail, "@")
 			if found {
@@ -100,14 +95,14 @@ func handleExportChoices(w http.ResponseWriter, req *http.Request) (string, int,
 
 		_course, ok := courses.Load(currentCourseID)
 		if !ok {
-			return "", http.StatusInternalServerError, wrapAny(errNoSuchCourse, currentCourseID)
+			return "", -1, wrapAny(errNoSuchCourse, currentCourseID)
 		}
 		course, ok := _course.(*courseT)
 		if !ok {
 			panic("courses map has non-\"*courseT\" items")
 		}
 		if course == nil {
-			return "", http.StatusInternalServerError, wrapAny(errNoSuchCourse, currentCourseID)
+			return "", -1, wrapAny(errNoSuchCourse, currentCourseID)
 		}
 		output = append(
 			output,
@@ -136,15 +131,15 @@ func handleExportChoices(w http.ResponseWriter, req *http.Request) (string, int,
 		"Course ID",
 	})
 	if err != nil {
-		return "", http.StatusInternalServerError, wrapError(errHTTPWrite, err)
+		return "", -1, wrapError(errHTTPWrite, err)
 	}
 	err = csvWriter.WriteAll(output)
 	if err != nil {
-		return "", http.StatusInternalServerError, wrapError(errHTTPWrite, err)
+		return "", -1, wrapError(errHTTPWrite, err)
 	}
 	csvWriter.Flush()
 	if csvWriter.Error() != nil {
-		return "", http.StatusInternalServerError, wrapError(errHTTPWrite, err)
+		return "", -1, wrapError(errHTTPWrite, err)
 	}
 	return "", -1, nil
 }
