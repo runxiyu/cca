@@ -128,6 +128,14 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 		}
 		return
 	}
+	sportRequired, err := getCourseTypeMinimumForYearGroup(department, sport)
+	if err != nil {
+		wstr(w, http.StatusInternalServerError, "Failed to get sport requirement")
+	}
+	nonSportRequired, err := getCourseTypeMinimumForYearGroup(department, nonSport)
+	if err != nil {
+		wstr(w, http.StatusInternalServerError, "Failed to get non-sport requirement")
+	}
 
 	err = tmpl.ExecuteTemplate(
 		w,
@@ -136,10 +144,15 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 			Name       string
 			Department string
 			Groups     *map[string]groupT
+			Required   struct {
+				Sport    int
+				NonSport int
+			}
 		}{
 			username,
 			department,
 			&_groups,
+			struct{Sport int; NonSport int}{sportRequired, nonSportRequired},
 		},
 	)
 	if err != nil {

@@ -79,10 +79,25 @@ document.addEventListener("DOMContentLoaded", () => {
 						document.getElementById(
 							`tick${ courseIDs[i] }`
 						).checked = true
+						{
+							let courseType = document.
+								getElementById(`type${ courseIDs[i] }`).
+								textContent
+							document.getElementById(`${ courseType }-chosen`).
+								textContent = parseInt(document.
+								getElementById(`${ courseType }-chosen`).
+								textContent) + 1
+						}
 						if (gstate === 1) {
 							document.getElementById(
 								`tick${ courseIDs[i] }`
 							).disabled = false
+							if (parseInt(document.getElementById(`Sport-chosen`).textContent) >=
+								parseInt(document.getElementById(`Sport-required`).textContent) &&
+								parseInt(document.getElementById(`Non-sport-chosen`).textContent) >=
+								parseInt(document.getElementById(`Non-sport-required`).textContent)) {
+									document.getElementById("confirmbutton").disabled = false
+							}
 						}
 					}
 				}
@@ -96,6 +111,20 @@ document.addEventListener("DOMContentLoaded", () => {
 					checked = false
 				document.getElementById(`tick${ mar[1] }`).
 					indeterminate = false
+				{
+					let courseType = document.getElementById(`type${ mar[1] }`).
+						textContent
+					document.getElementById(`${ courseType }-chosen`).textContent = 
+						parseInt(document.
+						getElementById(`${ courseType }-chosen`).
+						textContent) - 1
+				}
+				if (parseInt(document.getElementById(`Sport-chosen`).textContent) <
+					parseInt(document.getElementById(`Sport-required`).textContent) ||
+					parseInt(document.getElementById(`Non-sport-chosen`).textContent) <
+					parseInt(document.getElementById(`Non-sport-required`).textContent)) {
+						document.getElementById("confirmbutton").disabled = true
+				}
 				break
 			case "M":
 				document.getElementById(`selected${ mar[1] }`).
@@ -132,6 +161,21 @@ document.addEventListener("DOMContentLoaded", () => {
 					checked = true
 				document.getElementById(`tick${ mar[1] }`).
 					indeterminate = false
+				{
+					let courseType = document.getElementById(`type${ mar[1] }`).
+						textContent
+					document.getElementById(`${ courseType }-chosen`).textContent =
+						parseInt(document.
+						getElementById(`${ courseType }-chosen`).
+						textContent) + 1
+				}
+				if (parseInt(document.getElementById(`Sport-chosen`).textContent) >=
+					parseInt(document.getElementById(`Sport-required`).textContent) &&
+					parseInt(document.getElementById(`Non-sport-chosen`).textContent) >=
+					parseInt(document.getElementById(`Non-sport-required`).textContent) &&
+					gstate === 1) {
+						document.getElementById("confirmbutton").disabled = false
+				}
 				break
 			case "STOP":
 				gstate = 0
@@ -144,11 +188,18 @@ document.addEventListener("DOMContentLoaded", () => {
 			case "START":
 				gstate = 1
 				document.querySelectorAll(".courseitem").forEach(c => {
-					if (c.querySelector(".selected-number").textContent !== c.querySelector(".max-number").textContent || c.querySelector(".coursecheckbox").checked) {
+					if (c.querySelector(".selected-number").textContent !== 
+						c.querySelector(".max-number").textContent ||
+						c.querySelector(".coursecheckbox").checked) {
 						c.querySelector(".coursecheckbox").disabled = false
 					}
 				})
-				document.getElementById("confirmbutton").disabled = false
+				if (parseInt(document.getElementById(`Sport-chosen`).textContent) >=
+					parseInt(document.getElementById(`Sport-required`).textContent) &&
+					parseInt(document.getElementById(`Non-sport-chosen`).textContent) >=
+					parseInt(document.getElementById(`Non-sport-required`).textContent)) {
+						document.getElementById("confirmbutton").disabled = false
+				}
 				document.getElementById("stateindicator").textContent = "enabled"
 				break
 			default:
@@ -179,7 +230,9 @@ document.addEventListener("DOMContentLoaded", () => {
 			case true:
 				c.indeterminate = true
 				document.querySelectorAll(".coursecheckbox").forEach(d => {
-					if (d.checked === true && d.dataset.group === c.dataset.group && c.id !== d.id) {
+					if (d.checked === true &&
+						d.dataset.group === c.dataset.group &&
+						c.id !== d.id) {
 						d.indeterminate = true
 						socket.send(`N ${ d.id.slice(4) }`)
 					}
