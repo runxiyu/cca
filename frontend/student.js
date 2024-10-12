@@ -16,6 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/*
+ * TODO: This script is terrible. Revamp all of it.
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
 	const socket = new WebSocket("wss://cca.runxiyu.org/ws")
 
