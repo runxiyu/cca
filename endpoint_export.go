@@ -112,7 +112,7 @@ func handleExport(w http.ResponseWriter, req *http.Request) {
 			}
 			before, _, found := strings.Cut(currentUserEmail, "@")
 			if found {
-				currentStudentID = before
+				currentStudentID, _ = strings.CutPrefix(before, "s")
 			} else {
 				currentStudentID = currentUserEmail
 			}
