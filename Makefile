@@ -11,7 +11,7 @@ docs: dist/docs/admin_handbook.html dist/docs/handbook.css dist/docs/cca.scfg.ex
 iadocs: dist/iadocs/index.html dist/iadocs/cover_page.htm dist/iadocs/appendix.pdf dist/iadocs/crita_planning.pdf dist/iadocs/critb_design.pdf dist/iadocs/critb_recordoftasks.htm dist/iadocs/critc_development.pdf dist/iadocs/critd_functionality.pdf dist/iadocs/crite_evaluation.pdf
 
 # Final binary which tries to embed stuff
-dist/cca: go.* *.go build/static/style.css build/static/student.js templates/* build/docs/admin_handbook.html build/docs/handbook.css build/docs/cca.scfg.example build/iadocs/index.html build/iadocs/cover_page.htm build/iadocs/appendix.pdf build/iadocs/crita_planning.pdf build/iadocs/critb_design.pdf build/iadocs/critb_recordoftasks.htm build/iadocs/critc_development.pdf build/iadocs/critd_functionality.pdf build/iadocs/crite_evaluation.pdf .editorconfig .gitignore scripts/* sql/* docs/* iadocs/* README.md LICENSE Makefile
+dist/cca: go.* *.go build/static/style.css build/static/student.js templates/* build/docs/admin_handbook.html build/docs/handbook.css build/docs/cca.scfg.example build/iadocs/index.html build/iadocs/cover_page.htm build/iadocs/appendix.pdf build/iadocs/crita_planning.pdf build/iadocs/critb_design.pdf build/iadocs/critb_recordoftasks.htm build/iadocs/critc_development.pdf build/iadocs/critd_functionality.pdf build/iadocs/crite_evaluation.pdf .editorconfig .gitignore .gitattributes scripts/* sql/* docs/* iadocs/* README.md LICENSE Makefile
 	mkdir -p dist
 	go build -o $@
 

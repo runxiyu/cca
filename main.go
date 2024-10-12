@@ -43,7 +43,7 @@ var runFS embed.FS
 //go:embed go.* *.go
 //go:embed docs/* iadocs/*
 //go:embed frontend/* templates/*
-//go:embed README.md LICENSE Makefile .editorconfig .gitignore
+//go:embed README.md LICENSE Makefile .editorconfig .gitignore .gitattributes
 //go:embed scripts/* sql/*
 var srcFS embed.FS
 
