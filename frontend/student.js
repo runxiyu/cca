@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			switch (mar[0]) {
 			case "E": /* unexpected error */
-				alert(`The server reported an unexpected error, "${ mar[1] }". The system might be in an inconsistent state.`);
+				alert(mar[1]);
 				break;
 			case "HI":
 				document.querySelectorAll(".need-connection").
