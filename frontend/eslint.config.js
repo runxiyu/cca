@@ -73,7 +73,7 @@ export default [
 			"space-in-parens": ["error", "never"],
 			"keyword-spacing": [2],
 			"template-curly-spacing": ["error", "always"],
-			semi: ["error", "never"],
+			semi: ["error", "always"],
 			"semi-spacing": [
 				"error",
 				{
@@ -113,4 +113,4 @@ export default [
 			"no-multiple-empty-lines": 2
 		}
 	}
-]
+];
