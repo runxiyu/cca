@@ -120,17 +120,9 @@ nav ul > li:not(:last-child)::after {
 	content:"\2000"
 }
 
-/*
- * The header should stick to the top of the page.
- */
 header {
-	position: -webkit-sticky;
-	position: sticky;
-	top: 0;
-	left: 0;
 	color: var(--header-fg);
 	background-color: var(--header-bg);
-	z-index: 1000;
 	width: 100%;
 }
 
@@ -156,7 +148,7 @@ header img {
 	max-height: 40px;
 }
 header h1 {
-	font-size: 25px; /* TODO: Specifying font sizes in pixels is bad */
+	font-size: 150%;
 }
 
 /*
