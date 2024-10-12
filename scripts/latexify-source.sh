@@ -6,7 +6,7 @@ targetfile="$(realpath -- build/iadocs/source.gen)"
 
 printf '\n' > "$targetfile"
 
-printfile() {
+include_code() {
 	lang="$1"
 	tabsize="$2"
 	shift 2
@@ -17,28 +17,32 @@ printfile() {
 	done
 }
 
-printf '\\chapter{Backend source code}\n' >> "$targetfile"
-printfile go 8 *.go
-printfile text 8 go.*
+chapter() {
+	printf '\\chapter{%s}\n' "$*" >> "$targetfile"
+}
 
-printf '\\chapter{Frontend source code}\n' >> "$targetfile"
-printfile javascript 4 frontend/*.js
-printfile css 8 frontend/*.css
+chapter Backend source code
+include_code go 8 *.go
+include_code text 8 go.*
 
-printf '\\chapter{HTML templates}\n' >> "$targetfile"
-printfile html 2 templates/*.html
+chapter Frontend source code
+include_code javascript 4 frontend/*.js
+include_code css 8 frontend/*.css
 
-printf '\\chapter{Build system and auxiliary scripts}\n' >> "$targetfile"
-printfile makefile 8 Makefile
-printfile bash 8 scripts/*.sh
+chapter HTML templates
+include_code html 2 templates/*.html
 
-printf '\\chapter{SQL scripts}\n' >> "$targetfile"
-printfile postgresql 8 sql/*.sql
+chapter Build system and auxiliary scripts
+include_code makefile 8 Makefile
+include_code bash 8 scripts/*.sh
 
-printf '\\chapter{Production documentation}\n' >> "$targetfile"
-printfile html 2 docs/*.html
-printfile css 8 docs/*.css
-printfile text 8 docs/*.csv docs/cca.scfg.example
+chapter SQL scripts
+include_code postgresql 8 sql/*.sql
 
-printf '\\chapter{IA documentation}\n' >> "$targetfile"
-printfile latex 8 iadocs/*.tex iadocs/*.texinc
+chapter Production documentation
+include_code html 2 docs/*.html
+include_code css 8 docs/*.css
+include_code text 8 docs/*.csv docs/cca.scfg.example
+
+chapter IA documentation
+include_code latex 8 iadocs/*.tex iadocs/*.texinc
