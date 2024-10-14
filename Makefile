@@ -64,6 +64,3 @@ build/static/student.js: frontend/student.js
 	mkdir -p build/static
 	minify -o $@ $<
 
-# External dependencies
-minifier:
-	go install github.com/tdewolff/minify/v2/cmd/minify@latest
