@@ -31,7 +31,6 @@ import (
 func messageConfirm(
 	ctx context.Context,
 	c *websocket.Conn,
-	reportError reportErrorT,
 	mar []string,
 	userID string,
 	department string,
@@ -62,7 +61,7 @@ func messageConfirm(
 	for courseType := range courseTypes {
 		minimum, err := getCourseTypeMinimumForYearGroup(department, courseType)
 		if err != nil {
-			return reportError("Invalid year group or course type, something is broken")
+			return wrapError(errInvalidYearGroupOrCourseType, err)
 		}
 		if (*userCourseTypes)[courseType] < minimum {
 			return writeText(
@@ -84,7 +83,7 @@ func messageConfirm(
 		userID,
 	)
 	if err != nil {
-		return reportError("error updating database setting confirmation")
+		return wrapError(errUnexpectedDBError, err)
 	}
 
 	return writeText(

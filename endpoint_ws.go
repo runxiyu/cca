@@ -67,14 +67,12 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 
 	err = handleConn(req.Context(), c, userID, department)
 	if err != nil {
-		err := writeText(req.Context(), c, "E :"+err.Error())
-		if err != nil {
-			slog.Error(
-				"websocket",
-				"user", userID,
-				"error", err,
-			)
-		}
+		slog.Error(
+			"websocket",
+			"user", userID,
+			"error", err,
+		)
+		_ = writeText(req.Context(), c, "E :"+err.Error())
 		return
 	}
 }

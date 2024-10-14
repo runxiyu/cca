@@ -80,30 +80,6 @@ endl:
 	return mar
 }
 
-func baseReportError(
-	ctx context.Context,
-	conn *websocket.Conn,
-	e string,
-) error {
-	err := writeText(ctx, conn, "E :"+e)
-	if err != nil {
-		return fmt.Errorf("error reporting protocol violation: %w", err)
-	}
-	err = conn.Close(websocket.StatusProtocolError, e)
-	if err != nil {
-		return fmt.Errorf("error closing websocket: %w", err)
-	}
-	return nil
-}
-
-type reportErrorT func(e string) error
-
-func makeReportError(ctx context.Context, conn *websocket.Conn) reportErrorT {
-	return func(e string) error {
-		return baseReportError(ctx, conn, e)
-	}
-}
-
 func propagateSelectedUpdate(course *courseT) {
 	course.Usems.Range(func(key, value interface{}) bool {
 		_ = key

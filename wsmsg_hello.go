@@ -32,7 +32,6 @@ import (
 func messageHello(
 	ctx context.Context,
 	c *websocket.Conn,
-	reportError reportErrorT,
 	mar []string,
 	userID string,
 ) error {
@@ -53,11 +52,11 @@ func messageHello(
 		userID,
 	)
 	if err != nil {
-		return reportError("error fetching choices")
+		return wrapError(errUnexpectedDBError, err)
 	}
 	courseIDs, err := pgx.CollectRows(rows, pgx.RowTo[string])
 	if err != nil {
-		return reportError("error collecting choices")
+		return wrapError(errUnexpectedDBError, err)
 	}
 
 	if atomic.LoadUint32(&state) == 2 {

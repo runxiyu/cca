@@ -31,7 +31,6 @@ import (
 func messageUnchooseCourse(
 	ctx context.Context,
 	c *websocket.Conn,
-	reportError reportErrorT,
 	mar []string,
 	userID string,
 	userCourseGroups *userCourseGroupsT,
@@ -58,24 +57,24 @@ func messageUnchooseCourse(
 	}
 
 	if len(mar) != 2 {
-		return reportError("Invalid number of arguments for N")
+		return errBadNumberOfArguments
 	}
 	_courseID, err := strconv.ParseInt(mar[1], 10, strconv.IntSize)
 	if err != nil {
-		return reportError("Course ID must be an integer")
+		return errNoSuchCourse
 	}
 	courseID := int(_courseID)
 
 	_course, ok := courses.Load(courseID)
 	if !ok {
-		return reportError("no such course")
+		return errNoSuchCourse
 	}
 	course, ok := _course.(*courseT)
 	if !ok {
 		panic("courses map has non-\"*courseT\" items")
 	}
 	if course == nil {
-		return reportError("couse is nil")
+		return errNoSuchCourse
 	}
 
 	ct, err := db.Exec(
@@ -85,9 +84,7 @@ func messageUnchooseCourse(
 		courseID,
 	)
 	if err != nil {
-		return reportError(
-			"Database error while deleting course choice",
-		)
+		return wrapError(errUnexpectedDBError, err)
 	}
 
 	if ct.RowsAffected() != 0 {
@@ -101,18 +98,18 @@ func messageUnchooseCourse(
 
 		_course, ok := courses.Load(courseID)
 		if !ok {
-			return reportError("no such course")
+			return errNoSuchCourse
 		}
 		course, ok := _course.(*courseT)
 		if !ok {
 			panic("courses map has non-\"*courseT\" items")
 		}
 		if course == nil {
-			return reportError("couse is nil")
+			return errNoSuchCourse
 		}
 
 		if _, ok := (*userCourseGroups)[course.Group]; !ok {
-			return reportError("inconsistent user course groups")
+			return errCourseGroupHandlingError
 		}
 		delete(*userCourseGroups, course.Group)
 		(*userCourseTypes)[course.Type]--

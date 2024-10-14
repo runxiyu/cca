@@ -30,7 +30,6 @@ import (
 func messageUnconfirm(
 	ctx context.Context,
 	c *websocket.Conn,
-	reportError reportErrorT,
 	mar []string,
 	userID string,
 ) error {
@@ -62,7 +61,7 @@ func messageUnconfirm(
 		userID,
 	)
 	if err != nil {
-		return reportError("error updating database setting confirmation")
+		return wrapError(errUnexpectedDBError, err)
 	}
 
 	return writeText(

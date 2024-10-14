@@ -23,7 +23,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"strconv"
 	"sync/atomic"
@@ -37,7 +36,6 @@ import (
 func messageChooseCourse(
 	ctx context.Context,
 	c *websocket.Conn,
-	reportError reportErrorT,
 	mar []string,
 	userID string,
 	userCourseGroups *userCourseGroupsT,
@@ -64,24 +62,24 @@ func messageChooseCourse(
 	}
 
 	if len(mar) != 2 {
-		return reportError("Invalid number of arguments for Y")
+		return errBadNumberOfArguments
 	}
 	_courseID, err := strconv.ParseInt(mar[1], 10, strconv.IntSize)
 	if err != nil {
-		return reportError("Course ID must be an integer")
+		return errNoSuchCourse
 	}
 	courseID := int(_courseID)
 
 	_course, ok := courses.Load(courseID)
 	if !ok {
-		return reportError("no such course")
+		return errNoSuchCourse
 	}
 	course, ok := _course.(*courseT)
 	if !ok {
 		panic("courses map has non-\"*courseT\" items")
 	}
 	if course == nil {
-		return reportError("couse is nil")
+		return errNoSuchCourse
 	}
 
 	if _, ok := (*userCourseGroups)[course.Group]; ok {
@@ -98,16 +96,12 @@ func messageChooseCourse(
 	err = func() (returnedError error) {
 		tx, err := db.Begin(ctx)
 		if err != nil {
-			return reportError(
-				"Database error while beginning transaction",
-			)
+			return wrapError(errUnexpectedDBError, err)
 		}
 		defer func() {
 			err := tx.Rollback(ctx)
 			if err != nil && (!errors.Is(err, pgx.ErrTxClosed)) {
-				returnedError = reportError(
-					"Database error while rolling back transaction in defer block",
-				)
+				returnedError = wrapError(errUnexpectedDBError, err)
 				return
 			}
 		}()
@@ -123,18 +117,16 @@ func messageChooseCourse(
 			var pgErr *pgconn.PgError
 			if errors.As(err, &pgErr) &&
 				pgErr.Code == pgErrUniqueViolation {
-				err := writeText(ctx, c, "Y "+mar[1])
-				if err != nil {
-					return fmt.Errorf(
-						"error reaffirming course choice: %w",
-						err,
+				err2 := writeText(ctx, c, "Y "+mar[1])
+				if err2 != nil {
+					return wrapError(
+						err2,
+						wrapError(errUnexpectedDBError, err),
 					)
 				}
 				return nil
 			}
-			return reportError(
-				"Database error while inserting course choice",
-			)
+			return wrapError(errUnexpectedDBError, err)
 		}
 
 		ok := func() bool {
@@ -170,9 +162,7 @@ func messageChooseCourse(
 						err,
 					)
 				}
-				return reportError(
-					"Database error while committing transaction",
-				)
+				return wrapError(errUnexpectedDBError, err)
 			}
 
 			/*
@@ -202,9 +192,7 @@ func messageChooseCourse(
 		} else {
 			err := tx.Rollback(ctx)
 			if err != nil {
-				return reportError(
-					"Database error while rolling back transaction due to course limit",
-				)
+				return wrapError(errUnexpectedDBError, err)
 			}
 			err = writeText(ctx, c, "R "+mar[1]+" :Full")
 			if err != nil {

@@ -39,6 +39,7 @@ var (
 	errInvalidCourseType                = errors.New("invalid course type")
 	errInvalidCourseGroup               = errors.New("invalid course group")
 	errMultipleChoicesInOneGroup        = errors.New("multiple choices per group per user")
+	errCourseGroupHandlingError         = errors.New("error handling course group")
 	errUnsupportedDatabaseType          = errors.New("unsupported db type")
 	errUnexpectedDBError                = errors.New("unexpected database error")
 	errCannotSend                       = errors.New("cannot send")
@@ -73,6 +74,9 @@ var (
 	errUnexpectedNilCSVLine             = errors.New("unexpected nil csv line")
 	errWhileSetttingUpCourseTablesAgain = errors.New("error while setting up course tables again")
 	errCannotWriteTemplate              = errors.New("cannot write template")
+	errUnknownCommand                   = errors.New("unknown command")
+	errBadNumberOfArguments             = errors.New("bad number of arguments")
+	errInvalidYearGroupOrCourseType     = errors.New("invalid year group or course type (something is broken)")
 	// errInvalidCourseID                  = errors.New("invalid course id")
 )
 
