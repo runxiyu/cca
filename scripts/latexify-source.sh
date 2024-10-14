@@ -40,7 +40,7 @@ chapter SQL scripts
 include_code postgresql 8 sql/*.sql
 
 chapter Production documentation
-include_code html 2 docs/*.html
+include_code markdown 2 docs/*.md
 include_code css 8 docs/*.css
 include_code text 8 docs/*.csv docs/cca.scfg.example
 
