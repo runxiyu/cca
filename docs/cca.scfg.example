@@ -60,12 +60,24 @@ auth {
 
 	# What is the URL to the JSON Web Key Set?
 	jwks https://login.microsoftonline.com/common/discovery/keys
-
-	# What is the client secret? Certificates are not supported yet.
-	secret something
 	
 	# How long, in seconds, should cookies last?
 	expr 604800
+
+	# Which group IDs mean which departments?
+	depts {
+		dc3ab000-6352-4596-9f15-771e0b17f6f1 Y12
+		b006d3b8-2ab7-4038-9887-a8276f7ba8e6 Y11
+		a51fb4ab-704e-4c7a-b639-b84de0516e57 Y10
+		4bae8dbe-ce80-4b5e-994f-d42f0307bd13 Y9
+	}
+
+	# User department overrides
+	udepts {
+		fa1f6b2b-0424-41db-bda0-13962abdadf4 Staff
+		a1a735c0-1ba8-4f08-b4d0-4c6f85552ac7 Staff
+		34d4ee3c-6515-4e13-9679-57ccb9ca2835 Staff
+	}
 }
 
 # The following block contains some tweaks for performance.

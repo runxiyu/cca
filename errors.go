@@ -28,10 +28,7 @@ import (
 var (
 	errCannotSetupJwks                  = errors.New("cannot set up jwks")
 	errInsufficientFields               = errors.New("insufficient fields")
-	errCannotGetDepartment              = errors.New("cannot get department")
 	errUnknownDepartment                = errors.New("unknown department")
-	errCannotFetchAccessToken           = errors.New("cannot fetch access token")
-	errTokenEndpointReturnedError       = errors.New("token endpoint returned error")
 	errCannotProcessConfig              = errors.New("cannot process configuration file")
 	errCannotOpenConfig                 = errors.New("cannot open configuration file")
 	errCannotDecodeConfig               = errors.New("cannot decode configuration file")

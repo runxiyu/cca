@@ -54,12 +54,13 @@ var configWithPointers struct {
 		Conn *string `scfg:"conn"`
 	} `scfg:"db"`
 	Auth struct {
-		Client    *string `scfg:"client"`
-		Authorize *string `scfg:"authorize"`
-		Jwks      *string `scfg:"jwks"`
-		Token     *string `scfg:"token"`
-		Secret    *string `scfg:"secret"`
-		Expr      *int    `scfg:"expr"`
+		Client      *string            `scfg:"client"`
+		Authorize   *string            `scfg:"authorize"`
+		Jwks        *string            `scfg:"jwks"`
+		Token       *string            `scfg:"token"`
+		Expr        *int               `scfg:"expr"`
+		Departments *map[string]string `scfg:"depts"`
+		Udepts      *map[string]string `scfg:"udepts"`
 	} `scfg:"auth"`
 	Perf struct {
 		SendQ               *int  `scfg:"sendq"`
@@ -107,12 +108,13 @@ var config struct {
 		Conn string
 	}
 	Auth struct {
-		Client    string
-		Authorize string
-		Jwks      string
-		Token     string
-		Secret    string
-		Expr      int
+		Client      string
+		Authorize   string
+		Jwks        string
+		Token       string
+		Expr        int
+		Departments map[string]string
+		Udepts      map[string]string
 	}
 	Perf struct {
 		SendQ               int
@@ -237,15 +239,26 @@ func fetchConfig(path string) (retErr error) {
 	}
 	config.Auth.Token = *(configWithPointers.Auth.Token)
 
-	if configWithPointers.Auth.Secret == nil {
-		return fmt.Errorf("%w: auth.secret", errMissingConfigValue)
-	}
-	config.Auth.Secret = *(configWithPointers.Auth.Secret)
-
 	if configWithPointers.Auth.Expr == nil {
 		return fmt.Errorf("%w: auth.expr", errMissingConfigValue)
 	}
 	config.Auth.Expr = *(configWithPointers.Auth.Expr)
+
+	if configWithPointers.Auth.Departments == nil {
+		return fmt.Errorf("%w: auth.depts", errMissingConfigValue)
+	}
+	config.Auth.Departments = *(configWithPointers.Auth.Departments)
+	if config.Auth.Departments == nil {
+		return fmt.Errorf("%w: auth.depts", errMissingConfigValue)
+	}
+
+	if configWithPointers.Auth.Udepts == nil {
+		return fmt.Errorf("%w: auth.udepts", errMissingConfigValue)
+	}
+	config.Auth.Udepts = *(configWithPointers.Auth.Udepts)
+	if config.Auth.Udepts == nil {
+		return fmt.Errorf("%w: auth.udepts", errMissingConfigValue)
+	}
 
 	if configWithPointers.Perf.SendQ == nil {
 		return fmt.Errorf(
