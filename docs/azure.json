@@ -1,0 +1,161 @@
+{
+	"id": "bf3b7abf-cc3a-4abd-8a34-b129cd649e6a",
+	"deletedDateTime": null,
+	"appId": "e8101cb5-84a3-49d7-860b-e5a75e63219a",
+	"applicationTemplateId": null,
+	"disabledByMicrosoftStatus": null,
+	"createdDateTime": "2024-09-07T06:06:54Z",
+	"displayName": "CCA Selection System",
+	"description": null,
+	"groupMembershipClaims": "All",
+	"identifierUris": [],
+	"isDeviceOnlyAuthSupported": null,
+	"isFallbackPublicClient": null,
+	"isManagementRestricted": null,
+	"nativeAuthenticationApisEnabled": null,
+	"notes": "",
+	"publisherDomain": "ykpaoschool.cn",
+	"serviceManagementReference": null,
+	"signInAudience": "AzureADMyOrg",
+	"tags": [],
+	"tokenEncryptionKeyId": null,
+	"samlMetadataUrl": null,
+	"defaultRedirectUri": null,
+	"certification": null,
+	"requestSignatureVerification": null,
+	"addIns": [],
+	"api": {
+		"acceptMappedClaims": null,
+		"knownClientApplications": [],
+		"requestedAccessTokenVersion": null,
+		"oauth2PermissionScopes": [],
+		"preAuthorizedApplications": []
+	},
+	"appRoles": [],
+	"info": {
+		"logoUrl": null,
+		"marketingUrl": null,
+		"privacyStatementUrl": null,
+		"supportUrl": null,
+		"termsOfServiceUrl": null
+	},
+	"keyCredentials": [],
+	"optionalClaims": {
+		"accessToken": [
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "groups",
+				"source": null
+			}
+		],
+		"idToken": [
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "email",
+				"source": null
+			},
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "family_name",
+				"source": null
+			},
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "given_name",
+				"source": null
+			},
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "preferred_username",
+				"source": null
+			},
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "groups",
+				"source": null
+			}
+		],
+		"saml2Token": [
+			{
+				"additionalProperties": [],
+				"essential": false,
+				"name": "groups",
+				"source": null
+			}
+		]
+	},
+	"parentalControlSettings": {
+		"countriesBlockedForMinors": [],
+		"legalAgeGroupRule": "Allow"
+	},
+	"passwordCredentials": [],
+	"publicClient": {
+		"redirectUris": []
+	},
+	"requiredResourceAccess": [
+		{
+			"resourceAppId": "00000003-0000-0000-c000-000000000000",
+			"resourceAccess": [
+				{
+					"id": "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0",
+					"type": "Scope"
+				},
+				{
+					"id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182",
+					"type": "Scope"
+				},
+				{
+					"id": "37f7f235-527c-4136-accd-4a02d197296e",
+					"type": "Scope"
+				},
+				{
+					"id": "14dad69e-099b-42c9-810b-d002981feec1",
+					"type": "Scope"
+				},
+				{
+					"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+					"type": "Scope"
+				}
+			]
+		}
+	],
+	"verifiedPublisher": {
+		"displayName": null,
+		"verifiedPublisherId": null,
+		"addedDateTime": null
+	},
+	"web": {
+		"homePageUrl": null,
+		"logoutUrl": null,
+		"redirectUris": [
+			"https://cca.runxiyu.org/auth"
+		],
+		"implicitGrantSettings": {
+			"enableAccessTokenIssuance": true,
+			"enableIdTokenIssuance": true
+		},
+		"redirectUriSettings": [
+			{
+				"uri": "https://cca.runxiyu.org/auth",
+				"index": null
+			}
+		]
+	},
+	"servicePrincipalLockConfiguration": {
+		"isEnabled": true,
+		"allProperties": true,
+		"credentialsWithUsageVerify": true,
+		"credentialsWithUsageSign": true,
+		"identifierUris": false,
+		"tokenEncryptionKeyId": true
+	},
+	"spa": {
+		"redirectUris": []
+	}
+}

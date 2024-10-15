@@ -47,6 +47,18 @@ Using the same database for different versions of CCASS is currently unsupported
 
 ## Microsoft Entra ID setup
 
-```json
+A Web redirect URL is needed and must be set to `/auth` from the base of the accessible URL. &ldquo;ID tokens&rdquo; must be selected. The following optional claims must be configured:
+* `email`
+* `family_name`
+* `given_name`
+* `preferred_username`
+* `groups` (ID tokens must be configured to receive Group IDs)
 
-```
+The application needs the following delegated permissions:
+* `email`
+* `offline_access`
+* `openid`
+* `profile`
+* `User.Read`
+
+[An example manifest](./azure.json) is available.
