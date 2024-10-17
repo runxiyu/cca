@@ -14,6 +14,7 @@ iadocs: dist/iadocs/index.html dist/iadocs/cover_page.htm dist/iadocs/appendix.p
 dist/cca: go.* *.go build/static/style.css build/static/student.js templates/* build/docs/admin_handbook.html build/docs/cca.scfg.example build/docs/azure.json build/iadocs/index.html build/iadocs/cover_page.htm build/iadocs/appendix.pdf build/iadocs/crita_planning.pdf build/iadocs/critb_design.pdf build/iadocs/critb_recordoftasks.htm build/iadocs/critc_development.pdf build/iadocs/critd_functionality.pdf build/iadocs/crite_evaluation.pdf .editorconfig .gitignore .gitattributes scripts/* sql/* docs/* iadocs/* README.md LICENSE Makefile
 	mkdir -p dist
 	go build -o $@
+	sudo setcap 'cap_net_bind_service=+ep' $@
 
 # Documentation
 dist/docs/%: build/docs/%
