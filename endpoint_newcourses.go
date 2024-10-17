@@ -213,7 +213,10 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 		return "", statusCode, err
 	}
 
-	courses.Clear()
+	courses.Range(func(key, _ interface{}) bool {
+		courses.Delete(key)
+		return true
+	})
 	err = setupCourses(req.Context())
 	if err != nil {
 		return "", -1, wrapError(errWhileSetttingUpCourseTablesAgain, err)
