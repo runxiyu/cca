@@ -197,30 +197,6 @@ a.btn {
 }
 
 
-/* I need to re-learn how flexbox works */
-
-/*
- * Multiple columns, flexible wrapping
- */
-.multicols {
-	display: flex;
-	flex-direction: row;
-	@media(max-width: 50rem) {
-		flex-wrap: wrap;
-		gap: 0rem;
-	}
-	gap: 2rem;
-	align-items: stretch;
-}
-
-.multicols div {
-	min-width: 18em;
-	/* max-width: 40rem; */
-	width: 100%;
-	margin-left: auto;
-	margin-right: auto;
-}
-
 /*
  * Spanning elements across a flex container with equal space in between
  */

@@ -290,12 +290,14 @@ a.btn {
 .multicols {
 	display: flex;
 	flex-direction: row;
-	@media(max-width: 50rem) {
+	gap: 2rem;
+	align-items: stretch;
+}
+@media(max-width: 50rem) {
+	.multicols {
 		flex-wrap: wrap;
 		gap: 0rem;
 	}
-	gap: 2rem;
-	align-items: stretch;
 }
 
 .multicols div {
@@ -384,4 +386,5 @@ table.table-of-courses {
 .broken-styling-warning {
 	display: none;
 }
+
 
