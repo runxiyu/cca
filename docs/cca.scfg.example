@@ -110,7 +110,7 @@ perf {
 
 	# How long should the send queue be, for messages sequentially
 	# propagated through a queue, rather than usems?
-	senq 10
+	sendq 10
 }
 
 # Minimum course requirements for each year group
