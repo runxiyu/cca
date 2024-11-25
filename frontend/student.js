@@ -21,7 +21,12 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-	const socket = new WebSocket("wss://cca.runxiyu.org/ws");
+	const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+	const hostname = window.location.hostname;
+	const port = window.location.port ? `:${window.location.port}` : "";
+	const websocketURL = `${protocol}//${hostname}${port}/ws`;
+	console.log(websocketURL);
+	const socket = new WebSocket(websocketURL);
 
 	/*
 	 * TODO I want to make this easily configurable somehow, but I'm unsure
