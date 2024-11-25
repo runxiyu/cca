@@ -139,6 +139,10 @@ func messageChooseCourse(
 			 */
 			if course.Selected < course.Max {
 				atomic.AddUint32(&course.Selected, 1)
+				/*
+				 * This write must be atomic because there
+				 * could be other atomic readers.
+				 */
 				return true
 			}
 			return false
