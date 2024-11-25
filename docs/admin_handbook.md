@@ -16,7 +16,7 @@ You may obtain a stable or development version. The stable version is recommende
 
 ## External dependencies
 
-You need a [Go](https://go.dev) toolchain, [Pygments](https://pygments.org), [Pandoc](https://pandoc.org), [GNU make](https://www.gnu.org/software/make/), [TeX Live](https://tug.org/texlive/) and [minify](https://github.com/tdewolff/minify).
+You need a [Go](https://go.dev) toolchain, [Pygments](https://pygments.org), [Pandoc](https://pandoc.org), [GNU make](https://www.gnu.org/software/make/), [TeX Live](https://tug.org/texlive/) and [minify](https://github.com/tdewolff/minify). Minify must be present in `$PATH` as `gominify`.
 
 It is possible to build with only the Go toolchain, but the current build system does not support building the program without building the corresponding documentation (including IA documentation which accounts for the huge TeX Live installation). This will be enhanced in the future.
 
