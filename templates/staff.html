@@ -108,10 +108,10 @@
 					{{- end }}
 					{{- end }}
 				</tbody>
-				{{- if eq .State 0 }}
 				<tfoot>
 					<tr>
 						<td class="th-like" colspan="7">
+							{{- if eq .State 0 }}
 							<form method="POST" enctype="multipart/form-data" action="/newcourses">
 								<div class="flex-justify">
 									<div class="left">
@@ -122,10 +122,10 @@
 									</div>
 								</div>
 							</form>
+							{{- end }}
 						</td>
 					</tr>
 				</tfoot>
-				{{- end }}
 			</table>
 		</div>
 		<script>
