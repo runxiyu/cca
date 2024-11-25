@@ -1,6 +1,6 @@
 # TODO: Use some variables to clean up the massive documentation file specifiers
 
-.PHONY: cca default minifier iadocs docs build_iadocs build_docs
+.PHONY: cca default iadocs docs build_iadocs build_docs
 
 default: dist/cca docs iadocs
 
@@ -21,7 +21,7 @@ dist/docs/%: build/docs/%
 	cp $< $@
 build/docs/%.html: docs/%.md docs/handbook.css
 	mkdir -p build/docs
-	pandoc --embed-resources --wrap none --standalone -t html -f markdown --css docs/handbook.css $< | minify --type html -o $@
+	pandoc --embed-resources --wrap none --standalone -t html -f markdown --css docs/handbook.css $< | gominify --type html -o $@
 build/docs/cca.scfg.example: docs/cca.scfg.example
 	mkdir -p build/docs
 	cp $< $@
@@ -41,7 +41,7 @@ dist/iadocs/%.html: build/iadocs/%.html
 	cp $< $@
 build/iadocs/%.htm: iadocs/%.htm
 	mkdir -p build/iadocs
-	minify --html-keep-end-tags --html-keep-document-tags -o $@ $<
+	gominify --html-keep-end-tags --html-keep-document-tags -o $@ $<
 build/iadocs/index.html: build/iadocs/cover_page.htm
 	cp $< $@
 build/iadocs/%.pdf: iadocs/%.tex build/iadocs/header.texinc
@@ -62,8 +62,8 @@ build/iadocs/%.texinc: iadocs/%.texinc
 # Temporary files in build/ to be embedded into the final binary
 build/static/style.css: frontend/style.css
 	mkdir -p build/static
-	minify -o $@ $<
+	gominify -o $@ $<
 build/static/student.js: frontend/student.js
 	mkdir -p build/static
-	minify -o $@ $<
+	gominify -o $@ $<
 
