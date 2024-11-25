@@ -41,7 +41,7 @@ var (
 	errUnexpectedDBError                = errors.New("unexpected database error")
 	errCannotSend                       = errors.New("cannot send")
 	errCannotGenerateRandomString       = errors.New("cannot generate random string")
-	errContextCanceled                  = errors.New("context canceled")
+	errWsHandlerContextCanceled         = errors.New("websocket handler context canceled (you logged in on another connection, or the administrator disabled student access)")
 	errCannotReceiveMessage             = errors.New("cannot receive message")
 	errNoSuchCourse                     = errors.New("reference to non-existent course")
 	errInvalidState                     = errors.New("invalid state")

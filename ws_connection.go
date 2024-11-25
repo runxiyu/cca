@@ -217,14 +217,14 @@ func handleConn(
 			 * processing a select cycle.
 			 */
 			return wrapError(
-				errContextCanceled,
+				errWsHandlerContextCanceled,
 				newCtx.Err(),
 			)
 		case sendText := <-send:
 			select {
 			case <-newCtx.Done():
 				return wrapError(
-					errContextCanceled,
+					errWsHandlerContextCanceled,
 					newCtx.Err(),
 				)
 			default:
@@ -238,7 +238,7 @@ func handleConn(
 			select {
 			case <-newCtx.Done():
 				return wrapError(
-					errContextCanceled,
+					errWsHandlerContextCanceled,
 					newCtx.Err(),
 				)
 			default:
@@ -256,7 +256,7 @@ func handleConn(
 			select {
 			case <-newCtx.Done():
 				return wrapError(
-					errContextCanceled,
+					errWsHandlerContextCanceled,
 					newCtx.Err(),
 				)
 			default:

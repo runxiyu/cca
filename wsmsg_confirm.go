@@ -52,7 +52,7 @@ func messageConfirm(
 	select {
 	case <-ctx.Done():
 		return wrapError(
-			errContextCanceled,
+			errWsHandlerContextCanceled,
 			ctx.Err(),
 		)
 	default:
