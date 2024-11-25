@@ -7,76 +7,117 @@
 
 % Remember to demonstrate algorithmic thinking.
 
-\section{Structure and justification}
+\section{State propagation}
 
-\section{Algorithmic thinking}
+On the server side, the authoratative source of state is the
+PostgreSQL database. Since there should only be one instance of the
+CCA selection system running on a particular database at a time, we
+may carefully duplicate part of the database state into memory for
+faster access and atomic operations. Memory-mapped databases such
+as LMDB have been considered but were ruled out to complex
+concurrency issues and poor B-tree write performance for multiple
+small writes.
 
-\section{Development techniques}
+Note that in the following I will be referring to ``goroutines'';
+those are basically lightweight threads that the Go runtime
+dynamically schedules onto a number of operating system threads while
+being aware of blocking channel operations and other synchronization
+primitives. Each thread has its own stack which starts at about 2
+kilobytes. Other than basic synchronization primitives such as
+atomics, mutexes, and read-write mutexes, Go also has a useful data
+type called a ``channel''; channels convey a message type of a fixed
+length and has an unsigned integer representing the ``buffer length'';
+it either blocks until there is a corresponding writer or reader or
+fails when reading from an empty channel or writing to a full channel,
+depending on how it is used.
 
-\section{Existing tools}
+The primary reason for needing state propagation is to update each
+user's browser with information on how many seats in a CCA have been
+already taken. For each CCA, this ``member counter'' is saved in
+memory as an unsigned integer, and is represented in the database as
+the number of rows in the ``choices'' table where the course ID
+matches that of a particular CCA.
+
+To update and propagate this state, my first attempt was to create
+a read-write mutex corresponding to each course's member counter.
+The main loop that handles the WebSocket connection of each user
+creates a 
+
+When a user selects or deselects a course, its member counter is
+checked against the maximum number of people allowed for that CCA,
+and the member counter is incremented by 1 if there are still seats
+available. 
+
+Every time someone chooses a course,
+the server locks the mutex corresponding to that CCA's member counter,
+which guarantees that there are no other writers. The number is read
+normally (i.e., without atomics), and is then atomically incremented
+by 1 
+
+
+\section{Acknowledgements of existing tools}
 
 The following tools, libraries, and other materials were used in the
 development of this product.
 
 \begin{itemize}
-	\item The \href{https://go.dev}{Go programming language}'s
-		\href{https://go.dev/ref/spec}{specification} was referred to,
-		especially for documentation on how channel operations work;
-		its GC toolchain (the most widely-used reference
-		implementation) is used as the compiler during development and
-		production; its standard library is used extensively in the
-		program.
+\item The \href{https://go.dev}{Go programming language}'s
+\href{https://go.dev/ref/spec}{specification} was referred to,
+especially for documentation on how channel operations work; its GC
+toolchain (the most widely-used reference implementation) is used as
+the compiler during development and production; its standard library
+is used extensively in the program.
 
-	\item \href{https://gobyexample.com}{Go by Example} was referred to for
-		documentation on command-line flags and contexts.
+\item \href{https://gobyexample.com}{Go by Example} was referred to for
+documentation on command-line flags and contexts.
 
-	\item \href{https://developer.mozilla.org/en-US/}{MDN Web Docs} was
-		used as my primary source of JavaScript documentation.
+\item \href{https://developer.mozilla.org/en-US/}{MDN Web Docs} was
+used as my primary source of JavaScript documentation.
 
-	\item \href{https://godocs.io}{A hosted fork of gddo} was used as my
-		primary source of Go documentation, along with using the
-		\texttt{go doc} command as part of the GC toolchain.
+\item \href{https://godocs.io}{A hosted fork of gddo} was used as my
+primary source of Go documentation, along with using the
+\texttt{go doc} command as part of the GC toolchain.
 
-	\item \href{https://git.sr.ht/~emersion/go-scfg}{scfg}
-		written by \href{https://emersion.fr}{Simon Ser} is used to
-		parse configuration files.
+\item \href{https://git.sr.ht/~emersion/go-scfg}{scfg}
+written by \href{https://emersion.fr}{Simon Ser} is used to parse
+configuration files.
 
-	\item \href{https://github.com/MicahParks/keyfunc}{keyfunc}
-		written by \href{https://micahparks.com/}{Micah Parks} is used
-		to update the JSON Web Key Set to validate JSON Web Tokens for
-		user authentication.
+\item \href{https://github.com/MicahParks/keyfunc}{keyfunc}
+written by \href{https://micahparks.com/}{Micah Parks} is used to
+update the JSON Web Key Set to validate JSON Web Tokens for user
+authentication.
 
-	\item \href{https://github.com/coder/websocket}{websocket} maintained
-		by \href{https://coder.com/}{coder} is used for bi-directional
-		communication.
+\item \href{https://github.com/coder/websocket}{websocket} maintained
+by \href{https://coder.com/}{coder} is used for bi-directional
+communication.
 
-	\item A minimal variant of the
-		\href{https://www.rfc-editor.org/rfc/rfc1459#section-2.3}{RFC1459
-		IRC message format} is used as the message format in
-		client-server communication.
-	
-	\item \href{https://github.com/golang-jwt/jwt}{golang-jwt} is used to
-		parse and validate JSON Web Tokens for user authentication.
+\item A minimal variant of the
+\href{https://www.rfc-editor.org/rfc/rfc1459#section-2.3}{RFC1459
+IRC message format} is used as the message format in client-server
+communication.
 
-	\item \href{https://github.com/google/uuid}{uuid} by Google is used to
-		generate
-		\href{https://www.rfc-editor.org/rfc/rfc9562.html}{UUIDs}
-		during testing.
-	
-	\item \href{https://github.com/jackc/pgx}{pgx} by
-		\href{https://jackchristensen.com/}{Jack Christensen} is used
-		to establish a connection with the PostgreSQL database backend.
+\item \href{https://github.com/golang-jwt/jwt}{golang-jwt} is used to
+parse and validate JSON Web Tokens for user authentication.
 
-	\item \href{https://www.postgresql.org/}{PostgreSQL} is used as a
-		database backend.
+\item \href{https://github.com/google/uuid}{uuid} by Google is used to
+generate
+\href{https://www.rfc-editor.org/rfc/rfc9562.html}{UUIDs}
+during testing.
 
-	\item \href{https://golangci-lint.run/}{golangci-lint} is used as a
-		linter to detect programming errors.
+\item \href{https://github.com/jackc/pgx}{pgx} by
+\href{https://jackchristensen.com/}{Jack Christensen} is used
+to establish a connection with the PostgreSQL database backend.
 
-	\item \href{https://neovim.io/}{neovim} is used as a text editor; its
-		LSP client was used to connect to
-		\href{https://pkg.go.dev/golang.org/x/tools/gopls}{gopls} for
-		error detection and documentation provision while editing code.
+\item \href{https://www.postgresql.org/}{PostgreSQL} is used as a
+database backend.
+
+\item \href{https://golangci-lint.run/}{golangci-lint} is used as a
+linter to detect programming errors.
+
+\item \href{https://neovim.io/}{neovim} is used as a text editor; its
+LSP client was used to connect to
+\href{https://pkg.go.dev/golang.org/x/tools/gopls}{gopls} for
+error detection and documentation provision while editing code.
 
 \end{itemize}
 
