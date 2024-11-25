@@ -15,8 +15,8 @@ CCA selection system running on a particular database at a time, we
 may carefully duplicate part of the database state into memory for
 faster access and atomic operations. Memory-mapped databases such
 as LMDB have been considered but were ruled out to complex
-concurrency issues and poor B-tree write performance for multiple
-small writes.
+concurrency issues and poor B-tree performance for multiple small
+writes.
 
 Note that in the following I will be referring to ``goroutines'';
 those are basically lightweight threads that the Go runtime
@@ -38,22 +38,74 @@ memory as an unsigned integer, and is represented in the database as
 the number of rows in the ``choices'' table where the course ID
 matches that of a particular CCA.
 
-To update and propagate this state, my first attempt was to create
-a read-write mutex corresponding to each course's member counter.
-The main loop that handles the WebSocket connection of each user
-creates a 
+To update and propagate this state, my first attempt was to create a
+read-write mutex corresponding to each course's member counter.  The
+main loop that handles the WebSocket connection of each user creates a
+Go channel (which could be thought of as a ``send queue''), which is
+appended to a global map of such channels and is read from in the main
+loop; messages delivered by other goroutines to that channel are sent
+across the WebSocket connection. When a user selects or deselects a
+course, its member counter is checked against the maximum number of
+people allowed for that CCA, and the member counter is incremented by
+1 if there are still seats available; if the member counter changes,
+its state is broadcasted by ranging through the global map of such
+channels and delivering them.
 
-When a user selects or deselects a course, its member counter is
-checked against the maximum number of people allowed for that CCA,
-and the member counter is incremented by 1 if there are still seats
-available. 
+There is a major bottle neck with this design: for each event where a
+client chooses a course, \emph{all} clients receives an update
+message. Even if the WebSocket is set to be non-blocking, profiling
+data shows that the frequent context switches into the kernel to
+perform \texttt{write} are very expensive. This reflects a deeper flaw
+within this design: WebSocket propagation is not instant, so in a
+condition where there are many users trying to choose the same course
+in a short time frame, there would be multiple messages waiting in the
+send queue; for messages about any particular course in any particular
+send queue, older messages are always outdated and would be overridden
+by newer messages; since Go channels, WebSocket, and the underlying
+TCP transport always send messages in FIFO order, this means that
+outdated messages encapsulating outdated states will always be
+prioritized first, which is very inefficient and becomes undesirably
+slow when there are only 2000 users competing for a single course.
 
-Every time someone chooses a course,
-the server locks the mutex corresponding to that CCA's member counter,
-which guarantees that there are no other writers. The number is read
-normally (i.e., without atomics), and is then atomically incremented
-by 1 
-
+I therefore designed a more efficient method to propagate course
+membership state, with the key idea being that each pair of one
+connection in conjunction with one course has a boolean describing
+whether that connection needs to receive an update on the member
+number of that course. This boolean is implemented as a Go channel
+with cap 1, conveying an empty structure \texttt{struct\{\}} (as these
+channels solely carry out synchronization and do not need to convey
+data); when the channel buffer has a message, it means that the
+connection needs to receive an update about the course's state. Every
+time someone chooses a course, the server locks a mutex corresponding
+to that CCA's member counter, which guarantees that there are no other
+writers. The number is read normally (i.e., without atomics---because
+the abscence of other writers guarantees that a non-atomic read will
+not lead to a data race), and if it has not reached the maximum number
+of members yet, it is incremented atomically (as the mutex above is
+only respected by writers, there could be atomic readers running at
+the same time). The write mutex is then released. A
+\texttt{struct\{\}\{\}} is sent to all of the channels mentioned
+above where the channel corresponds to the course being chosen
+nonblockingly: if the channel already has a value in its buffer,
+nothing is done. For each of these channels there is also a handler
+goroutine that loops between (1) waiting for an empty value on the
+channel, (2) atomically reading the corresponding course's member
+counting and sending it through the WebSocket connection, and (3)
+either yielding Go's user space scheduler such that another routine
+could run, or sleeping a dynamically determined number of
+milliseconds, depending on system load. The yield/sleep step was added
+to reduce scheduler contention, since the current Go scheduler does
+not support assigning different priorities to goroutines. The effect
+of all of the above is that all message sent are up-to-date
+descriptions of member counters, without having been buffered through
+slow channels; old messages that represent outdated state are never
+sent. This allows for the easy addition of the yield/sleep cooldown.
+Combined, this design handles roughly 18,000 users contending for one
+course in two seconds, when the server software is run on an MacBook
+Air (M1, 2020) with Linux 6.11.8 and all CPU governors set
+to \texttt{performance}, which is significantly faster than the
+previous design, and is about four orders of magnitude faster than
+Schoolsbuddy.
 
 \section{Acknowledgements of existing tools}
 
