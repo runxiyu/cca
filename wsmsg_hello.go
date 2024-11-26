@@ -21,6 +21,7 @@ func messageHello(
 	c *websocket.Conn,
 	mar []string,
 	userID string,
+	yeargroup string,
 ) error {
 	_ = mar
 
@@ -46,7 +47,7 @@ func messageHello(
 		return wrapError(errUnexpectedDBError, err)
 	}
 
-	if atomic.LoadUint32(&state) == 2 {
+	if atomic.LoadUint32(states[yeargroup]) == 2 {
 		err = writeText(ctx, c, "START")
 		if err != nil {
 			return wrapError(errCannotSend, err)

@@ -72,16 +72,28 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 	})
 
 	if department == staffDepartment {
+		StatesDereferenced := map[string]uint32{}
+		for k, v := range states {
+			StatesDereferenced[k] = atomic.LoadUint32(v)
+		}
 		err := tmpl.ExecuteTemplate(
 			w,
 			"staff",
 			struct {
-				Name   string
-				State  uint32
-				Groups *map[string]groupT
+				Name     string
+				States   map[string]uint32
+				StatesOr uint32
+				Groups   *map[string]groupT
 			}{
 				username,
-				state,
+				StatesDereferenced,
+				func() uint32 {
+					var ret uint32 /* all zero bits */
+					for _, v := range StatesDereferenced {
+						ret |= v
+					}
+					return ret
+				}(),
 				&_groups,
 			},
 		)
@@ -91,7 +103,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 		return "", -1, nil
 	}
 
-	if atomic.LoadUint32(&state) == 0 {
+	if atomic.LoadUint32(states[department]) == 0 {
 		err := tmpl.ExecuteTemplate(
 			w,
 			"student_disabled",

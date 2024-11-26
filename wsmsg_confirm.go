@@ -25,7 +25,7 @@ func messageConfirm(
 ) error {
 	_ = mar
 
-	if atomic.LoadUint32(&state) != 2 {
+	if atomic.LoadUint32(states[department]) != 2 {
 		err := writeText(ctx, c, "E :Course selections are not open")
 		if err != nil {
 			return wrapError(

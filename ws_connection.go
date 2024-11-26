@@ -268,6 +268,7 @@ func handleConn(
 					c,
 					mar,
 					userID,
+					department,
 				)
 				if err != nil {
 					return err
@@ -278,6 +279,7 @@ func handleConn(
 					c,
 					mar,
 					userID,
+					department,
 					&userCourseGroups,
 					&userCourseTypes,
 				)
@@ -290,6 +292,7 @@ func handleConn(
 					c,
 					mar,
 					userID,
+					department,
 					&userCourseGroups,
 					&userCourseTypes,
 				)
@@ -314,6 +317,7 @@ func handleConn(
 					c,
 					mar,
 					userID,
+					department,
 				)
 				if err != nil {
 					return err

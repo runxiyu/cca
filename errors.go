@@ -49,7 +49,7 @@ var (
 	errJWTExpired                       = errors.New("jwt token has expired or is not yet valid")
 	errJWTInvalid                       = errors.New("jwt token is somehow invalid")
 	errStaffOnly                        = errors.New("this page is only available to staff")
-	errDisableStudentAccessFirst        = errors.New("you must disable student access before performing this operation")
+	errDisableStudentAccessFirst        = errors.New("you must disable student access across all yeargroups before performing this operation")
 	errFormNoFile                       = errors.New("you need to select a file before submitting the form")
 	errNotACSV                          = errors.New("the file you uploaded is not a csv file")
 	errCannotReadCSV                    = errors.New("cannot read csv")

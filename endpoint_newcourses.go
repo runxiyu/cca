@@ -33,11 +33,18 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 		return "", http.StatusForbidden, errStaffOnly
 	}
 
-	if atomic.LoadUint32(&state) != 0 {
+	if !func() bool {
+		for _, v := range states {
+			if atomic.LoadUint32(v) != 0 {
+				return false
+			}
+		}
+		return true
+	}() {
 		return "", http.StatusBadRequest, errDisableStudentAccessFirst
 	}
 
-	/* TODO: Potential race. The global state may need to be write-locked. */
+	/* TODO: Race condition. The global state may need to be write-locked. */
 
 	file, fileHeader, err := req.FormFile("coursecsv")
 	if err != nil {

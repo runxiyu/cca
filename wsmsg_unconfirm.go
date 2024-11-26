@@ -19,10 +19,11 @@ func messageUnconfirm(
 	c *websocket.Conn,
 	mar []string,
 	userID string,
+	yeargroup string,
 ) error {
 	_ = mar
 
-	if atomic.LoadUint32(&state) != 2 {
+	if atomic.LoadUint32(states[yeargroup]) != 2 {
 		err := writeText(ctx, c, "E :Course selections are not open")
 		if err != nil {
 			return wrapError(

@@ -21,16 +21,25 @@ func handleState(w http.ResponseWriter, req *http.Request) (string, int, error) 
 		return "", http.StatusForbidden, errStaffOnly
 	}
 
-	basePath := req.PathValue("s")
-	newState, err := strconv.ParseUint(basePath, 10, 32)
+	yeargroupParams := req.URL.Query()["yeargroup"]
+	if len(yeargroupParams) == 0 {
+		return "", http.StatusBadRequest, errNoSuchYearGroup
+	}
+	targetParams := req.URL.Query()["target"]
+	if len(targetParams) != 1 {
+		return "", http.StatusBadRequest, errInvalidState
+	}
+	newState, err := strconv.ParseUint(targetParams[0], 10, 32)
 	if err != nil {
 		return "", http.StatusBadRequest, wrapError(errInvalidState, err)
 	}
-	err = setState(req.Context(), uint32(newState))
-	if err != nil {
-		return "", http.StatusBadRequest, wrapError(errCannotSetState, err)
-	}
 
+	for _, yeargroup := range yeargroupParams {
+		err = setState(req.Context(), yeargroup, uint32(newState))
+		if err != nil {
+			return "", http.StatusBadRequest, wrapError(errCannotSetState, err)
+		}
+	}
 	http.Redirect(w, req, "/", http.StatusSeeOther)
 	return "", -1, nil
 }

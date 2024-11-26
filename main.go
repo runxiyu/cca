@@ -109,7 +109,7 @@ func main() {
 	setHandler("/export/choices", handleExportChoices)
 	setHandler("/export/students", handleExportStudents)
 	setHandler("/auth", handleAuth)
-	setHandler("/state/{s}", handleState)
+	setHandler("/state", handleState)
 	setHandler("/newcourses", handleNewCourses)
 
 	var l net.Listener
