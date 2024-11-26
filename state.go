@@ -30,20 +30,20 @@ var states = map[string]*uint32{
 
 func loadState() error {
 	for yeargroup := range states {
-		var _state uint32
+		var state uint32
 		err := db.QueryRow(
 			context.Background(),
 			"SELECT state FROM states WHERE yeargroup = $1",
 			yeargroup,
-		).Scan(&_state)
+		).Scan(&state)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
-				_state = 0
+				state = 0
 				_, err := db.Exec(
 					context.Background(),
 					"INSERT INTO states(yeargroup, state) VALUES ($1, $2)",
 					yeargroup,
-					_state,
+					state,
 				)
 				if err != nil {
 					return wrapError(errUnexpectedDBError, err)
@@ -52,11 +52,11 @@ func loadState() error {
 				return wrapError(errUnexpectedDBError, err)
 			}
 		}
-		__state, ok := states[yeargroup]
+		_state, ok := states[yeargroup]
 		if !ok {
 			return errNoSuchYearGroup
 		}
-		atomic.StoreUint32(__state, _state)
+		atomic.StoreUint32(_state, state)
 	}
 	return nil
 }
