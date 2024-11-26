@@ -1,6 +1,6 @@
 # TODO: Use some variables to clean up the massive documentation file specifiers
 
-.PHONY: cca default iadocs docs build_iadocs build_docs
+.PHONY: cca default iadocs docs build_iadocs build_docs setcap
 
 default: dist/cca docs iadocs
 
@@ -67,3 +67,6 @@ build/static/student.js: frontend/student.js
 	mkdir -p build/static
 	gominify -o $@ $<
 
+# Quick target to set capabilities
+setcap: dist/cca
+	setcap 'cap_net_bind_service=+ep' dist/cca
