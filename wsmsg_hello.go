@@ -47,7 +47,11 @@ func messageHello(
 		return wrapError(errUnexpectedDBError, err)
 	}
 
-	if atomic.LoadUint32(states[yeargroup]) == 2 {
+	_state, ok := states[yeargroup]
+	if !ok {
+		return errNoSuchYearGroup
+	}
+	if atomic.LoadUint32(_state) == 2 {
 		err = writeText(ctx, c, "START")
 		if err != nil {
 			return wrapError(errCannotSend, err)

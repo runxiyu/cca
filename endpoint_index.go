@@ -103,7 +103,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 		return "", -1, nil
 	}
 
-	if atomic.LoadUint32(states[department]) == 0 {
+	_state, ok := states[department]
+	if !ok {
+		return "", -1, errNoSuchYearGroup
+	}
+	if atomic.LoadUint32(_state) == 0 {
 		err := tmpl.ExecuteTemplate(
 			w,
 			"student_disabled",

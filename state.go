@@ -52,7 +52,11 @@ func loadState() error {
 				return wrapError(errUnexpectedDBError, err)
 			}
 		}
-		atomic.StoreUint32(states[yeargroup], _state)
+		__state, ok := states[yeargroup]
+		if !ok {
+			return errNoSuchYearGroup
+		}
+		atomic.StoreUint32(__state, _state)
 	}
 	return nil
 }
@@ -103,6 +107,10 @@ func setState(ctx context.Context, yeargroup string, newState uint32) error {
 	if err != nil {
 		return err
 	}
-	atomic.StoreUint32(states[yeargroup], newState)
+	_state, ok := states[yeargroup]
+	if !ok {
+		return errNoSuchYearGroup
+	}
+	atomic.StoreUint32(_state, newState)
 	return nil
 }

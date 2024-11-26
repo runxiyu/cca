@@ -23,7 +23,11 @@ func messageUnconfirm(
 ) error {
 	_ = mar
 
-	if atomic.LoadUint32(states[yeargroup]) != 2 {
+	_state, ok := states[yeargroup]
+	if !ok {
+		return errNoSuchYearGroup
+	}
+	if atomic.LoadUint32(_state) != 2 {
 		err := writeText(ctx, c, "E :Course selections are not open")
 		if err != nil {
 			return wrapError(

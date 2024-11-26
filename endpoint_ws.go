@@ -53,7 +53,12 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if atomic.LoadUint32(states[department]) == 0 {
+	_state, ok := states[department]
+	if !ok {
+		_ = writeText(req.Context(), c, "E :"+errNoSuchYearGroup.Error())
+		return
+	}
+	if atomic.LoadUint32(_state) == 0 {
 		_ = writeText(req.Context(), c, "E :"+errStudentAccessDisabled.Error())
 		return
 	}

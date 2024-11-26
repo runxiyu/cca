@@ -39,7 +39,11 @@ func handleConn(
 	userID string,
 	department string,
 ) error {
-	if atomic.LoadUint32(states[department]) == 0 {
+	_state, ok := states[department]
+	if !ok {
+		return errNoSuchYearGroup
+	}
+	if atomic.LoadUint32(_state) == 0 {
 		return errStudentAccessDisabled
 	}
 
@@ -257,7 +261,11 @@ func handleConn(
 			default:
 			}
 
-			if atomic.LoadUint32(states[department]) == 0 {
+			_state, ok = states[department]
+			if !ok {
+				return errNoSuchYearGroup
+			}
+			if atomic.LoadUint32(_state) == 0 {
 				return errStudentAccessDisabled
 			}
 
