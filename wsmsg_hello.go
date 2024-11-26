@@ -56,6 +56,11 @@ func messageHello(
 		if err != nil {
 			return wrapError(errCannotSend, err)
 		}
+	} else {
+		err = writeText(ctx, c, "STOP")
+		if err != nil {
+			return wrapError(errCannotSend, err)
+		}
 	}
 
 	confirmed, err := getConfirmedStatus(ctx, userID)
