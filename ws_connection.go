@@ -39,9 +39,17 @@ func handleConn(
 	userID string,
 	department string,
 ) error {
+	if atomic.LoadUint32(states[department]) == 0 {
+		return errStudentAccessDisabled
+	}
+
 	send := make(chan string, config.Perf.SendQ)
-	chanPool.Store(userID, &send)
-	defer chanPool.CompareAndDelete(userID, &send)
+	chanSubPool, ok := chanPool[department]
+	if !ok {
+		return errNoSuchYearGroup
+	}
+	chanSubPool.Store(userID, &send)
+	defer chanSubPool.CompareAndDelete(userID, &send)
 
 	newCtx, newCancel := context.WithCancel(ctx)
 
@@ -249,6 +257,10 @@ func handleConn(
 			default:
 			}
 
+			if atomic.LoadUint32(states[department]) == 0 {
+				return errStudentAccessDisabled
+			}
+
 			if errbytes.err != nil {
 				return wrapError(
 					errCannotReceiveMessage,
@@ -331,4 +343,9 @@ func handleConn(
 
 var cancelPool sync.Map /* string, *context.CancelFunc */
 
-var chanPool sync.Map /* string, *chan string */
+var chanPool = map[string]*sync.Map{
+	"Y9":  {},
+	"Y10": {},
+	"Y11": {},
+	"Y12": {},
+} /* string, *chan string */

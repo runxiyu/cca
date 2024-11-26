@@ -73,18 +73,29 @@ func saveStateValue(ctx context.Context, yeargroup string, newState uint32) erro
 func setState(ctx context.Context, yeargroup string, newState uint32) error {
 	switch newState {
 	case 0:
-		cancelPool.Range(func(_, value interface{}) bool { /* TODO XXX: CancelPool must be yeargroup-separated */
-			cancel, ok := value.(*context.CancelFunc)
-			if !ok {
-				panic("chanPool has non-\"*contect.CancelFunc\" values")
-			}
-			(*cancel)()
-			return false
-		})
+		/*
+		 * cancelPool.Range(func(_, value interface{}) bool {
+		 * 	cancel, ok := value.(*context.CancelFunc)
+		 * 	if !ok {
+		 * 		panic("chanPool has non-\"*contect.CancelFunc\" values")
+		 * 	}
+		 * 	(*cancel)()
+		 * 	return false
+		 * })
+		 * We previously used the above but now we just check for state
+		 * before handling each message, so no changes have to be made
+		 * to cancelPool.
+		 */
 	case 1:
-		propagate("STOP") /* TODO: propagate by year group */
+		err := propagate(yeargroup, "STOP") /* TODO: propagate by year group */
+		if err != nil {
+			return err
+		}
 	case 2:
-		propagate("START")
+		err := propagate(yeargroup, "START")
+		if err != nil {
+			return err
+		}
 	default:
 		return errInvalidState
 	}

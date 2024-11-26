@@ -10,6 +10,7 @@ package main
 import (
 	"log/slog"
 	"net/http"
+	"sync/atomic"
 
 	"github.com/coder/websocket"
 )
@@ -49,6 +50,11 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 	userID, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
 		_ = writeText(req.Context(), c, "U")
+		return
+	}
+
+	if atomic.LoadUint32(states[department]) == 0 {
+		_ = writeText(req.Context(), c, "E :"+errStudentAccessDisabled.Error())
 		return
 	}
 

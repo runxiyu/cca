@@ -106,8 +106,12 @@ func sendSelectedUpdate(
 	return nil
 }
 
-func propagate(msg string) {
-	chanPool.Range(func(_userID, _ch interface{}) bool {
+func propagate(yeargroup string, msg string) error {
+	chanSubPool, ok := chanPool[yeargroup]
+	if !ok {
+		return errNoSuchYearGroup
+	}
+	chanSubPool.Range(func(_userID, _ch interface{}) bool {
 		ch, ok := _ch.(*chan string)
 		if !ok {
 			panic("chanPool has non-\"*chan string\" key")
@@ -127,6 +131,7 @@ func propagate(msg string) {
 		}
 		return true
 	})
+	return nil
 }
 
 func writeText(ctx context.Context, c *websocket.Conn, msg string) error {
