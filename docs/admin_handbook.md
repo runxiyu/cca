@@ -11,10 +11,12 @@ This handbook guides you in installing, configuring, and managing your CCA Selec
 
 You may obtain a stable or development version. The stable version is recommended for production.
 
-- To obtain a stable version, go to the [release page](https://git.runxiyu.org/ykps/cca.git/refs/) and download a tarball of the latest version.
+- To obtain a stable version, go to the [release page](https://git.runxiyu.org/ykps/cca.git/refs/) and download a source tarball of the latest version, or go to the [sr.ht release page](https://git.sr.ht/~runxiyu/cca/refs/) and download a pre-built tarball for your platform.
 - To obtain an unstable development version, clone the development repository at [`https://git.runxiyu.org/ykps/cca.git/`](https://git.runxiyu.org/ykps/cca.git/refs/), or download the latest development snapshot's tarball at [`https://git.runxiyu.org/ykps/cca.git/snapshot/cca-master.tar.gz`](https://git.runxiyu.org/ykps/cca.git/snapshot/cca-master.tar.gz).
 
 ## External dependencies
+
+You may skip this step if using pre-built tarballs.
 
 You need a [Go](https://go.dev) toolchain, [Pygments](https://pygments.org), [Pandoc](https://pandoc.org), [GNU make](https://www.gnu.org/software/make/), [TeX Live](https://tug.org/texlive/) and [minify](https://github.com/tdewolff/minify). Minify must be present in `$PATH` as `gominify`.
 
@@ -23,6 +25,8 @@ It is possible to build with only the Go toolchain, but the current build system
 The Go toolchain will fetch a few more dependencies. You may wish to set a custom Go module proxy (such as via `export GOPROXY='https://goproxy.io'`) if it stalls or is too slow. This is likely necessary for users in Mainland China due to firewall restrictions.
 
 ## Building
+
+You may skip this step if using pre-built tarballs.
 
 Just type `make` after entering the repository.
 
