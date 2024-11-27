@@ -50,18 +50,30 @@ build/iadocs/%.htm: iadocs/%.htm
 	gominify --html-keep-end-tags --html-keep-document-tags -o $@ $<
 build/iadocs/index.html: build/iadocs/cover_page.htm
 	cp $< $@
-build/iadocs/%.pdf: iadocs/%.tex build/iadocs/header.texinc
+build/iadocs/%.pdf: iadocs/%.tex build/iadocs/header.texinc build/iadocs/bib.bib
 	mkdir -p build/iadocs
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+	biber --output-directory=build/iadocs build/$(<:.tex=.bcf)
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+build/iadocs/critc_development.pdf: iadocs/critc_development.tex build/iadocs/header.texinc build/iadocs/bib.bib build/iadocs/appendix.pdf
+	# Technically I need build/iadocs/appendix.aux instead of build/iadocs/appendix.pdf to be available at this point
+	mkdir -p build/iadocs
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+	biber --output-directory=build/iadocs build/$(<:.tex=.bcf)
 	lualatex -interaction batchmode -output-directory=build/iadocs $<
 	lualatex -interaction batchmode -output-directory=build/iadocs $<
 build/iadocs/appendix.pdf: iadocs/appendix.tex build/iadocs/source.gen build/iadocs/agpl.texinc
 	mkdir -p build/iadocs
 	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
 	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
-build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.js templates/* scripts/latexify-source.sh docs/* sql/* scripts/* iadocs/*.tex iadocs/*.texinc
+build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.js templates/* scripts/latexify-source.sh docs/* sql/* scripts/* iadocs/*.tex iadocs/*.texinc iadocs/bib.bib
 	mkdir -p build/iadocs
 	scripts/latexify-source.sh
 build/iadocs/%.texinc: iadocs/%.texinc
+	mkdir -p build/iadocs
+	cp $< $@
+build/iadocs/%.bib: iadocs/%.bib
 	mkdir -p build/iadocs
 	cp $< $@
 

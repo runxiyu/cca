@@ -16,3 +16,6 @@
 
 \usepackage{xcolor}
 \usepackage[colorlinks, allcolors={white!40!blue!50!black}]{hyperref}
+
+\usepackage[style=apa6]{biblatex}
+\addbibresource{bib.bib}

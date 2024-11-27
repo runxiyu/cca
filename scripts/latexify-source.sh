@@ -46,3 +46,4 @@ include_code text 8 docs/*.csv docs/cca.scfg.example
 
 chapter IA documentation
 include_code latex 8 iadocs/*.tex iadocs/*.texinc
+include_code bib 8 iadocs/*.bib

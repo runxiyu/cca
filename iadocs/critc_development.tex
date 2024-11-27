@@ -1,177 +1,185 @@
 \input{header.texinc}
 
+\usepackage{xr}
+\externaldocument{appendix}
+
 \title{Criterion C: Development}
 
 \begin{document}
 \maketitle
 
+\tableofcontents
+
+\section{Microsoft Entra ID Authentication}
+
 % Remember to demonstrate algorithmic thinking.
 
-\section{State propagation}
+% \section{State propagation}
+% 
+% On the server side, the authoratative source of state is the
+% PostgreSQL database. Since there should only be one instance of the
+% CCA selection system running on a particular database at a time, we
+% may carefully duplicate part of the database state into memory for
+% faster access and atomic operations. Memory-mapped databases such
+% as LMDB have been considered but were ruled out to complex
+% concurrency issues and poor B-tree performance for multiple small
+% writes.
+% 
+% Note that in the following I will be referring to ``goroutines'';
+% those are basically lightweight threads that the Go runtime
+% dynamically schedules onto a number of operating system threads while
+% being aware of blocking channel operations and other synchronization
+% primitives. Each thread has its own stack which starts at about 2
+% kilobytes. Other than basic synchronization primitives such as
+% atomics, mutexes, and read-write mutexes, Go also has a useful data
+% type called a ``channel''; channels convey a message type of a fixed
+% length and has an unsigned integer representing the ``buffer length'';
+% it either blocks until there is a corresponding writer or reader or
+% fails when reading from an empty channel or writing to a full channel,
+% depending on how it is used.
+% 
+% The primary reason for needing state propagation is to update each
+% user's browser with information on how many seats in a CCA have been
+% already taken. For each CCA, this ``member counter'' is saved in
+% memory as an unsigned integer, and is represented in the database as
+% the number of rows in the ``choices'' table where the course ID
+% matches that of a particular CCA.
+% 
+% To update and propagate this state, my first attempt was to create a
+% read-write mutex corresponding to each course's member counter.  The
+% main loop that handles the WebSocket connection of each user creates a
+% Go channel (which could be thought of as a ``send queue''), which is
+% appended to a global map of such channels and is read from in the main
+% loop; messages delivered by other goroutines to that channel are sent
+% across the WebSocket connection. When a user selects or deselects a
+% course, its member counter is checked against the maximum number of
+% people allowed for that CCA, and the member counter is incremented by
+% 1 if there are still seats available; if the member counter changes,
+% its state is broadcasted by ranging through the global map of such
+% channels and delivering them.
+% 
+% There is a major bottle neck with this design: for each event where a
+% client chooses a course, \emph{all} clients receives an update
+% message. Even if the WebSocket is set to be non-blocking, profiling
+% data shows that the frequent context switches into the kernel to
+% perform \texttt{write} are very expensive. This reflects a deeper flaw
+% within this design: WebSocket propagation is not instant, so in a
+% condition where there are many users trying to choose the same course
+% in a short time frame, there would be multiple messages waiting in the
+% send queue; for messages about any particular course in any particular
+% send queue, older messages are always outdated and would be overridden
+% by newer messages; since Go channels, WebSocket, and the underlying
+% TCP transport always send messages in FIFO order, this means that
+% outdated messages encapsulating outdated states will always be
+% prioritized first, which is very inefficient and becomes undesirably
+% slow when there are only 2000 users competing for a single course.
+% 
+% I therefore designed a more efficient method to propagate course
+% membership state, with the key idea being that each pair of one
+% connection in conjunction with one course has a boolean describing
+% whether that connection needs to receive an update on the member
+% number of that course. This boolean is implemented as a Go channel
+% with cap 1, conveying an empty structure \texttt{struct\{\}} (as these
+% channels solely carry out synchronization and do not need to convey
+% data); when the channel buffer has a message, it means that the
+% connection needs to receive an update about the course's state. Every
+% time someone chooses a course, the server locks a mutex corresponding
+% to that CCA's member counter, which guarantees that there are no other
+% writers. The number is read normally (i.e., without atomics---because
+% the abscence of other writers guarantees that a non-atomic read will
+% not lead to a data race), and if it has not reached the maximum number
+% of members yet, it is incremented atomically (as the mutex above is
+% only respected by writers, there could be atomic readers running at
+% the same time). The write mutex is then released. A
+% \texttt{struct\{\}\{\}} is sent to all of the channels mentioned
+% above where the channel corresponds to the course being chosen
+% nonblockingly: if the channel already has a value in its buffer,
+% nothing is done. For each of these channels there is also a handler
+% goroutine that loops between (1) waiting for an empty value on the
+% channel, (2) atomically reading the corresponding course's member
+% counting and sending it through the WebSocket connection, and (3)
+% either yielding Go's user space scheduler such that another routine
+% could run, or sleeping a dynamically determined number of
+% milliseconds, depending on system load. The yield/sleep step was added
+% to reduce scheduler contention, since the current Go scheduler does
+% not support assigning different priorities to goroutines. The effect
+% of all of the above is that all message sent are up-to-date
+% descriptions of member counters, without having been buffered through
+% slow channels; old messages that represent outdated state are never
+% sent. This allows for the easy addition of the yield/sleep cooldown.
+% Combined, this design handles roughly 18,000 users contending for one
+% course in two seconds, when the server software is run on an MacBook
+% Air (M1, 2020) with Linux 6.11.8 and all CPU governors set
+% to \texttt{performance}, which is significantly faster than the
+% previous design, and is about four orders of magnitude faster than
+% Schoolsbuddy.
+% 
+% \section{Acknowledgements of existing tools}
+% 
+% The following tools, libraries, and other materials were used in the
+% development of this product.
+% 
+% \begin{itemize}
+% \item The \href{https://go.dev}{Go programming language}'s
+% \href{https://go.dev/ref/spec}{specification} was referred to,
+% especially for documentation on how channel operations work; its GC
+% toolchain (the most widely-used reference implementation) is used as
+% the compiler during development and production; its standard library
+% is used extensively in the program.
+% 
+% \item \href{https://gobyexample.com}{Go by Example} was referred to for
+% documentation on command-line flags and contexts.
+% 
+% \item \href{https://developer.mozilla.org/en-US/}{MDN Web Docs} was
+% used as my primary source of JavaScript documentation.
+% 
+% \item \href{https://godocs.io}{A hosted fork of gddo} was used as my
+% primary source of Go documentation, along with using the
+% \texttt{go doc} command as part of the GC toolchain.
+% 
+% \item \href{https://git.sr.ht/~emersion/go-scfg}{scfg}
+% written by \href{https://emersion.fr}{Simon Ser} is used to parse
+% configuration files.
+% 
+% \item \href{https://github.com/MicahParks/keyfunc}{keyfunc}
+% written by \href{https://micahparks.com/}{Micah Parks} is used to
+% update the JSON Web Key Set to validate JSON Web Tokens for user
+% authentication.
+% 
+% \item \href{https://github.com/coder/websocket}{websocket} maintained
+% by \href{https://coder.com/}{coder} is used for bi-directional
+% communication.
+% 
+% \item A minimal variant of the
+% \href{https://www.rfc-editor.org/rfc/rfc1459#section-2.3}{RFC1459
+% IRC message format} is used as the message format in client-server
+% communication.
+% 
+% \item \href{https://github.com/golang-jwt/jwt}{golang-jwt} is used to
+% parse and validate JSON Web Tokens for user authentication.
+% 
+% \item \href{https://github.com/google/uuid}{uuid} by Google is used to
+% generate
+% \href{https://www.rfc-editor.org/rfc/rfc9562.html}{UUIDs}
+% during testing.
+% 
+% \item \href{https://github.com/jackc/pgx}{pgx} by
+% \href{https://jackchristensen.com/}{Jack Christensen} is used
+% to establish a connection with the PostgreSQL database backend.
+% 
+% \item \href{https://www.postgresql.org/}{PostgreSQL} is used as a
+% database backend.
+% 
+% \item \href{https://golangci-lint.run/}{golangci-lint} is used as a
+% linter to detect programming errors.
+% 
+% \item \href{https://neovim.io/}{neovim} is used as a text editor; its
+% LSP client was used to connect to
+% \href{https://pkg.go.dev/golang.org/x/tools/gopls}{gopls} for
+% error detection and documentation provision while editing code.
+% 
+% \end{itemize}
 
-On the server side, the authoratative source of state is the
-PostgreSQL database. Since there should only be one instance of the
-CCA selection system running on a particular database at a time, we
-may carefully duplicate part of the database state into memory for
-faster access and atomic operations. Memory-mapped databases such
-as LMDB have been considered but were ruled out to complex
-concurrency issues and poor B-tree performance for multiple small
-writes.
-
-Note that in the following I will be referring to ``goroutines'';
-those are basically lightweight threads that the Go runtime
-dynamically schedules onto a number of operating system threads while
-being aware of blocking channel operations and other synchronization
-primitives. Each thread has its own stack which starts at about 2
-kilobytes. Other than basic synchronization primitives such as
-atomics, mutexes, and read-write mutexes, Go also has a useful data
-type called a ``channel''; channels convey a message type of a fixed
-length and has an unsigned integer representing the ``buffer length'';
-it either blocks until there is a corresponding writer or reader or
-fails when reading from an empty channel or writing to a full channel,
-depending on how it is used.
-
-The primary reason for needing state propagation is to update each
-user's browser with information on how many seats in a CCA have been
-already taken. For each CCA, this ``member counter'' is saved in
-memory as an unsigned integer, and is represented in the database as
-the number of rows in the ``choices'' table where the course ID
-matches that of a particular CCA.
-
-To update and propagate this state, my first attempt was to create a
-read-write mutex corresponding to each course's member counter.  The
-main loop that handles the WebSocket connection of each user creates a
-Go channel (which could be thought of as a ``send queue''), which is
-appended to a global map of such channels and is read from in the main
-loop; messages delivered by other goroutines to that channel are sent
-across the WebSocket connection. When a user selects or deselects a
-course, its member counter is checked against the maximum number of
-people allowed for that CCA, and the member counter is incremented by
-1 if there are still seats available; if the member counter changes,
-its state is broadcasted by ranging through the global map of such
-channels and delivering them.
-
-There is a major bottle neck with this design: for each event where a
-client chooses a course, \emph{all} clients receives an update
-message. Even if the WebSocket is set to be non-blocking, profiling
-data shows that the frequent context switches into the kernel to
-perform \texttt{write} are very expensive. This reflects a deeper flaw
-within this design: WebSocket propagation is not instant, so in a
-condition where there are many users trying to choose the same course
-in a short time frame, there would be multiple messages waiting in the
-send queue; for messages about any particular course in any particular
-send queue, older messages are always outdated and would be overridden
-by newer messages; since Go channels, WebSocket, and the underlying
-TCP transport always send messages in FIFO order, this means that
-outdated messages encapsulating outdated states will always be
-prioritized first, which is very inefficient and becomes undesirably
-slow when there are only 2000 users competing for a single course.
-
-I therefore designed a more efficient method to propagate course
-membership state, with the key idea being that each pair of one
-connection in conjunction with one course has a boolean describing
-whether that connection needs to receive an update on the member
-number of that course. This boolean is implemented as a Go channel
-with cap 1, conveying an empty structure \texttt{struct\{\}} (as these
-channels solely carry out synchronization and do not need to convey
-data); when the channel buffer has a message, it means that the
-connection needs to receive an update about the course's state. Every
-time someone chooses a course, the server locks a mutex corresponding
-to that CCA's member counter, which guarantees that there are no other
-writers. The number is read normally (i.e., without atomics---because
-the abscence of other writers guarantees that a non-atomic read will
-not lead to a data race), and if it has not reached the maximum number
-of members yet, it is incremented atomically (as the mutex above is
-only respected by writers, there could be atomic readers running at
-the same time). The write mutex is then released. A
-\texttt{struct\{\}\{\}} is sent to all of the channels mentioned
-above where the channel corresponds to the course being chosen
-nonblockingly: if the channel already has a value in its buffer,
-nothing is done. For each of these channels there is also a handler
-goroutine that loops between (1) waiting for an empty value on the
-channel, (2) atomically reading the corresponding course's member
-counting and sending it through the WebSocket connection, and (3)
-either yielding Go's user space scheduler such that another routine
-could run, or sleeping a dynamically determined number of
-milliseconds, depending on system load. The yield/sleep step was added
-to reduce scheduler contention, since the current Go scheduler does
-not support assigning different priorities to goroutines. The effect
-of all of the above is that all message sent are up-to-date
-descriptions of member counters, without having been buffered through
-slow channels; old messages that represent outdated state are never
-sent. This allows for the easy addition of the yield/sleep cooldown.
-Combined, this design handles roughly 18,000 users contending for one
-course in two seconds, when the server software is run on an MacBook
-Air (M1, 2020) with Linux 6.11.8 and all CPU governors set
-to \texttt{performance}, which is significantly faster than the
-previous design, and is about four orders of magnitude faster than
-Schoolsbuddy.
-
-\section{Acknowledgements of existing tools}
-
-The following tools, libraries, and other materials were used in the
-development of this product.
-
-\begin{itemize}
-\item The \href{https://go.dev}{Go programming language}'s
-\href{https://go.dev/ref/spec}{specification} was referred to,
-especially for documentation on how channel operations work; its GC
-toolchain (the most widely-used reference implementation) is used as
-the compiler during development and production; its standard library
-is used extensively in the program.
-
-\item \href{https://gobyexample.com}{Go by Example} was referred to for
-documentation on command-line flags and contexts.
-
-\item \href{https://developer.mozilla.org/en-US/}{MDN Web Docs} was
-used as my primary source of JavaScript documentation.
-
-\item \href{https://godocs.io}{A hosted fork of gddo} was used as my
-primary source of Go documentation, along with using the
-\texttt{go doc} command as part of the GC toolchain.
-
-\item \href{https://git.sr.ht/~emersion/go-scfg}{scfg}
-written by \href{https://emersion.fr}{Simon Ser} is used to parse
-configuration files.
-
-\item \href{https://github.com/MicahParks/keyfunc}{keyfunc}
-written by \href{https://micahparks.com/}{Micah Parks} is used to
-update the JSON Web Key Set to validate JSON Web Tokens for user
-authentication.
-
-\item \href{https://github.com/coder/websocket}{websocket} maintained
-by \href{https://coder.com/}{coder} is used for bi-directional
-communication.
-
-\item A minimal variant of the
-\href{https://www.rfc-editor.org/rfc/rfc1459#section-2.3}{RFC1459
-IRC message format} is used as the message format in client-server
-communication.
-
-\item \href{https://github.com/golang-jwt/jwt}{golang-jwt} is used to
-parse and validate JSON Web Tokens for user authentication.
-
-\item \href{https://github.com/google/uuid}{uuid} by Google is used to
-generate
-\href{https://www.rfc-editor.org/rfc/rfc9562.html}{UUIDs}
-during testing.
-
-\item \href{https://github.com/jackc/pgx}{pgx} by
-\href{https://jackchristensen.com/}{Jack Christensen} is used
-to establish a connection with the PostgreSQL database backend.
-
-\item \href{https://www.postgresql.org/}{PostgreSQL} is used as a
-database backend.
-
-\item \href{https://golangci-lint.run/}{golangci-lint} is used as a
-linter to detect programming errors.
-
-\item \href{https://neovim.io/}{neovim} is used as a text editor; its
-LSP client was used to connect to
-\href{https://pkg.go.dev/golang.org/x/tools/gopls}{gopls} for
-error detection and documentation provision while editing code.
-
-\end{itemize}
-
+\printbibliography
 
 \end{document}
