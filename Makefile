@@ -6,7 +6,7 @@ default: dist/cca docs iadocs
 
 cca: dist/cca
 
-docs: dist/docs/admin_handbook.html dist/docs/cca.scfg.example dist/docs/azure.json
+docs: dist/docs/admin_handbook.html dist/docs/cca.scfg.example dist/docs/azure.json dist/docs/courses_example.csv dist/docs/schema.sql dist/docs/drop.sql
 
 iadocs: dist/iadocs/index.html dist/iadocs/cover_page.htm dist/iadocs/appendix.pdf dist/iadocs/crita_planning.pdf dist/iadocs/critb_design.pdf dist/iadocs/critb_recordoftasks.htm dist/iadocs/critc_development.pdf dist/iadocs/critd_functionality.pdf dist/iadocs/crite_evaluation.pdf
 
@@ -18,6 +18,12 @@ dist/cca: go.* *.go build/static/style.css build/static/student.js templates/* b
 # Documentation
 dist/docs/%: build/docs/%
 	mkdir -p dist/docs
+	cp $< $@
+build/docs/%.sql: sql/%.sql
+	mkdir -p build/docs
+	cp $< $@
+build/docs/%.csv: docs/%.csv
+	mkdir -p build/docs
 	cp $< $@
 build/docs/%.html: docs/%.md docs/handbook.css
 	mkdir -p build/docs
