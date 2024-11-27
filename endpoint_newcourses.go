@@ -137,6 +137,13 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 		}
 		_, err = tx.Exec(
 			ctx,
+			"UPDATE users SET confirmed = false",
+		)
+		if err != nil {
+			return false, -1, wrapError(errUnexpectedDBError, err)
+		}
+		_, err = tx.Exec(
+			ctx,
 			"DELETE FROM courses",
 		)
 		if err != nil {
