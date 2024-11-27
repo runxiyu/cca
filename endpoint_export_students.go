@@ -69,10 +69,7 @@ func handleExportStudents(w http.ResponseWriter, req *http.Request) (string, int
 		"Student Name",
 		"Student ID",
 		"Grade/Year",
-		"Group/Activity",
-		"Container",
-		"Section ID",
-		"Course ID",
+		"Confirmed",
 	})
 	if err != nil {
 		return "", -1, errHTTPWrite
