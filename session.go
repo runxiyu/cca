@@ -14,7 +14,11 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func getUserInfoFromRequest(req *http.Request) (userID, username, department string, retErr error) {
+func getUserInfoFromRequest(req *http.Request) (userID,
+	username string,
+	department string,
+	retErr error,
+) {
 	sessionCookie, err := req.Cookie("session")
 	if errors.Is(err, http.ErrNoCookie) {
 		retErr = wrapError(errNoCookie, err)

@@ -11,7 +11,10 @@ import (
 	"context"
 )
 
-func getConfirmedStatus(ctx context.Context, userID string) (confirmed bool, retErr error) {
+func getConfirmedStatus(
+	ctx context.Context,
+	userID string,
+) (confirmed bool, retErr error) {
 	err := db.QueryRow(
 		ctx,
 		"SELECT confirmed FROM users WHERE id = $1",

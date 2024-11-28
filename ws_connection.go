@@ -75,10 +75,8 @@ func handleConn(
 
 	usems := make(map[int]*usemT)
 
-	/* TODO: Check if the LoadUint32 here is a bit too much overhead */
 	atomic.AddInt64(&usemCount, int64(atomic.LoadUint32(&numCourses)))
 	courses.Range(func(key, value interface{}) bool {
-		/* TODO: Remember to change this too when changing the courseID type */
 		courseID, ok := key.(int)
 		if !ok {
 			panic("courses map has non-\"int\" keys")
@@ -139,7 +137,12 @@ func handleConn(
 
 	var userCourseGroups userCourseGroupsT = make(map[string]struct{})
 	var userCourseTypes userCourseTypesT = make(map[string]int)
-	err := populateUserCourseTypesAndGroups(newCtx, &userCourseTypes, &userCourseGroups, userID)
+	err := populateUserCourseTypesAndGroups(
+		newCtx,
+		&userCourseTypes,
+		&userCourseGroups,
+		userID,
+	)
 	if err != nil {
 		return err
 	}

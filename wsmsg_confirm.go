@@ -50,7 +50,10 @@ func messageConfirm(
 	}
 
 	for courseType := range courseTypes {
-		minimum, err := getCourseTypeMinimumForYearGroup(department, courseType)
+		minimum, err := getCourseTypeMinimumForYearGroup(
+			department,
+			courseType,
+		)
 		if err != nil {
 			return wrapError(errInvalidYearGroupOrCourseType, err)
 		}

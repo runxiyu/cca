@@ -13,7 +13,10 @@ import (
 	"strings"
 )
 
-func handleExportChoices(w http.ResponseWriter, req *http.Request) (string, int, error) {
+func handleExportChoices(
+	w http.ResponseWriter,
+	req *http.Request,
+) (string, int, error) {
 	_, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
 		return "", -1, err
@@ -42,7 +45,10 @@ func handleExportChoices(w http.ResponseWriter, req *http.Request) (string, int,
 			}
 			break
 		}
-		var currentUserID, currentUserName, currentStudentID, currentDepartment string
+		var currentUserID,
+			currentUserName,
+			currentStudentID,
+			currentDepartment string
 		var currentCourseID int
 		err := rows.Scan(&currentUserID, &currentCourseID)
 		if err != nil {

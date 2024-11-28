@@ -13,7 +13,10 @@ import (
 	"strconv"
 )
 
-func handleExportStudents(w http.ResponseWriter, req *http.Request) (string, int, error) {
+func handleExportStudents(
+	w http.ResponseWriter,
+	req *http.Request,
+) (string, int, error) {
 	_, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
 		return "", -1, err
@@ -22,7 +25,10 @@ func handleExportStudents(w http.ResponseWriter, req *http.Request) (string, int
 		return "", -1, errStaffOnly
 	}
 
-	rows, err := db.Query(req.Context(), "SELECT name, email, department, confirmed FROM users")
+	rows, err := db.Query(
+		req.Context(),
+		"SELECT name, email, department, confirmed FROM users",
+	)
 	if err != nil {
 		return "", -1, wrapError(errUnexpectedDBError, err)
 	}
@@ -62,8 +68,14 @@ func handleExportStudents(w http.ResponseWriter, req *http.Request) (string, int
 		)
 	}
 
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", "attachment;filename=cca_students.csv")
+	w.Header().Set(
+		"Content-Type",
+		"text/csv; charset=utf-8",
+	)
+	w.Header().Set(
+		"Content-Disposition",
+		"attachment;filename=cca_students.csv",
+	)
 	csvWriter := csv.NewWriter(w)
 	err = csvWriter.Write([]string{
 		"Student Name",

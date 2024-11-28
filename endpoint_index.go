@@ -124,11 +124,15 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 		}
 		return "", -1, nil
 	}
-	sportRequired, err := getCourseTypeMinimumForYearGroup(department, sport)
+	sportRequired, err := getCourseTypeMinimumForYearGroup(
+		department, sport,
+	)
 	if err != nil {
 		return "", -1, err
 	}
-	nonSportRequired, err := getCourseTypeMinimumForYearGroup(department, nonSport)
+	nonSportRequired, err := getCourseTypeMinimumForYearGroup(
+		department, nonSport,
+	)
 	if err != nil {
 		return "", -1, err
 	}

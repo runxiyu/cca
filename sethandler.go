@@ -12,7 +12,10 @@ import (
 	"net/http"
 )
 
-func setHandler(pattern string, handler func(http.ResponseWriter, *http.Request) (string, int, error)) {
+func setHandler(pattern string, handler func(
+	http.ResponseWriter,
+	*http.Request,
+) (string, int, error)) {
 	http.HandleFunc(pattern, func(w http.ResponseWriter, req *http.Request) {
 		defer func() {
 			if e := recover(); e != nil {

@@ -39,7 +39,8 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 		wstr(
 			w,
 			http.StatusBadRequest,
-			"this endpoint only supports valid WebSocket connections: "+err.Error(),
+			"this endpoint only supports valid WebSocket connections: "+
+			err.Error(),
 		)
 		return
 	}
@@ -55,11 +56,13 @@ func handleWs(w http.ResponseWriter, req *http.Request) {
 
 	_state, ok := states[department]
 	if !ok {
-		_ = writeText(req.Context(), c, "E :"+errNoSuchYearGroup.Error())
+		_ = writeText(req.Context(), c, "E :"+
+		errNoSuchYearGroup.Error())
 		return
 	}
 	if atomic.LoadUint32(_state) == 0 {
-		_ = writeText(req.Context(), c, "E :"+errStudentAccessDisabled.Error())
+		_ = writeText(req.Context(), c, "E :"+
+		errStudentAccessDisabled.Error())
 		return
 	}
 

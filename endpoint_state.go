@@ -37,7 +37,10 @@ func handleState(w http.ResponseWriter, req *http.Request) (string, int, error) 
 	for _, yeargroup := range yeargroupParams {
 		err = setState(req.Context(), yeargroup, uint32(newState))
 		if err != nil {
-			return "", http.StatusBadRequest, wrapError(errCannotSetState, err)
+			return "", http.StatusBadRequest, wrapError(
+				errCannotSetState,
+				err,
+			)
 		}
 	}
 	http.Redirect(w, req, "/", http.StatusSeeOther)

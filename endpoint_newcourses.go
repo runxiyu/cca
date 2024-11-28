@@ -64,7 +64,10 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 		return "", -1, errUnexpectedNilCSVLine
 	}
 	if len(titleLine) != 8 {
-		return "", -1, wrapAny(errBadCSVFormat, "expecting 8 fields on the first line")
+		return "", -1, wrapAny(
+			errBadCSVFormat,
+			"expecting 8 fields on the first line",
+		)
 	}
 	var titleIndex, maxIndex, teacherIndex, locationIndex,
 		typeIndex, groupIndex, sectionIDIndex,
@@ -91,32 +94,60 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 	}
 
 	if titleIndex == -1 {
-		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Title")
+		return "", http.StatusBadRequest, wrapAny(
+			errMissingCSVColumn,
+			"Title",
+		)
 	}
 	if maxIndex == -1 {
-		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Max")
+		return "", http.StatusBadRequest, wrapAny(
+			errMissingCSVColumn,
+			"Max",
+		)
 	}
 	if teacherIndex == -1 {
-		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Teacher")
+		return "", http.StatusBadRequest, wrapAny(
+			errMissingCSVColumn,
+			"Teacher",
+		)
 	}
 	if locationIndex == -1 {
-		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Location")
+		return "", http.StatusBadRequest, wrapAny(
+			errMissingCSVColumn,
+			"Location",
+		)
 	}
 	if typeIndex == -1 {
-		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Type")
+		return "", http.StatusBadRequest, wrapAny(
+			errMissingCSVColumn,
+			"Type",
+		)
 	}
 	if groupIndex == -1 {
-		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Group")
+		return "", http.StatusBadRequest, wrapAny(
+			errMissingCSVColumn,
+			"Group",
+		)
 	}
 	if courseIDIndex == -1 {
-		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Course ID")
+		return "", http.StatusBadRequest, wrapAny(
+			errMissingCSVColumn,
+			"Course ID",
+		)
 	}
 	if sectionIDIndex == -1 {
-		return "", http.StatusBadRequest, wrapAny(errMissingCSVColumn, "Section ID")
+		return "", http.StatusBadRequest, wrapAny(
+			errMissingCSVColumn,
+			"Section ID",
+		)
 	}
 
 	lineNumber := 1
-	ok, statusCode, err := func(ctx context.Context) (retBool bool, retStatus int, retErr error) {
+	ok, statusCode, err := func(ctx context.Context) (
+		retBool bool,
+		retStatus int,
+		retErr error,
+	) {
 		tx, err := db.Begin(ctx)
 		if err != nil {
 			return false, -1, wrapError(errUnexpectedDBError, err)
@@ -124,7 +155,10 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 		defer func() {
 			err := tx.Rollback(ctx)
 			if err != nil && (!errors.Is(err, pgx.ErrTxClosed)) {
-				retBool, retStatus, retErr = false, -1, wrapError(errUnexpectedDBError, err)
+				retBool, retStatus, retErr = false, -1, wrapError(
+					errUnexpectedDBError,
+					err,
+				)
 				return
 			}
 		}()
@@ -157,16 +191,25 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 				if errors.Is(err, io.EOF) {
 					break
 				}
-				return false, -1, wrapError(errCannotReadCSV, err)
+				return false, -1, wrapError(
+					errCannotReadCSV,
+					err,
+				)
 			}
 			if line == nil {
-				return false, -1, wrapError(errCannotReadCSV, errUnexpectedNilCSVLine)
+				return false, -1, wrapError(
+					errCannotReadCSV,
+					errUnexpectedNilCSVLine,
+				)
 			}
 			if len(line) != 8 {
-				return false, -1, wrapAny(errInsufficientFields, fmt.Sprintf(
-					"line %d has insufficient items",
-					lineNumber,
-				))
+				return false, -1, wrapAny(
+					errInsufficientFields,
+					fmt.Sprintf(
+						"line %d has insufficient items",
+						lineNumber,
+					),
+				)
 			}
 			if !checkCourseType(line[typeIndex]) {
 				return false, -1, wrapAny(errInvalidCourseType,
@@ -174,7 +217,10 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 						"line %d has invalid course type \"%s\"\nallowed course types: %s",
 						lineNumber,
 						line[typeIndex],
-						strings.Join(getKeysOfMap(courseTypes), ", "),
+						strings.Join(
+							getKeysOfMap(courseTypes),
+							", ",
+						),
 					),
 				)
 			}
@@ -184,7 +230,10 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 						"line %d has invalid course group \"%s\"\nallowed course groups: %s",
 						lineNumber,
 						line[groupIndex],
-						strings.Join(getKeysOfMap(courseGroups), ", "),
+						strings.Join(
+							getKeysOfMap(courseGroups),
+							", ",
+						),
 					),
 				)
 			}
@@ -201,7 +250,10 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 				line[courseIDIndex],
 			)
 			if err != nil {
-				return false, -1, wrapError(errUnexpectedDBError, err)
+				return false, -1, wrapError(
+					errUnexpectedDBError,
+					err,
+				)
 			}
 		}
 		err = tx.Commit(ctx)
