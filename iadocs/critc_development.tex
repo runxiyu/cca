@@ -1,7 +1,11 @@
 \input{header.texinc}
 
+\usepackage{nameref}
 \usepackage{xr}
 \externaldocument{appendix}
+\newcommand{\fileref}[1]{\texttt{\nameref*{#1}} (appendix page~\pageref*{#1})}
+\newcommand{\coderef}[1]{(appendix page~\pageref*{#1})}
+\newcommand{\codenref}[1]{\texttt{#1} (appendix page~\pageref*{#1})}
 
 \title{Criterion C: Development}
 
@@ -12,6 +16,16 @@
 
 \section{Microsoft Entra ID Authentication}
 
+User will need to be authenticated to use this system. Only teachers from the CCA department and students in the high school should be able to sign in to the system; therefore, I would like to integrate this with the school's existing authentication infrastructure, instead of using a separate accounts system. I could use either of the following methods:
+
+\begin{enumerate}
+	\item \label{method-entra} My system could redirect users to use Microsoft Entra ID Authentication via OpenID Connect.
+	\item \label{method-powerschool} My system could accept users' usernames and passwords, and send them to PowerSchool and check if their credentials could be used to successfully log in.
+\end{enumerate}
+
+Although it is possible to store passwords securely with password-based key derivation algorithms such as Argon2 \parencite{argon2}, method~\ref{method-powerschool} still requires my sever to have ephemeral access to the user's school password in plain text form in memory, which is a security liability. It is also relatively difficult to store sensitive data correctly in memory, as that would involve, for example locking pages out of swap and overwriting relevant memory regions with random data, which is relatively difficult in Go.
+
+Instead, I read the Microsoft Entra ID's OpenID Connect protocol reference \parencite{ms-oidc} and implemented it in \fileref{endpoint_auth.go}. \codenref{generateAuthorizationURL} generates an authorization URL for Microsoft Entra ID that the user is expected to visit; when the user finishes authentication on the Microsoft login form and consents to the application reading basic user information, their browser sends a POST request that is handled by \codenref{handleAuth} with an authorization token containing user data, signed by Microsoft. We check the validity of the signature and insert the user data (name, department, student ID, Microsoft Entra object UUID, etc) into the database while giving them a session cookie. From now on, we may authenticate the user's requests with their session cookie.
 
 \printbibliography
 

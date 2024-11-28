@@ -36,7 +36,7 @@ type msclaimsT struct {
 	jwt.RegisteredClaims
 }
 
-func generateAuthorizationURL() (string, error) {
+func generateAuthorizationURL() (string, error) { // \codelabel{generateAuthorizationURL}
 	nonce, err := randomString(tokenLength)
 	if err != nil {
 		return "", err
@@ -65,7 +65,7 @@ func generateAuthorizationURL() (string, error) {
  * Expects JSON Web Keys to be already set up correctly; if myKeyfunc is null,
  * a null pointer is dereferenced and the thread panics.
  */
-func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
+func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) { // \codelabel{handleAuth}
 	if req.Method != http.MethodPost {
 		return "", http.StatusMethodNotAllowed, errPostOnly
 	}
