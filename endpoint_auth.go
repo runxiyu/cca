@@ -43,11 +43,11 @@ func generateAuthorizationURL() (string, error) {
 	}
 	/*
 	 * Note that here we use a hybrid authentication flow to obtain an
-	 * id_token for authentication and an authorization code. The
+	 * id token for authentication and an authorization code. The
 	 * authorization code may be used like any other; i.e., it may be used
 	 * to obtain an access token directly, or the refresh token may be used
 	 * to gain persistent access to the upstream API. Sometimes I wish that
-	 * the JWT in id_token could have more claims. The only reason we
+	 * the JWT in id token could have more claims. The only reason we
 	 * presently use a hybrid flow is to use the authorization code to
 	 * obtain an access code to call the user info endpoint to fetch the
 	 * user's department information.

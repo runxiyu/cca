@@ -13,7 +13,7 @@ include_code() {
 	for i in "$@"
 	do
 		printf '\\section{%s}\n' "$(sed 's/_/\\_/g' <<< "$i")" >> "$targetfile"
-		printf '\\inputminted[breaklines, tabsize=%s]{%s}{%s}\n' "$tabsize" "$lang" "$i" >> "$targetfile"
+		printf '\\inputminted[breaklines, tabsize=%s, texcomments]{%s}{%s}\n' "$tabsize" "$lang" "$i" >> "$targetfile"
 	done
 }
 

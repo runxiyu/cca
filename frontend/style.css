@@ -205,7 +205,7 @@ table th:not(:last-child) {
 
 
 
-/* Workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=217769 */
+/* Workaround for Firefox bug 217769 */
 tbody:empty {
 	display: none;
 }
