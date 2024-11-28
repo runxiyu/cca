@@ -17,5 +17,5 @@
 \usepackage{xcolor}
 \usepackage[colorlinks, allcolors=black]{hyperref}
 
-\usepackage[style=apa6]{biblatex}
+\usepackage[style=bath, sorting=ynt]{biblatex}
 \addbibresource{bib.bib}
