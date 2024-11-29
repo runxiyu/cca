@@ -1,6 +1,10 @@
 # TODO: Use some variables to clean up the massive documentation file specifiers
 
+<<<<<<< HEAD
 .PHONY: cca default iadocs docs build_iadocs build_docs setcap
+=======
+.PHONY: cca default minifier iadocs docs build_iadocs build_docs clean
+>>>>>>> 5d20ad8 (Makefile: Add clean phony target)
 
 default: dist/cca docs iadocs
 
@@ -88,3 +92,6 @@ build/static/student.js: frontend/student.js
 # Quick target to set capabilities
 setcap: dist/cca
 	setcap 'cap_net_bind_service=+ep' dist/cca
+
+clean:
+	rm -rf dist build
