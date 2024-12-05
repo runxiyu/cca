@@ -7,7 +7,8 @@ CREATE TABLE courses (
 	ctype TEXT NOT NULL,
 	cgroup TEXT NOT NULL,
 	course_id TEXT NOT NULL,
-	section_id TEXT NOT NULL
+	section_id TEXT NOT NULL,
+	year_groups SMALLINT NOT NULL
 );
 CREATE TABLE users (
 	id TEXT PRIMARY KEY NOT NULL, -- should be UUID

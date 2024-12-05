@@ -11,6 +11,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -144,4 +145,29 @@ func (course *courseT) decrementSelectedAndPropagate(
 		)
 	}
 	return nil
+}
+
+
+func yearGroupsStringToNumber(s string) (uint8, error) {
+	ss := strings.Split(s, " ")
+	var spec uint8
+	for _, yg := range ss {
+		switch yg {
+		case "Y9":
+			spec |= 1
+		case "Y10":
+			spec |= 2
+		case "Y11":
+			spec |= 4
+		case "Y12":
+			spec |= 8
+		case "":
+		default:
+			return spec, wrapAny(errYearGroupSpecString, s)
+		}
+	}
+	if spec == 0 {
+		return 1 | 2 | 4 | 8, nil
+	}
+	return spec, nil
 }
