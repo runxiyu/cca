@@ -51,6 +51,9 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 	}
 	_groups := make(map[string]groupT)
 	for k, v := range courseGroups {
+		if k[0] != 'T' { /* XXX: Music hax */
+			continue
+		}
 		_coursemap := make(map[int]*courseT)
 		_groups[k] = groupT{
 			Handle:  k,

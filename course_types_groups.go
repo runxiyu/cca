@@ -93,12 +93,12 @@ const (
 )
 
 var courseGroups = map[string]string{
-	mw1: "Monday/Wednesday CCA1",
-	mw2: "Monday/Wednesday CCA2",
-	mw3: "Monday/Wednesday CCA3",
-	tt1: "Tuesday/Thursday CCA1",
-	tt2: "Tuesday/Thursday CCA2",
-	tt3: "Tuesday/Thursday CCA3",
+	mw1: "Monday/Wednesday CCA1 (disabled)",
+	mw2: "Monday/Wednesday CCA2 (disabled)",
+	mw3: "Monday/Wednesday CCA3 (disabled)",
+	tt1: "Thursday Dec 19 CCA1 (required for Y9 and Y10)",
+	tt2: "Thursday Dec 19 CCA2 (required for Y11 and Y12)",
+	tt3: "Thursday Dec 19 Winter Concert (optional)",
 }
 
 /* Populate both */

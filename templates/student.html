@@ -137,8 +137,6 @@
 								<tr>
 									<th scope="col">Group</th>
 									<th scope="col">Name</th>
-									<th scope="col">Type</th>
-									<th scope="col">Teacher</th>
 									<th scope="col">Location</th>
 								</tr>
 							</thead>
@@ -147,8 +145,8 @@
 								<tr>
 									<th class="confirmed-handle" id="confirmed-handle-{{ .Handle }}" scope="row">{{ .Handle }}</th>
 									<td id="confirmed-name-{{ .Handle }}"></td>
-									<td id="confirmed-type-{{ .Handle }}"></td>
-									<td id="confirmed-teacher-{{ .Handle }}"></td>
+									<td style="display: none;" id="confirmed-type-{{ .Handle }}"></td>
+									<td style="display: none;" id="confirmed-teacher-{{ .Handle }}"></td>
 									<td id="confirmed-location-{{ .Handle }}"></td>
 								</tr>
 								{{- end }}
@@ -176,9 +174,7 @@
 								<col style="width: 5%;" />
 								<col style="width: 5%;" />
 								<col/>
-								<col style="width: 15%;" />
-								<col style="width: 15%;" />
-								<col style="width: 15%;" />
+								<col style="width: 5%;" />
 							</colgroup>
 							<thead>
 								<tr>
@@ -186,8 +182,6 @@
 									<th scope="col">Used</th>
 									<th scope="col">Max</th>
 									<th scope="col">Name</th>
-									<th scope="col">Type</th>
-									<th scope="col">Teacher</th>
 									<th scope="col">Location</th>
 								</tr>
 								<tr>
@@ -212,8 +206,7 @@
 										<span class="max-number" id="max{{.ID}}">{{.Max}}</span>
 									</td>
 									<td>{{.Title}}</td>
-									<td id="type{{.ID}}">{{.Type}}</td>
-									<td>{{.Teacher}}</td>
+									<td style="display: none;" id="type{{.ID}}">{{.Type}}</td>
 									<td>{{.Location}}</td>
 								</tr>
 								{{- end }}
@@ -224,8 +217,10 @@
 									<td class="th-like" colspan="7">
 										<div class="flex-justify">
 											<div class="left">
-												Sport: <span id="Sport-chosen">0</span>/<span id="Sport-required">{{ .Required.Sport }}</span>,
-												Non-sport: <span id="Non-sport-chosen">0</span>/<span id="Non-sport-required">{{ .Required.NonSport }}</span>
+												<span style="display: hidden;">
+													Optional: <span id="Sport-chosen">0</span>/<span id="Sport-required">{{ .Required.Sport }}</span>,
+													One-required: <span id="Non-sport-chosen">0</span>/<span id="Non-sport-required">{{ .Required.NonSport }}</span>
+												</span>
 											</div>
 											<div class="right">
 												<button id="confirmbutton" class="btn-primary btn" disabled>Confirm</button>
