@@ -38,7 +38,7 @@ func handleConn(
 	c *websocket.Conn,
 	userID string,
 	department string,
-) error {
+) (reterr error) {
 	_state, ok := states[department]
 	if !ok {
 		return errNoSuchYearGroup
@@ -76,14 +76,17 @@ func handleConn(
 	usems := make(map[int]*usemT)
 
 	atomic.AddInt64(&usemCount, int64(atomic.LoadUint32(&numCourses)))
+	var err error
 	courses.Range(func(key, value interface{}) bool {
 		courseID, ok := key.(int)
 		if !ok {
-			panic("courses map has non-\"int\" keys")
+			err = errType
+			return false
 		}
 		course, ok := value.(*courseT)
 		if !ok {
-			panic("courses map has non-\"*courseT\" items")
+			err = errType
+			return false
 		}
 		usem := &usemT{} //exhaustruct:ignore
 		usem.init()
@@ -97,7 +100,8 @@ func handleConn(
 			_ = key
 			course, ok := value.(*courseT)
 			if !ok {
-				panic("courses map has non-\"*courseT\" items")
+				reterr = errType
+				return false
 			}
 			course.Usems.Delete(userID)
 			return true
@@ -137,7 +141,7 @@ func handleConn(
 
 	var userCourseGroups userCourseGroupsT = make(map[string]struct{})
 	var userCourseTypes userCourseTypesT = make(map[string]int)
-	err := populateUserCourseTypesAndGroups(
+	err = populateUserCourseTypesAndGroups(
 		newCtx,
 		&userCourseTypes,
 		&userCourseGroups,

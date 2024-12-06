@@ -92,7 +92,7 @@ func handleExportChoices(
 		}
 		course, ok := _course.(*courseT)
 		if !ok {
-			panic("courses map has non-\"*courseT\" items")
+			return "", -1, errType
 		}
 		if course == nil {
 			return "", -1, wrapAny(errNoSuchCourse, currentCourseID)

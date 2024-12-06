@@ -72,7 +72,8 @@ func propagateSelectedUpdate(course *courseT) {
 		_ = key
 		usem, ok := value.(*usemT)
 		if !ok {
-			panic("Usems contains non-\"*usemT\" value")
+			slog.Error(errType.Error())
+			return false
 		}
 		usem.set()
 		return true
@@ -90,7 +91,7 @@ func sendSelectedUpdate(
 	}
 	course, ok := _course.(*courseT)
 	if !ok {
-		panic("courses map has non-\"*courseT\" items")
+		return errType
 	}
 	if course == nil {
 		return fmt.Errorf("%w: %d", errNoSuchCourse, courseID)
@@ -111,17 +112,20 @@ func propagate(yeargroup string, msg string) error {
 	if !ok {
 		return errNoSuchYearGroup
 	}
+	var err error
 	chanSubPool.Range(func(_userID, _ch interface{}) bool {
 		ch, ok := _ch.(*chan string)
 		if !ok {
-			panic("chanPool has non-\"*chan string\" key")
+			err = errType
+			return false
 		}
 		select {
 		case *ch <- msg:
 		default:
 			userID, ok := _userID.(string)
 			if !ok {
-				panic("chanPool has non-string key")
+				err = errType
+				return false
 			}
 			slog.Warn(
 				"sendq",
@@ -131,7 +135,7 @@ func propagate(yeargroup string, msg string) error {
 		}
 		return true
 	})
-	return nil
+	return err
 }
 
 func writeText(ctx context.Context, c *websocket.Conn, msg string) error {

@@ -150,7 +150,7 @@ func populateUserCourseTypesAndGroups(
 		}
 		course, ok := _course.(*courseT)
 		if !ok {
-			panic("courses map has non-\"*courseT\" items")
+			return errType
 		}
 		thisGroupName = course.Group
 		thisTypeName = course.Type

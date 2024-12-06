@@ -63,7 +63,7 @@ func messageUnchooseCourse(
 	}
 	course, ok := _course.(*courseT)
 	if !ok {
-		panic("courses map has non-\"*courseT\" items")
+		return errType
 	}
 	if course == nil {
 		return errNoSuchCourse
@@ -94,7 +94,7 @@ func messageUnchooseCourse(
 		}
 		course, ok := _course.(*courseT)
 		if !ok {
-			panic("courses map has non-\"*courseT\" items")
+			return errType
 		}
 		if course == nil {
 			return errNoSuchCourse

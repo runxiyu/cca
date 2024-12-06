@@ -58,14 +58,17 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 			Courses: &_coursemap,
 		}
 	}
+	err = nil
 	courses.Range(func(key, value interface{}) bool {
 		courseID, ok := key.(int)
 		if !ok {
-			panic("courses map has non-\"int\" keys")
+			err = errType
+			return false
 		}
 		course, ok := value.(*courseT)
 		if !ok {
-			panic("courses map has non-\"*courseT\" items")
+			err = errType
+			return false
 		}
 		if department != staffDepartment {
 			if yearGroupsNumberBits[department]&course.YearGroups == 0 {
@@ -75,6 +78,9 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 		(*_groups[course.Group].Courses)[courseID] = course
 		return true
 	})
+	if err != nil {
+		return "", -1, err
+	}
 
 	if department == staffDepartment {
 		StatesDereferenced := map[string]uint32{}
