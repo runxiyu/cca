@@ -13,6 +13,7 @@ import (
 )
 
 var (
+	errType                             = errors.New("runtime type error")
 	errCannotSetupJwks                  = errors.New("cannot set up jwks")
 	errInsufficientFields               = errors.New("insufficient fields")
 	errUnknownDepartment                = errors.New("unknown department")
@@ -62,9 +63,9 @@ var (
 	errUnknownCommand                   = errors.New("unknown command")
 	errBadNumberOfArguments             = errors.New("bad number of arguments")
 	errInvalidYearGroupOrCourseType     = errors.New("invalid year group or course type (something is broken)")
-	// errInvalidCourseID                  = errors.New("invalid course id")
-	errYearGroupSpecString = errors.New("invalid year group specification string")
+	errYearGroupSpecString              = errors.New("invalid year group specification string")
 	errNotForYourYearGroup              = errors.New("this course is not part of your year group")
+	// errInvalidCourseID                  = errors.New("invalid course id")
 )
 
 func wrapError(a, b error) error {
