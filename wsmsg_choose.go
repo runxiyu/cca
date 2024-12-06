@@ -73,7 +73,7 @@ func messageChooseCourse(
 	if course == nil {
 		return errNoSuchCourse
 	}
-	if course.YearGroups & yearGroupsNumberBits[yeargroup] == 0 {
+	if course.YearGroups&yearGroupsNumberBits[yeargroup] == 0 {
 		return errNotForYourYearGroup
 	}
 
