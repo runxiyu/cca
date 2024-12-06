@@ -245,7 +245,7 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 					),
 				)
 			}
-			yearGroupsSpec, err := yearGroupsStringToNumber(line[yearGroupsIndex]) 
+			yearGroupsSpec, err := yearGroupsStringToNumber(line[yearGroupsIndex])
 			if err != nil {
 				return false, -1, err
 			}

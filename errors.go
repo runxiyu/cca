@@ -63,7 +63,7 @@ var (
 	errBadNumberOfArguments             = errors.New("bad number of arguments")
 	errInvalidYearGroupOrCourseType     = errors.New("invalid year group or course type (something is broken)")
 	// errInvalidCourseID                  = errors.New("invalid course id")
-	errYearGroupSpecString              = errors.New("invalid year group specification string")
+	errYearGroupSpecString = errors.New("invalid year group specification string")
 )
 
 func wrapError(a, b error) error {

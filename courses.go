@@ -149,7 +149,6 @@ func (course *courseT) decrementSelectedAndPropagate(
 
 var yearGroupsNumberBits = map[string]uint8{"Y9": 1, "Y10": 2, "Y11": 4, "Y12": 8}
 
-
 func yearGroupsStringToNumber(s string) (uint8, error) {
 	var spec uint8
 	if s == "" {
