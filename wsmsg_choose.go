@@ -73,6 +73,9 @@ func messageChooseCourse(
 	if course == nil {
 		return errNoSuchCourse
 	}
+	if course.YearGroups & yearGroupsNumberBits[yeargroup] == 0 {
+		return errNotForYourYearGroup
+	}
 
 	if _, ok := (*userCourseGroups)[course.Group]; ok {
 		err := writeText(ctx, c, "R "+mar[1]+" :Group conflict")

@@ -67,6 +67,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 		if !ok {
 			panic("courses map has non-\"*courseT\" items")
 		}
+		if department != staffDepartment {
+			if yearGroupsNumberBits[department]&course.YearGroups == 0 {
+				return true
+			}
+		}
 		(*_groups[course.Group].Courses)[courseID] = course
 		return true
 	})

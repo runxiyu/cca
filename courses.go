@@ -38,6 +38,7 @@ type courseT struct {
 	Location     string
 	CourseID     string
 	SectionID    string
+	YearGroups   uint8
 	Usems        sync.Map /* string, *usemT */
 }
 
@@ -54,7 +55,7 @@ const staffDepartment = "Staff"
 func setupCourses(ctx context.Context) error {
 	rows, err := db.Query(
 		ctx,
-		"SELECT id, nmax, title, ctype, cgroup, teacher, location, course_id, section_id FROM courses",
+		"SELECT id, nmax, title, ctype, cgroup, teacher, location, course_id, section_id, year_groups FROM courses",
 	)
 	if err != nil {
 		return wrapError(errUnexpectedDBError, err)
@@ -82,6 +83,7 @@ func setupCourses(ctx context.Context) error {
 			&currentCourse.Location,
 			&currentCourse.CourseID,
 			&currentCourse.SectionID,
+			&currentCourse.YearGroups,
 		)
 		if err != nil {
 			return wrapError(errUnexpectedDBError, err)
