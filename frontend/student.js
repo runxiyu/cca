@@ -8,28 +8,12 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-	const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+	const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
 	const hostname = window.location.hostname;
 	const port = window.location.port ? `:${window.location.port}` : "";
 	const websocketURL = `${protocol}//${hostname}${port}/ws`;
 	console.log(websocketURL);
 	const socket = new WebSocket(websocketURL);
-
-	/*
-	 * TODO I want to make this easily configurable somehow, but I'm unsure
-	 * how to fill things into JavaScript. A few possible solutions:
-	 * - Replace this string during build time
-	 *   This is suboptimal because users should be able to replace it
-	 *   during runtime, as the binary is supposed to be decoupled from
-	 *   particular instances.
-	 * - Replace this string while setting the static handler.
-	 *   This is a bit more involved because it requires messing with io.fs;
-	 *   I also don't know a way to cleanly escape it.
-	 * - Indicate this string somewhere in the template (perhaps via
-	 *   a JavaScript variable that we could access).
-	 *   This is probably the way to go, especially since html/template
-	 *   provides contextual escaping.
-	 */
 
 	socket.addEventListener("open", function() {
 		let gstate = 0;
