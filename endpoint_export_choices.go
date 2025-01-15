@@ -75,7 +75,7 @@ func handleExportChoices(
 			}
 			before, _, found := strings.Cut(currentUserEmail, "@")
 			if found {
-				currentStudentID, _ = strings.CutPrefix(before, "s")
+				currentStudentID, _ = strings.CutPrefix(returnFirst(strings.CutPrefix(before, "s")), "S")
 			} else {
 				currentStudentID = currentUserEmail
 			}
