@@ -96,22 +96,12 @@ of the issues of SchoolsBuddy as presented above.
 \begin{itemize}
 	\item When too many students attempt to choose one course at a time,
 		their attempts are sequentially processed, and those that
-		exceed the CCA's member limit are properly rejected.
-	\item It should be possible to log in via Microsoft Entra ID.
-	\item The web page must be lightweight. The login page shall be
-		preferrably no more than 15 KiB. The course selection page
-		shall be preferrably no more than 50 KiB.
-		If a compressing content encoding such as \texttt{gzip} or
-		\texttt{deflate} is used, the values above refer to the size of
-		resources after decompression. If minification is used, the
-		values above refer to the size of resources after minification.
-		The experience should be fast and it should not take excessive
-		resources on the host server.
+		exceed the CCA's member limit are properly rejected. \item It
+		should be possible to log in via Microsoft Entra ID, or
+		otherwise integrate to the school's login system.
+	\item The web page must be lightweight. Pages should not be over 100
+		KiB, uncompressed, but after minification.
 	\item The course selection categories shall be relatively intuitive.
-		Students may choose from a table of dropdown choices, where
-		there is one dropdown per CCA slot; or they may choose from a
-		set of tables, where one table represents all CCAs in one
-		CCA slot.
 	\item The selection system must enforce CCA hours requirements.
 	\item The selection system must be able to take a CSV of CCAs with
 		fields such as period, location, teacher, and member cap. It
