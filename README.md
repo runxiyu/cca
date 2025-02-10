@@ -7,7 +7,7 @@ I actually plan to distribute for the production system.
 
 ## Repository mirrors
 
-* [Upstream repo](https://git.runxiyu.org/ykps/cca.git)
+* [Upstream repo](https://git.runxiyu.org/cca.git)
 * [SourceHut mirror](https://git.sr.ht/~runxiyu/cca)
 * [Codeberg mirror](https://codeberg.org/runxiyu/cca)
 * [GitHub mirror](https://github.com/runxiyu/cca)
@@ -15,13 +15,12 @@ I actually plan to distribute for the production system.
 ## Misc links
 
 * [Issue tracker](https://todo.sr.ht/~runxiyu/cca)
-* [Demo instance](https://dev.runxiyu.org)
 
 ## Documentation
 
 The following link to the raw HTML source of the documentation as served by
-cgit. However, the demo instance provides better documentation, which should
-be used unless if it&rsquo;s down.
+cgit. However, a demo instance would provide better documentation, but I'm
+not currently hosting one.
 
 * [Admin handbook](https://git.runxiyu.org/ykps/cca.git/plain/docs/admin_handbook.html)
 * [IA cover page](https://git.runxiyu.org/ykps/cca.git/plain/iadocs/cover_page.htm)
