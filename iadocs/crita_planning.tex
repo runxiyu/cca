@@ -7,85 +7,65 @@
 
 \section{The scenario}
 
-My school offers co-curricular activities (CCAs) to students after academic
-periods from Monday to Thursday. Most of those activities are relatively
-limited in space, and my campus has approximately 586 students across 4 year
-groups.
 
-Before I joined the school, the CCA department has already been using
-\href{https://www.schoolsbuddy.com}{SchoolsBuddy} as a CCA selection interface
-for students. However, SchoolsBuddy has the following problems when used at the
-scale and to the requirements of our school:
+My client, \textbf{Mr.~Funnell} is the head of the Co-Curricular Activities
+(CCA) department. He approached me knowing that I was good at programming and
+wanted to know if I could help him sort out the problems he and the department
+was having with SchoolBuddy, the school's current CCA admin tool.  At our first
+meeting Mr Funnell explained tyhe issues with the current system and how it
+creates a lot of additional paperwork for the department how it usually crashes
+at the start of each new session due to limitation on the technical side,
+please see addendix 1, meeting 1 for full details.  After this meeting I looked
+into the problem and did some reseach on how 
+
+Second meeting: ideas
+Third meeting: Finalization of functions, agree on success criterias
+
+SchoolsBuddy
+presents the following challenges for him, students, and the school financial
+department:
 
 \begin{itemize}
-	\item When too many students attempt to choose one course at a time,
-		most of their attempts would be confirmed and recorded in the
-		database, and the CCA department staff must notice them
-		after-the-fact that their attempt at choosing a course was
-		unsuccessful. At that point, there would be much fewer other
-		CCAs with available places too, leaving the student with
-		insufficient choices---after they have been told by the system
-		that their place has already been confirmed.
-	\item The only way to sign in to SchoolsBuddy, at least for our school's
-		configuration, is to log on to PowerSchool and click the
-		SchoolsBuddy Single Sign-on link. This generally works well,
-		except for the fact that PowerSchool only allows approximately
-		300 simultaneous sessions, which means that there would be
-		approximately 200 students unable to choose CCAs on
-		SchoolsBuddy.
-	\item Even after logging in, the SchoolsBuddy web page is extremely
-		bloated. It takes 16.5 MiB to get completely load the
-		SchoolsBuddy home page,	and an additional 8 MiB per additional
-		page. This takes about 8 seconds on a relatively good connection
-		without congestion. But when CCA selection starts and everyone
-		is trying to use student WiFi to log on at the same time,
-		loading each page could take well more than a minute.
-	\item Some parts of the interface is unintuitive to students. We have
-		6 CCA slots: MW1, MW2, MW3, TT1, TT2, and TT3, which basically
-		mean ``CCA Period $n$''.
+	\item SchoolsBuddy allows students select CCAs that are already full.
+		CCA staff must then contact these students manually and tell
+		them to choose again (usually from a more limited course pool
+		since all the popular ones would have been full at this point).
 	\item The selection system does not enforce CCA hours requirements, and
-		the CCA office's staff must manually verify that students have
-		completed CCA choices to the year group's requirements, by
-		literally printing out the spreadsheet to paper and reading
-		through them.
+		the staff must manually verify that students have completed CCA
+		choices to the year group's requirements by printing out the
+		spreadsheet to paper and reading through them.
+	\item It utilizes PowerSchool single sign-on, which only allows
+		approximately 300 sessions at once.
+	\item The web page is exremely bloated at approximately 16.5\,MiB
+		gzipped each. It takes more than a minute to load during the
+		congestion that occurs when everyone is choosing CCAs.
+	\item Some parts of the interface are unintuitive to students.
 	\item The school has to pay SchoolsBuddy an expensive subscription fee.
 \end{itemize}
 
-I am developing this project to replace this legacy system and to improve the
-user experience for both the CCA department and individual students.
-
 \section{Rationale for the proposed solution}
 
-I have consulted with the school's IT department and confirmed that, with the
-approval of appropriate faculty such as the Head of Co-curricular Activities,
-the IT can provision a virtual machine on the school's LAN, running a suitable
-server operating system such as Alpine Linux or Debian, to run the solution
-that I develop. I am also capable of running the solution on my own hardware in
-my dorm if necessary for beta and acceptance testing.
+The IT department confirmed that they could deploy a custom solution on our
+school LAN when given the go-ahead from Mr.~Funnel.
 
-I am relatively experienced in developing low-latency network applications such
-as IRC software, and I am comfortable reading specifications of network
-protocols on various layers of the OSI model. I am somewhat familiar with
-developing web applications in the context of our school's environment, and I
-have previously developed a library for web services written in
-\href{https://go.dev}{Go} to interface with our school's Microsoft Entra ID
-system for authentication (previously known as Azure Active Directory).
+I am relatively experienced in developing low-latency network applications, I
+am capable of optimizing concurrent networking programs, and I am familiar with
+our school's Microsoft Entra ID authentication system.
 
-The program does not need input data during the development process. During
-production, all data is automatically retreived from Microsoft Entra ID and the
-Microsoft Graph API via delegated access once a student has logged in via OAuth
-2.0; in practice, this data includes the year group (grade level), name,
-student number, and email address, all of which are publicly available to any
-student via the Microsoft Entra ID portal.
+% The program does not need input data during the development process. During
+% production, all data is automatically retreived from Microsoft Entra ID and the
+% Microsoft Graph API via delegated access once a student has logged in via OAuth
+% 2.0; in practice, this data includes the year group (grade level), name,
+% student number, and email address, all of which are publicly available to any
+% student via the Microsoft Entra ID portal.
 
 There are no special security considerations other than various standard ones
 present when working with web applications. Care must be taken not to leak
-client secrets used in the OAuth 2.0 authorization code flow, although leakage
-thereof is considered inconsequential as an authorization code would be
-required anyway. Cookies must be protected against cross-origin request forgery
-and should have \texttt{httponly} and \texttt{secure} flags. It should be made
-impossible for a student to spoof another student's course choices, provided
-that the victim's school login credentials haven't been already leaked.
+client secrets used in the OAuth 2.0 authorization code flow. Cookies must be
+protected against cross-origin request forgery and should have
+\texttt{httponly} and \texttt{secure} flags. It should be made impossible for a
+student to spoof another student's course choices, provided that the victim's
+school login credentials haven't been already leaked.
 
 \section{Success criteria}
 
