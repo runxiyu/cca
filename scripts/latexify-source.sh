@@ -27,7 +27,7 @@ include_code go 8 *.go
 include_code text 8 go.*
 
 chapter Frontend source code
-include_code javascript 4 frontend/*.js
+include_code typescript 8 frontend/*.ts
 include_code css 8 frontend/*.css
 
 chapter HTML templates

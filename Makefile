@@ -67,7 +67,7 @@ build/iadocs/appendix.pdf: iadocs/appendix.tex build/iadocs/source.gen build/iad
 	mkdir -p build/iadocs
 	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
 	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
-build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.js templates/* scripts/latexify-source.sh docs/* sql/* scripts/* iadocs/*.tex iadocs/*.texinc iadocs/bib.bib Makefile README.md LICENSE .editorconfig .gitignore .gitattributes
+build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.ts templates/* scripts/latexify-source.sh docs/* sql/* scripts/* iadocs/*.tex iadocs/*.texinc iadocs/bib.bib Makefile README.md LICENSE .editorconfig .gitignore .gitattributes
 	mkdir -p build/iadocs
 	scripts/latexify-source.sh
 build/iadocs/%.texinc: iadocs/%.texinc
@@ -81,9 +81,11 @@ build/iadocs/%.bib: iadocs/%.bib
 build/static/style.css: frontend/style.css
 	mkdir -p build/static
 	gominify -o $@ $<
-build/static/student.js: frontend/student.js
+
+build/static/student.js: frontend/student.ts
 	mkdir -p build/static
-	gominify -o $@ $<
+	tsc $< --target ES6 --strict --noImplicitAny --outFile $@
+	gominify -o $@ $@
 
 # Quick target to set capabilities
 setcap: dist/cca
