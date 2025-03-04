@@ -18,7 +18,7 @@ You may obtain a stable or development version. The stable version is recommende
 
 You may skip this step if using pre-built tarballs.
 
-You need a [Go](https://go.dev) toolchain, [Pygments](https://pygments.org), [Pandoc](https://pandoc.org), [GNU make](https://www.gnu.org/software/make/), [TeX Live](https://tug.org/texlive/) and [minify](https://github.com/tdewolff/minify). Minify must be present in `$PATH` as `gominify`.
+You need a [Go](https://go.dev) toolchain, [Pygments](https://pygments.org), [Pandoc](https://pandoc.org), [GNU make](https://www.gnu.org/software/make/), [TeX Live](https://tug.org/texlive/), [minify](https://github.com/tdewolff/minify), and [TypeScript](https://www.typescriptlang.org). Minify must be present in `$PATH` as `gominify`. A TypeScript compiler must be present in `$PATH` as `tsc`.
 
 It is possible to build with only the Go toolchain, but the current build system does not support building the program without building the corresponding documentation (including IA documentation which accounts for the huge TeX Live installation). This will be enhanced in the future.
 

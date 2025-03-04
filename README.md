@@ -5,6 +5,17 @@ Science (Higher Level) course. The `iadocs` directory contains documentation
 required by the IB, while the `docs` directory contains the documentation that
 I actually plan to distribute for the production system.
 
+## Build
+
+You need a [Go](https://go.dev) toolchain, [Pygments](https://pygments.org),
+[Pandoc](https://pandoc.org), [GNU make](https://www.gnu.org/software/make/),
+[TeX Live](https://tug.org/texlive/),
+[minify](https://github.com/tdewolff/minify), and
+[TypeScript](https://www.typescriptlang.org). Minify must be present in `$PATH`
+as `gominify`. A TypeScript compiler must be present in `$PATH` as `tsc`.
+
+Then just run `make`.
+
 ## Repository mirrors
 
 * [Upstream repo](https://git.runxiyu.org/cca.git)
