@@ -13,8 +13,10 @@ import (
 	"strconv"
 )
 
-var errMethodNotAllowed = errors.New("method not allowed")
-var errInvalidForm = errors.New("invalid form")
+var (
+	errMethodNotAllowed = errors.New("method not allowed")
+	errInvalidForm      = errors.New("invalid form")
+)
 
 func handleState(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	if req.Method != http.MethodPost {
@@ -34,7 +36,7 @@ func handleState(w http.ResponseWriter, req *http.Request) (string, int, error) 
 		return "", http.StatusBadRequest, wrapError(errInvalidForm, err)
 	}
 
-	for yeargroup, _ := range states {
+	for yeargroup := range states {
 		key := "yeargroup_" + yeargroup
 		if newStateStr := req.FormValue(key); newStateStr != "" {
 			newState, err := strconv.ParseUint(newStateStr, 10, 32)
