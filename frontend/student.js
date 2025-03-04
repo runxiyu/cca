@@ -3,327 +3,276 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-/*
- * TODO: This script is terrible. Revamp all of it.
- */
+const DOM_STATES = {
+	need_connection: '.need-connection',
+	before_connection: '.before-connection',
+	broken_connection: '.broken-connection',
+	confirmed: '.confirmed',
+	unconfirmed: '.unconfirmed',
+	neither_confirmed: '.neither-confirmed',
+	script_required: '.script-required',
+	script_unavailable: '.script-unavailable'
+};
 
-document.addEventListener("DOMContentLoaded", () => {
-	const protocol = window.location.protocol === "http:" ? "ws:" : "wss:";
-	const hostname = window.location.hostname;
-	const port = window.location.port ? `:${window.location.port}` : "";
-	const websocketURL = `${protocol}//${hostname}${port}/ws`;
-	console.log(websocketURL);
-	const socket = new WebSocket(websocketURL);
+document.addEventListener('DOMContentLoaded', () => {
+	const ws_url = create_websocket_url();
+	window.socket = new WebSocket(ws_url);
 
-	socket.addEventListener("open", function() {
-		let gstate = 0;
-		let ustate = 0;
-		let _handleMessage = event => {
-			let msg = new String(event?.data);
+	window.global_state = 0;
+	window.user_state = 0;
 
-			/*
-			 * Standard IRC Message format parsing without IRCv3
-			 * tags or prefixes.  It's a simple enough protocol
-			 * format suitable for our use-case.  No need for
-			 * protobuf or anything else nontrivial.
-			 */
-			let mar = msg.split(" ");
-			for (let i = 0; i < mar.length; i++) {
-				if (mar[i].startsWith(":")) {
-					if (i === mar.length - 1) {
-						mar[i] = mar[i].substring(1);
-						break;
-					}
-					mar[i] = mar[i].substring(1) + " " +
-						mar.slice(i + 1).join(" ");
-					mar.splice(i + 1);
-					break;
-				}
-			}
+	setup_initial_state();
+	socket.addEventListener('open', () => setup_socket_handlers(socket));
 
-			switch (mar[0]) {
-			case "E": /* unexpected error */
-				alert(mar[1]);
-				break;
-			case "HI":
-				document.querySelectorAll(".need-connection").
-					forEach(c => {
-						c.style.display = "block";
-					});
-				document.querySelectorAll(".before-connection").
-					forEach(c => {
-						c.style.display = "none";
-					});
-				if (mar[1] !== "") {
-					let courseIDs = mar[1].split(",");
-					for (let i = 0; i < courseIDs.length; i++) {
-						document.getElementById(
-							`tick${ courseIDs[i] }`
-						).checked = true;
-						{
-							let courseType = document.
-								getElementById(`type${ courseIDs[i] }`).
-								textContent;
-							document.getElementById(`${ courseType }-chosen`).
-								textContent = parseInt(document.
-									getElementById(`${ courseType }-chosen`).
-									textContent) + 1;
-						}
-						if (gstate === 1) {
-							document.getElementById(
-								`tick${ courseIDs[i] }`
-							).disabled = false;
-							if (parseInt(document.getElementById("Sport-chosen").textContent) >=
-								parseInt(document.getElementById("Sport-required").textContent) &&
-								parseInt(document.getElementById("Non-sport-chosen").textContent) >=
-								parseInt(document.getElementById("Non-sport-required").textContent)) {
-								document.getElementById("confirmbutton").disabled = false;
-							}
-						}
-					}
-				}
-				if (ustate === 1) {
-					document.querySelectorAll(".confirmed-handle").forEach(c => {
-						let handle = c.textContent;
-						document.getElementById(`confirmed-name-${ handle }`).textContent = "";
-						document.getElementById(`confirmed-type-${ handle }`).textContent = "";
-						document.getElementById(`confirmed-teacher-${ handle }`).textContent = "";
-						document.getElementById(`confirmed-location-${ handle }`).textContent = "";
-						document.querySelectorAll(".coursecheckbox").forEach(d => {
-							if (d.dataset.group === handle && d.checked) {
-								document.getElementById(`confirmed-name-${ handle }`).textContent =
-									d.dataset.title;
-								document.getElementById(`confirmed-type-${ handle }`).textContent =
-									d.dataset.type;
-								document.getElementById(`confirmed-teacher-${ handle }`).textContent =
-									d.dataset.teacher;
-								document.getElementById(`confirmed-location-${ handle }`).textContent =
-									d.dataset.location;
-
-								/* TODO: break */
-							}
-						});
-					});
-					document.querySelectorAll(".unconfirmed").forEach(c => {
-						c.style.display = "none";
-					});
-					document.querySelectorAll(".confirmed").forEach(c => {
-						c.style.display = "block";
-					});
-					document.querySelectorAll(".neither-confirmed").forEach(c => {
-						c.style.display = "none";
-					});
-				}
-				break;
-			case "U": /* unauthenticated */
-				/* TODO: replace this with a box on screen */
-				alert("Your session is broken or has expired. You are unauthenticated and the server will reject your commands.");
-				break;
-			case "N":
-				document.getElementById(`tick${ mar[1] }`).
-					checked = false;
-				document.getElementById(`tick${ mar[1] }`).
-					indeterminate = false;
-				{
-					let courseType = document.getElementById(`type${ mar[1] }`).
-						textContent;
-					document.getElementById(`${ courseType }-chosen`).textContent =
-						parseInt(document.
-							getElementById(`${ courseType }-chosen`).
-							textContent) - 1;
-				}
-				if (parseInt(document.getElementById("Sport-chosen").textContent) <
-					parseInt(document.getElementById("Sport-required").textContent) ||
-					parseInt(document.getElementById("Non-sport-chosen").textContent) <
-					parseInt(document.getElementById("Non-sport-required").textContent)) {
-					document.getElementById("confirmbutton").disabled = true;
-				}
-				break;
-			case "M":
-				document.getElementById(`selected${ mar[1] }`).
-					textContent = mar[2];
-				if (
-					mar[2] === document.getElementById(`max${ mar[1] }`).textContent &&
-					!(document.getElementById(`tick${ mar[1] }`).checked)
-				) {
-					document.getElementById(`tick${ mar[1] }`).disabled = true;
-				} else if (gstate === 1) {
-					document.getElementById(`tick${ mar[1] }`).disabled = false;
-				}
-				break;
-			case "R": /* course selection rejected */
-				document.getElementById(`coursestatus${ mar[1] }`).
-					textContent = mar[2];
-				document.getElementById(`coursestatus${ mar[1] }`).
-					style.color = "red";
-				document.getElementById(`tick${ mar[1] }`).
-					checked = false;
-				document.getElementById(`tick${ mar[1] }`).
-					indeterminate = false;
-				if (mar[2] === "Full") {
-					document.getElementById(`tick${ mar[1] }`).
-						disabled = true;
-				}
-				break;
-			case "Y": /* course selection approved */
-				document.getElementById(`coursestatus${ mar[1] }`).
-					textContent = "";
-				document.getElementById(`coursestatus${ mar[1] }`).
-					style.removeProperty("color");
-				document.getElementById(`tick${ mar[1] }`).
-					checked = true;
-				document.getElementById(`tick${ mar[1] }`).
-					indeterminate = false;
-				{
-					let courseType = document.getElementById(`type${ mar[1] }`).
-						textContent;
-					document.getElementById(`${ courseType }-chosen`).textContent =
-						parseInt(document.
-							getElementById(`${ courseType }-chosen`).
-							textContent) + 1;
-				}
-				if (parseInt(document.getElementById("Sport-chosen").textContent) >=
-					parseInt(document.getElementById("Sport-required").textContent) &&
-					parseInt(document.getElementById("Non-sport-chosen").textContent) >=
-					parseInt(document.getElementById("Non-sport-required").textContent) &&
-					gstate === 1) {
-					document.getElementById("confirmbutton").disabled = false;
-				}
-				break;
-			case "STOP":
-				gstate = 0;
-				document.getElementById("stateindicator").textContent = "disabled";
-				document.getElementById("confirmbutton").disabled = true;
-				document.getElementById("unconfirmbutton").disabled = true;
-				document.querySelectorAll(".coursecheckbox").forEach(c => {
-					c.disabled = true;
-				});
-				break;
-			case "START":
-				gstate = 1;
-				document.getElementById("unconfirmbutton").disabled = false;
-				document.querySelectorAll(".courseitem").forEach(c => {
-					if (c.querySelector(".selected-number").textContent !==
-						c.querySelector(".max-number").textContent ||
-						c.querySelector(".coursecheckbox").checked) {
-						c.querySelector(".coursecheckbox").disabled = false;
-					}
-				});
-				if (parseInt(document.getElementById("Sport-chosen").textContent) >=
-					parseInt(document.getElementById("Sport-required").textContent) &&
-					parseInt(document.getElementById("Non-sport-chosen").textContent) >=
-					parseInt(document.getElementById("Non-sport-required").textContent)) {
-					document.getElementById("confirmbutton").disabled = false;
-				}
-				document.getElementById("stateindicator").textContent = "enabled";
-				break;
-			case "YC":
-				ustate = 1;
-				document.querySelectorAll(".confirmed-handle").forEach(c => {
-					let handle = c.textContent;
-					document.getElementById(`confirmed-name-${ handle }`).textContent = "";
-					document.getElementById(`confirmed-type-${ handle }`).textContent = "";
-					document.getElementById(`confirmed-teacher-${ handle }`).textContent = "";
-					document.getElementById(`confirmed-location-${ handle }`).textContent = "";
-					document.querySelectorAll(".coursecheckbox").forEach(d => {
-						if (d.dataset.group === handle && d.checked) {
-							document.getElementById(`confirmed-name-${ handle }`).textContent =
-								d.dataset.title;
-							document.getElementById(`confirmed-type-${ handle }`).textContent =
-								d.dataset.type;
-							document.getElementById(`confirmed-teacher-${ handle }`).textContent =
-								d.dataset.teacher;
-							document.getElementById(`confirmed-location-${ handle }`).textContent =
-								d.dataset.location;
-
-							/* TODO: break */
-						}
-					});
-				});
-				document.querySelectorAll(".unconfirmed").forEach(c => {
-					c.style.display = "none";
-				});
-				document.querySelectorAll(".confirmed").forEach(c => {
-					c.style.display = "block";
-				});
-				document.querySelectorAll(".neither-confirmed").forEach(c => {
-					c.style.display = "none";
-				});
-				break;
-			case "NC":
-				ustate = 0;
-				document.querySelectorAll(".unconfirmed").forEach(c => {
-					c.style.display = "block";
-				});
-				document.querySelectorAll(".confirmed").forEach(c => {
-					c.style.display = "none";
-				});
-				document.querySelectorAll(".neither-confirmed").forEach(c => {
-					c.style.display = "none";
-				});
-				break;
-			case "RC":
-				alert(mar[1]);
-				break;
-			default:
-				alert(`Invalid command ${ mar[0] } received from socket. Something is wrong.`);
-			}
-		};
-		socket.addEventListener("message", _handleMessage);
-		let _handleClose = _event => {
-			document.querySelectorAll(".need-connection").forEach(c => {
-				c.style.display = "none";
-			});
-			document.querySelectorAll(".broken-connection").
-				forEach(c => {
-					c.style.display = "block";
-				});
-		};
-		socket.addEventListener("close", _handleClose);
-		socket.send("HELLO");
-	});
-
-	document.querySelectorAll(".coursecheckbox").forEach(c => {
-		c.addEventListener("input", () => {
-			if (c.id.slice(0, 4) !== "tick") {
-				alert(`${ c.id } is not in the correct format.`);
-				return false;
-			}
-			switch (c.checked) {
-			case true:
-				c.indeterminate = true;
-				document.querySelectorAll(".coursecheckbox").forEach(d => {
-					if (d.checked === true &&
-						d.dataset.group === c.dataset.group &&
-						c.id !== d.id) {
-						d.indeterminate = true;
-						socket.send(`N ${ d.id.slice(4) }`);
-					}
-				});
-				socket.send(`Y ${ c.id.slice(4) }`);
-				break;
-			case false:
-				c.indeterminate = true;
-				socket.send(`N ${ c.id.slice(4) }`);
-				break;
-			default:
-				alert(`${ c.id }'s "checked" attribute is ${ c.checked } which is invalid.`);
-			}
-			return false;
-		});
-	});
-
-	document.getElementById("confirmbutton").addEventListener("click", () => {
-		socket.send("YC");
-	});
-	document.getElementById("unconfirmbutton").addEventListener("click", () => {
-		socket.send("NC");
-	});
-
-	document.querySelectorAll(".script-required").forEach(c => {
-		c.style.display = "block";
-	});
-	document.querySelectorAll(".script-unavailable").forEach(c => {
-		c.style.display = "none";
-	});
+	setup_course_checkboxes(socket);
+	setup_confirmation_buttons(socket);
 });
+
+function create_websocket_url() {
+	const protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:';
+	const hostname = window.location.hostname;
+	const port = window.location.port ? `:${window.location.port}` : '';
+	return `${protocol}//${hostname}${port}/ws`;
+}
+
+function setup_initial_state() {
+	toggle_elements(DOM_STATES.script_required, true);
+	toggle_elements(DOM_STATES.script_unavailable, false);
+}
+
+function toggle_elements(selector, show) {
+	document.querySelectorAll(selector).forEach(element => {
+		element.style.display = show ? 'block' : 'none';
+	});
+}
+
+function parse_irc_message(message) {
+	const parts = message.split(' ');
+	for (let i = 0; i < parts.length; i++) {
+		if (parts[i].startsWith(':')) {
+			if (i === parts.length - 1) {
+				parts[i] = parts[i].substring(1);
+				break;
+			}
+			parts[i] = parts[i].substring(1) + ' ' + parts.slice(i + 1).join(' ');
+			parts.splice(i + 1);
+			break;
+		}
+	}
+	return parts;
+}
+
+function check_requirements_met() {
+	const sport_chosen = parseInt(document.getElementById('Sport-chosen').textContent);
+	const sport_required = parseInt(document.getElementById('Sport-required').textContent);
+	const non_sport_chosen = parseInt(document.getElementById('Non-sport-chosen').textContent);
+	const non_sport_required = parseInt(document.getElementById('Non-sport-required').textContent);
+
+	return sport_chosen >= sport_required && non_sport_chosen >= non_sport_required;
+}
+
+function update_confirm_button_state() {
+	const confirm_button = document.getElementById('confirmbutton');
+	if (window.global_state === 1 && check_requirements_met()) {
+		confirm_button.disabled = false;
+	} else {
+		confirm_button.disabled = true;
+	}
+}
+
+function update_course_counters(course_id, increment = true) {
+	const course_type = document.getElementById(`type${course_id}`).textContent;
+	const counter_element = document.getElementById(`${course_type}-chosen`);
+	const current_value = parseInt(counter_element.textContent);
+	counter_element.textContent = current_value + (increment ? 1 : -1);
+
+	update_confirm_button_state();
+}
+
+function update_confirmed_course_details(handle) {
+	const elements = ['name', 'type', 'teacher', 'location'].reduce((acc, field) => {
+		acc[field] = document.getElementById(`confirmed-${field}-${handle}`);
+		return acc;
+	}, {});
+
+	document.querySelectorAll('.coursecheckbox').forEach(checkbox => {
+		if (checkbox.dataset.group === handle && checkbox.checked) {
+			elements.name.textContent = checkbox.dataset.title;
+			elements.type.textContent = checkbox.dataset.type;
+			elements.teacher.textContent = checkbox.dataset.teacher;
+			elements.location.textContent = checkbox.dataset.location;
+		}
+	});
+}
+
+function handle_course_selection(socket, checkbox) {
+	if (!checkbox.id.startsWith('tick')) {
+		alert(`${checkbox.id} is not in the correct format.`);
+		return;
+	}
+	const course_id = checkbox.id.slice(4);
+	checkbox.indeterminate = true;
+
+	if (checkbox.checked) {
+		document.querySelectorAll('.coursecheckbox').forEach(other_checkbox => {
+			if (
+				other_checkbox.checked &&
+				other_checkbox.dataset.group === checkbox.dataset.group &&
+				other_checkbox.id !== checkbox.id
+			) {
+				other_checkbox.indeterminate = true;
+				socket.send(`N ${other_checkbox.id.slice(4)}`);
+			}
+		});
+		socket.send(`Y ${course_id}`);
+	} else {
+		socket.send(`N ${course_id}`);
+	}
+}
+
+function setup_socket_handlers(socket) {
+	socket.addEventListener('message', event => handle_socket_message(socket, event));
+	socket.addEventListener('close', () => {
+		toggle_elements(DOM_STATES.need_connection, false);
+		toggle_elements(DOM_STATES.broken_connection, true);
+	});
+	socket.send('HELLO');
+}
+
+function handle_socket_message(socket, event) {
+	const message = parse_irc_message(String(event?.data));
+	const [command, ...args] = message;
+
+	const message_handlers = {
+		'E': () => alert(args[0]),
+		'HI': () => handle_hi_message(...args),
+		'U': () => alert('Your session is broken or has expired. You are unauthenticated and the server will reject your commands.'),
+		'N': () => handle_course_removal(args[0]),
+		'M': () => handle_course_max_update(...args),
+		'R': () => handle_course_rejection(...args),
+		'Y': () => handle_course_approval(...args),
+		'STOP': () => handle_stop_state(),
+		'START': () => handle_start_state(),
+		'YC': () => handle_confirmation_state(),
+		'NC': () => handle_unconfirmation_state(),
+		'RC': () => alert(args[0])
+	};
+
+	const handler = message_handlers[command];
+	if (handler) {
+		handler();
+	} else {
+		alert(`Invalid command ${command} received from socket. Something is wrong.`);
+	}
+}
+
+function handle_hi_message(course_list = '') {
+	toggle_elements(DOM_STATES.need_connection, true);
+	toggle_elements(DOM_STATES.before_connection, false);
+
+	if (course_list) {
+		course_list.split(',').forEach(course_id => {
+			const checkbox = document.getElementById(`tick${course_id}`);
+			checkbox.checked = true;
+			update_course_counters(course_id, true);
+		});
+	}
+}
+
+function handle_course_removal(course_id) {
+	const checkbox = document.getElementById(`tick${course_id}`);
+	checkbox.checked = false;
+	checkbox.indeterminate = false;
+	update_course_counters(course_id, false);
+}
+
+function handle_course_max_update(course_id, selected_count) {
+	const selected_element = document.getElementById(`selected${course_id}`);
+	const max_element = document.getElementById(`max${course_id}`);
+	const checkbox = document.getElementById(`tick${course_id}`);
+
+	selected_element.textContent = selected_count;
+	checkbox.disabled = selected_count === max_element.textContent && !checkbox.checked;
+}
+
+function handle_course_rejection(course_id, reason) {
+	const status_element = document.getElementById(`coursestatus${course_id}`);
+	const checkbox = document.getElementById(`tick${course_id}`);
+
+	status_element.textContent = reason;
+	status_element.style.color = 'red';
+	checkbox.checked = false;
+	checkbox.indeterminate = false;
+	if (reason === 'Full') {
+		checkbox.disabled = true;
+	}
+	update_confirm_button_state();
+}
+
+function handle_course_approval(course_id) {
+	const status_element = document.getElementById(`coursestatus${course_id}`);
+	const checkbox = document.getElementById(`tick${course_id}`);
+
+	status_element.textContent = '';
+	status_element.style.removeProperty('color');
+	checkbox.checked = true;
+	checkbox.indeterminate = false;
+	update_course_counters(course_id, true);
+}
+
+function handle_stop_state() {
+	window.global_state = 0;
+	document.getElementById('stateindicator').textContent = 'disabled';
+	document.getElementById('confirmbutton').disabled = true;
+	document.getElementById('unconfirmbutton').disabled = true;
+	document.querySelectorAll('.coursecheckbox').forEach(c => {
+		c.disabled = true;
+	});
+}
+
+function handle_start_state() {
+	window.global_state = 1;
+	document.getElementById('unconfirmbutton').disabled = false;
+	document.getElementById('stateindicator').textContent = 'enabled';
+
+	document.querySelectorAll('.courseitem').forEach(course => {
+		const checkbox = course.querySelector('.coursecheckbox');
+		const selected = course.querySelector('.selected-number');
+		const max = course.querySelector('.max-number');
+
+		checkbox.disabled = !(
+			selected.textContent !== max.textContent ||
+			checkbox.checked
+		);
+	});
+
+	update_confirm_button_state();
+}
+
+function handle_confirmation_state() {
+	window.user_state = 1;
+	document.querySelectorAll('.confirmed-handle').forEach(handle => {
+		update_confirmed_course_details(handle.textContent);
+	});
+	toggle_elements(DOM_STATES.unconfirmed, false);
+	toggle_elements(DOM_STATES.confirmed, true);
+	toggle_elements(DOM_STATES.neither_confirmed, false);
+}
+
+function handle_unconfirmation_state() {
+	window.user_state = 0;
+	toggle_elements(DOM_STATES.unconfirmed, true);
+	toggle_elements(DOM_STATES.confirmed, false);
+	toggle_elements(DOM_STATES.neither_confirmed, false);
+}
+
+function setup_course_checkboxes(socket) {
+	document.querySelectorAll('.coursecheckbox').forEach(checkbox => {
+		checkbox.addEventListener('input', () => handle_course_selection(socket, checkbox));
+	});
+}
+
+function setup_confirmation_buttons(socket) {
+	document.getElementById('confirmbutton').addEventListener('click', () => socket.send('YC'));
+	document.getElementById('unconfirmbutton').addEventListener('click', () => socket.send('NC'));
+}
