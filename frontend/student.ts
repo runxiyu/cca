@@ -67,10 +67,10 @@ function parse_irc_message(message: string): string[] {
 }
 
 function check_requirements_met(): boolean {
-	const sport_chosen = parseInt(document.getElementById('Sport-chosen')!.textContent!);
-	const sport_required = parseInt(document.getElementById('Sport-required')!.textContent!);
-	const non_sport_chosen = parseInt(document.getElementById('Non-sport-chosen')!.textContent!);
-	const non_sport_required = parseInt(document.getElementById('Non-sport-required')!.textContent!);
+	const sport_chosen = parseInt(document.getElementById('sport-chosen')!.textContent!);
+	const sport_required = parseInt(document.getElementById('sport-required')!.textContent!);
+	const non_sport_chosen = parseInt(document.getElementById('non-sport-chosen')!.textContent!);
+	const non_sport_required = parseInt(document.getElementById('non-sport-required')!.textContent!);
 
 	return sport_chosen >= sport_required && non_sport_chosen >= non_sport_required;
 }
