@@ -50,19 +50,43 @@
 		<div class="reading-width">
 			<p><a href="./export/choices" class="btn-normal btn">Export all choices as a spreadsheet</a></p>
 			<p><a href="./export/students" class="btn-normal btn">Export student confirmed status as a spreadsheet</a></p>
+<form action="/state" method="POST">
+	<table>
+		<thead>
+			<tr>
+				<th scope="col">Year</th>
+				<th scope="col">Off</th>
+				<th scope="col">View</th>
+				<th scope="col">Choose</th>
+			</tr>
+		</thead>
+		<tbody>
 			{{- range $k, $v := .States }}
-			{{- if ge $v 1 }}
-			<p><a href="./state?yeargroup={{ $k }}&target=0" class="btn-danger btn">Disable {{ $k }} student access</a></p>
-			{{- if ge $v 2 }}
-			<p><a href="./state?yeargroup={{ $k }}&target=1" class="btn-danger btn">Stop {{ $k }} course selections</a></p>
-			{{- else }}
-			<p><a href="./state?yeargroup={{ $k }}&target=2" class="btn-primary btn">Start {{ $k }} course selections</a></p>
+			<tr>
+				<th scope="row">{{ $k }}</td>
+				<td>
+					<input type="radio" name="yeargroup_{{ $k }}" value="0" {{ if eq $v 0 }}checked{{ end }} />
+				</td>
+				<td>
+					<input type="radio" name="yeargroup_{{ $k }}" value="1" {{ if eq $v 1 }}checked{{ end }} />
+				</td>
+				<td>
+					<input type="radio" name="yeargroup_{{ $k }}" value="2" {{ if eq $v 2 }}checked{{ end }} />
+				</td>
+			</tr>
 			{{- end }}
-			{{- else }}
-			<p><a href="./state?yeargroup={{ $k }}&target=1" class="btn-primary btn">Enable {{ $k }} student access</a></p>
-			{{- end }}
-			{{- end }}
-			<table class="table-of-courses">
+		</tbody>
+		<tfoot>
+			<tr>
+				<td class="th-like" colspan="4">
+					<button type="submit" class="btn btn-primary">Save Changes</button>
+				</td>
+			</tr>
+		</tfoot>
+	</table>
+</form>
+
+			<table class="table-of-courses" style="margin-top: 2rem;">
 				<colgroup>
 					<col style="width: 5%;" />
 					<col style="width: 5%;" />

@@ -8,11 +8,19 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 )
 
+var errMethodNotAllowed = errors.New("method not allowed")
+var errInvalidForm = errors.New("invalid form")
+
 func handleState(w http.ResponseWriter, req *http.Request) (string, int, error) {
+	if req.Method != http.MethodPost {
+		return "", http.StatusMethodNotAllowed, errMethodNotAllowed
+	}
+
 	_, _, department, err := getUserInfoFromRequest(req)
 	if err != nil {
 		return "", http.StatusUnauthorized, err
@@ -21,28 +29,25 @@ func handleState(w http.ResponseWriter, req *http.Request) (string, int, error) 
 		return "", http.StatusForbidden, errStaffOnly
 	}
 
-	yeargroupParams := req.URL.Query()["yeargroup"]
-	if len(yeargroupParams) == 0 {
-		return "", http.StatusBadRequest, errNoSuchYearGroup
-	}
-	targetParams := req.URL.Query()["target"]
-	if len(targetParams) != 1 {
-		return "", http.StatusBadRequest, errInvalidState
-	}
-	newState, err := strconv.ParseUint(targetParams[0], 10, 32)
+	err = req.ParseForm()
 	if err != nil {
-		return "", http.StatusBadRequest, wrapError(errInvalidState, err)
+		return "", http.StatusBadRequest, wrapError(errInvalidForm, err)
 	}
 
-	for _, yeargroup := range yeargroupParams {
-		err = setState(req.Context(), yeargroup, uint32(newState))
-		if err != nil {
-			return "", http.StatusBadRequest, wrapError(
-				errCannotSetState,
-				err,
-			)
+	for yeargroup, _ := range states {
+		key := "yeargroup_" + yeargroup
+		if newStateStr := req.FormValue(key); newStateStr != "" {
+			newState, err := strconv.ParseUint(newStateStr, 10, 32)
+			if err != nil {
+				return "", http.StatusBadRequest, wrapError(errInvalidState, err)
+			}
+			err = setState(req.Context(), yeargroup, uint32(newState))
+			if err != nil {
+				return "", http.StatusBadRequest, wrapError(errCannotSetState, err)
+			}
 		}
 	}
+
 	http.Redirect(w, req, "/", http.StatusSeeOther)
 	return "", -1, nil
 }
