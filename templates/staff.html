@@ -65,16 +65,16 @@
 						{{- range $k, $v := .States }}
 						<tr>
 							<th scope="row">{{ $k }}</th>
-							<td>
+							<td class="try-to-center">
 								<input type="radio" name="yeargroup_{{ $k }}" value="0" {{ if eq $v.S 0 }}checked{{ end }} />
 							</td>
-							<td>
+							<td class="try-to-center">
 								<input type="radio" name="yeargroup_{{ $k }}" value="1" {{ if eq $v.S 1 }}checked{{ end }} />
 							</td>
-							<td>
+							<td class="try-to-center">
 								<input type="radio" name="yeargroup_{{ $k }}" value="2" {{ if eq $v.S 2 }}checked{{ end }} />
 							</td>
-							<td>
+							<td class="no-right-border">
 								<input type="radio" name="yeargroup_{{ $k }}" value="3" {{ if eq $v.S 3 }}checked{{ end }} />
 							</td>
 							<td class="tdinput">

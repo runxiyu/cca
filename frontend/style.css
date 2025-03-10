@@ -363,6 +363,14 @@ table.table-of-courses {
 	);
 }
 
+td.no-right-border {
+	border-right: none !important;
+}
+
+td.try-to-center {
+	text-align: center;
+}
+
 
 /*
  * .need-connection is the content that should actually display when we are
