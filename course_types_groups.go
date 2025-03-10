@@ -40,7 +40,7 @@ func getCourseTypeMinimumForYearGroup(yearGroup, courseType string) (int, error)
 		case nonSport:
 			return config.Req.Y9.NonSport, nil
 		default:
-			return 0, errInvalidCourseType
+			return 0, fmt.Errorf("invalid course type: %v", courseType)
 		}
 	case "Y10":
 		switch courseType {
@@ -49,7 +49,7 @@ func getCourseTypeMinimumForYearGroup(yearGroup, courseType string) (int, error)
 		case nonSport:
 			return config.Req.Y10.NonSport, nil
 		default:
-			return 0, errInvalidCourseType
+			return 0, fmt.Errorf("invalid course type: %v", courseType)
 		}
 	case "Y11":
 		switch courseType {
@@ -58,7 +58,7 @@ func getCourseTypeMinimumForYearGroup(yearGroup, courseType string) (int, error)
 		case nonSport:
 			return config.Req.Y11.NonSport, nil
 		default:
-			return 0, errInvalidCourseType
+			return 0, fmt.Errorf("invalid course type: %v", courseType)
 		}
 	case "Y12":
 		switch courseType {
@@ -67,10 +67,10 @@ func getCourseTypeMinimumForYearGroup(yearGroup, courseType string) (int, error)
 		case nonSport:
 			return config.Req.Y12.NonSport, nil
 		default:
-			return 0, errInvalidCourseType
+			return 0, fmt.Errorf("invalid course type: %v", courseType)
 		}
 	default:
-		return 0, errNoSuchYearGroup
+		return 0, fmt.Errorf("invalid year group: %v", yearGroup)
 	}
 }
 
@@ -115,52 +115,31 @@ func populateUserCourseTypesAndGroups(
 		userID,
 	)
 	if err != nil {
-		return wrapError(
-			errUnexpectedDBError,
-			err,
-		)
+		return fmt.Errorf("get user choices: %w", err)
 	}
 	for {
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				return wrapError(
-					errUnexpectedDBError,
-					err,
-				)
+				return fmt.Errorf("read next user choice: %w", err)
 			}
 			break
 		}
 		var thisCourseID int
 		err := rows.Scan(&thisCourseID)
 		if err != nil {
-			return wrapError(
-				errUnexpectedDBError,
-				err,
-			)
+			return fmt.Errorf("scan user choice: %w", err)
 		}
 		var thisGroupName, thisTypeName string
 		_course, ok := courses.Load(thisCourseID)
 		if !ok {
-			return fmt.Errorf(
-				"%w: %d",
-				errNoSuchCourse,
-				thisCourseID,
-			)
+			return fmt.Errorf("unknown course in user choice: %v", thisCourseID)
 		}
-		course, ok := _course.(*courseT)
-		if !ok {
-			return errType
-		}
+		course := _course.(*courseT)
 		thisGroupName = course.Group
 		thisTypeName = course.Type
 		if _, ok := (*userCourseGroups)[thisGroupName]; ok {
-			return fmt.Errorf(
-				"%w: user %v, group %v",
-				errMultipleChoicesInOneGroup,
-				userID,
-				thisGroupName,
-			)
+			return fmt.Errorf("duplicate group in user choices: user %v", userID)
 		}
 		(*userCourseGroups)[thisGroupName] = struct{}{}
 		(*userCourseTypes)[thisTypeName]++

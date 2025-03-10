@@ -67,29 +67,23 @@ func generateAuthorizationURL() (string, error) { // \codelabel{generateAuthoriz
  */
 func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) { // \codelabel{handleAuth}
 	if req.Method != http.MethodPost {
-		return "", http.StatusMethodNotAllowed, errPostOnly
+		return "", http.StatusMethodNotAllowed, errors.New("only POST is allowed here")
 	}
 
 	err := req.ParseForm()
 	if err != nil {
-		return "", http.StatusBadRequest, wrapError(errMalformedForm, err)
+		return "", http.StatusBadRequest, fmt.Errorf("malformed form: %w", err)
 	}
 
 	returnedError := req.PostFormValue("error")
 	if returnedError != "" {
 		returnedErrorDescription := req.PostFormValue("error_description")
-		return "", http.StatusUnauthorized, wrapAny(
-			errAuthorizeEndpointError,
-			returnedError+": "+returnedErrorDescription,
-		)
+		return "", http.StatusUnauthorized, fmt.Errorf("jwt auth returned error: %v: %v", returnedError, returnedErrorDescription)
 	}
 
 	idTokenString := req.PostFormValue("id_token")
 	if idTokenString == "" {
-		return "", http.StatusBadRequest, wrapAny(
-			errInsufficientFields,
-			"id_token",
-		)
+		return "", http.StatusUnauthorized, fmt.Errorf("insufficient fields: id_token")
 	}
 
 	claimsTemplate := &msclaimsT{} //exhaustruct:ignore
@@ -99,42 +93,27 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 		myKeyfunc.Keyfunc,
 	)
 	if err != nil {
-		return "", http.StatusBadRequest, wrapError(
-			errCannotParseClaims,
-			err,
-		)
+		return "", http.StatusBadRequest, fmt.Errorf("parse jwt claims: %w", err)
 	}
 
 	switch {
 	case token.Valid:
 		break
 	case errors.Is(err, jwt.ErrTokenMalformed):
-		return "", http.StatusBadRequest, wrapError(
-			errJWTMalformed,
-			err,
-		)
+		return "", http.StatusBadRequest, fmt.Errorf("malformed jwt: %w", err)
 	case errors.Is(err, jwt.ErrTokenSignatureInvalid):
-		return "", http.StatusBadRequest, wrapError(
-			errJWTSignatureInvalid,
-			err,
-		)
+		return "", http.StatusBadRequest, fmt.Errorf("invalid jwt signature: %w", err)
 	case errors.Is(err, jwt.ErrTokenExpired) ||
 		errors.Is(err, jwt.ErrTokenNotValidYet):
-		return "", http.StatusBadRequest, wrapError(
-			errJWTExpired,
-			err,
-		)
+		return "", http.StatusBadRequest, fmt.Errorf("invalid jwt timing: %w", err)
 	default:
-		return "", http.StatusBadRequest, wrapError(
-			errJWTInvalid,
-			err,
-		)
+		return "", http.StatusBadRequest, fmt.Errorf("invalid jwt: %w", err)
 	}
 
 	claims, claimsOk := token.Claims.(*msclaimsT)
 
 	if !claimsOk {
-		return "", http.StatusBadRequest, errCannotUnpackClaims
+		return "", http.StatusBadRequest, errors.New("failed to unpack claims")
 	}
 
 	var department string
@@ -143,7 +122,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	if !ok {
 		department, ok = getDepartmentByGroups(claims.Groups)
 		if !ok {
-			return "", http.StatusBadRequest, errUnknownDepartment
+			return "", http.StatusBadRequest, errors.New("unknown department")
 		}
 	}
 
@@ -191,10 +170,10 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 				claims.Oid,
 			)
 			if err != nil {
-				return "", -1, wrapError(errUnexpectedDBError, err)
+				return "", -1, fmt.Errorf("update user: %w", err)
 			}
 		} else {
-			return "", -1, wrapError(errUnexpectedDBError, err)
+			return "", -1, fmt.Errorf("insert user: %w", err)
 		}
 	}
 
@@ -207,7 +186,7 @@ func setupJwks() error {
 	var err error
 	myKeyfunc, err = keyfunc.NewDefault([]string{config.Auth.Jwks})
 	if err != nil {
-		return wrapError(errCannotSetupJwks, err)
+		return fmt.Errorf("setup jwks: %w", err)
 	}
 	return nil
 }

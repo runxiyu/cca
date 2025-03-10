@@ -58,17 +58,14 @@ func setupCourses(ctx context.Context) error {
 		"SELECT id, nmax, title, ctype, cgroup, teacher, location, course_id, section_id, year_groups FROM courses",
 	)
 	if err != nil {
-		return wrapError(errUnexpectedDBError, err)
+		return fmt.Errorf("get courses from database: %w", err)
 	}
 
 	for {
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				return wrapError(
-					errUnexpectedDBError,
-					err,
-				)
+				return fmt.Errorf("read next course: %w", err)
 			}
 			break
 		}
@@ -86,23 +83,13 @@ func setupCourses(ctx context.Context) error {
 			&currentCourse.YearGroups,
 		)
 		if err != nil {
-			return wrapError(errUnexpectedDBError, err)
+			return fmt.Errorf("scan course: %w", err)
 		}
 		if !checkCourseType(currentCourse.Type) {
-			return fmt.Errorf(
-				"%w: %d %s",
-				errInvalidCourseType,
-				currentCourse.ID,
-				currentCourse.Type,
-			)
+			return fmt.Errorf("invalid course type in database: %d %s", currentCourse.ID, currentCourse.Type)
 		}
 		if !checkCourseGroup(currentCourse.Group) {
-			return fmt.Errorf(
-				"%w: %d %s",
-				errInvalidCourseGroup,
-				currentCourse.ID,
-				currentCourse.Group,
-			)
+			return fmt.Errorf("invalid course group in database: %d %s", currentCourse.ID, currentCourse.Group)
 		}
 		err := db.QueryRow(
 			ctx,
@@ -110,10 +97,7 @@ func setupCourses(ctx context.Context) error {
 			currentCourse.ID,
 		).Scan(&currentCourse.Selected)
 		if err != nil {
-			return wrapError(
-				errUnexpectedDBError,
-				err,
-			)
+			return fmt.Errorf("get selected count: %w", err)
 		}
 		courses.Store(currentCourse.ID, &currentCourse)
 		atomic.AddUint32(&numCourses, 1)
@@ -141,10 +125,7 @@ func (course *courseT) decrementSelectedAndPropagate(
 	}()
 	err := sendSelectedUpdate(ctx, conn, course.ID)
 	if err != nil {
-		return wrapError(
-			errCannotSend,
-			err,
-		)
+		return fmt.Errorf("send selected update: %w", err)
 	}
 	return nil
 }
@@ -163,7 +144,7 @@ func yearGroupsStringToNumber(s string) (uint8, error) {
 	for _, yg := range ss {
 		v, ok := yearGroupsNumberBits[yg]
 		if !ok {
-			return spec, wrapAny(errYearGroupSpecString, s)
+			return spec, fmt.Errorf("invalid year group: %s", yg)
 		}
 		spec |= v
 	}

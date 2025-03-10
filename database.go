@@ -9,6 +9,8 @@ package main
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -24,11 +26,11 @@ const pgErrUniqueViolation = "23505"
 func setupDatabase() error {
 	var err error
 	if config.DB.Type != "postgres" {
-		return errUnsupportedDatabaseType
+		return errors.New("only postgres databases are supported")
 	}
 	db, err = pgxpool.New(context.Background(), config.DB.Conn)
 	if err != nil {
-		return wrapError(errUnexpectedDBError, err)
+		return fmt.Errorf("open database: %w", err)
 	}
 	return nil
 }

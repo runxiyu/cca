@@ -9,6 +9,8 @@ package main
 
 import (
 	"encoding/csv"
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -22,7 +24,7 @@ func handleExportChoices(
 		return "", -1, err
 	}
 	if department != staffDepartment {
-		return "", http.StatusForbidden, errStaffOnly
+		return "", http.StatusForbidden, errors.New("staff only")
 	}
 
 	type userCacheT struct {
@@ -34,14 +36,14 @@ func handleExportChoices(
 
 	rows, err := db.Query(req.Context(), "SELECT userid, courseid FROM choices")
 	if err != nil {
-		return "", -1, wrapError(errUnexpectedDBError, err)
+		return "", -1, fmt.Errorf("query choices: %w", err)
 	}
 	output := make([][]string, 0)
 	for {
 		if !rows.Next() {
 			err := rows.Err()
 			if err != nil {
-				return "", -1, wrapError(errUnexpectedDBError, err)
+				return "", -1, fmt.Errorf("read next choice: %w", err)
 			}
 			break
 		}
@@ -52,7 +54,7 @@ func handleExportChoices(
 		var currentCourseID int
 		err := rows.Scan(&currentUserID, &currentCourseID)
 		if err != nil {
-			return "", -1, wrapError(errUnexpectedDBError, err)
+			return "", -1, fmt.Errorf("scan choice: %w", err)
 		}
 		currentUserCache, ok := userCacheMap[currentUserID]
 		if ok {
@@ -71,7 +73,7 @@ func handleExportChoices(
 				&currentDepartment,
 			)
 			if err != nil {
-				return "", -1, wrapError(errUnexpectedDBError, err)
+				return "", -1, fmt.Errorf("scan user info: %w")
 			}
 			before, _, found := strings.Cut(currentUserEmail, "@")
 			if found {
@@ -88,14 +90,11 @@ func handleExportChoices(
 
 		_course, ok := courses.Load(currentCourseID)
 		if !ok {
-			return "", -1, wrapAny(errNoSuchCourse, currentCourseID)
+			return "", -1, fmt.Errorf("no such course")
 		}
-		course, ok := _course.(*courseT)
-		if !ok {
-			return "", -1, errType
-		}
+		course := _course.(*courseT)
 		if course == nil {
-			return "", -1, wrapAny(errNoSuchCourse, currentCourseID)
+			return "", -1, fmt.Errorf("no such course")
 		}
 		output = append(
 			output,
@@ -124,15 +123,15 @@ func handleExportChoices(
 		"Course ID",
 	})
 	if err != nil {
-		return "", -1, wrapError(errHTTPWrite, err)
+		return "", -1, fmt.Errorf("write http stream: %w", err)
 	}
 	err = csvWriter.WriteAll(output)
 	if err != nil {
-		return "", -1, wrapError(errHTTPWrite, err)
+		return "", -1, fmt.Errorf("write http stream: %w", err)
 	}
 	csvWriter.Flush()
 	if csvWriter.Error() != nil {
-		return "", -1, wrapError(errHTTPWrite, err)
+		return "", -1, fmt.Errorf("write http stream: %w", err)
 	}
 	return "", -1, nil
 }

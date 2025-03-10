@@ -9,6 +9,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 )
 
 func getConfirmedStatus(
@@ -21,7 +22,7 @@ func getConfirmedStatus(
 		userID,
 	).Scan(&confirmed)
 	if err != nil {
-		retErr = wrapError(errUnexpectedDBError, err)
+		retErr = fmt.Errorf("get confirmed status: %w", err)
 	}
 	return
 }
