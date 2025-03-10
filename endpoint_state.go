@@ -84,7 +84,6 @@ func handleState(w http.ResponseWriter, req *http.Request) (string, int, error) 
 		}
 	}
 
-
 	http.Redirect(w, req, "/", http.StatusSeeOther)
 	return "", -1, nil
 }

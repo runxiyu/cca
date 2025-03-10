@@ -10,8 +10,8 @@ package main
 import (
 	"errors"
 	"net/http"
-	"time"
 	"sync/atomic"
+	"time"
 )
 
 func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) {
@@ -84,17 +84,23 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 	}
 
 	if department == staffDepartment {
-		StatesDereferenced := map[string]struct{ S uint32; Sched *string }{}
+		StatesDereferenced := map[string]struct {
+			S     uint32
+			Sched *string
+		}{}
 		for k, v := range states {
 			var schedule_time *time.Time
 			schedule_time = schedules[k].Load()
 			var schedule_string *string
 			if schedule_time != nil {
 				_1 := schedule_time.Format("2006-01-02T15:04")
-				schedule_string = 		&_1
+				schedule_string = &_1
 			}
-			StatesDereferenced[k] = struct{ S uint32; Sched *string }{
-				S: atomic.LoadUint32(v),
+			StatesDereferenced[k] = struct {
+				S     uint32
+				Sched *string
+			}{
+				S:     atomic.LoadUint32(v),
 				Sched: schedule_string,
 			}
 		}
@@ -102,8 +108,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 			w,
 			"staff",
 			struct {
-				Name     string
-				States   map[string]struct{ S uint32; Sched *string }
+				Name   string
+				States map[string]struct {
+					S     uint32
+					Sched *string
+				}
 				StatesOr uint32
 				Groups   *map[string]groupT
 			}{
