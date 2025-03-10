@@ -10,6 +10,7 @@ package main
 import (
 	"errors"
 	"net/http"
+	"time"
 	"sync/atomic"
 )
 
@@ -83,16 +84,26 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 	}
 
 	if department == staffDepartment {
-		StatesDereferenced := map[string]uint32{}
+		StatesDereferenced := map[string]struct{ S uint32; Sched *string }{}
 		for k, v := range states {
-			StatesDereferenced[k] = atomic.LoadUint32(v)
+			var schedule_time *time.Time
+			schedule_time = schedules[k].Load()
+			var schedule_string *string
+			if schedule_time != nil {
+				_1 := schedule_time.Format("2006-01-02T15:04")
+				schedule_string = 		&_1
+			}
+			StatesDereferenced[k] = struct{ S uint32; Sched *string }{
+				S: atomic.LoadUint32(v),
+				Sched: schedule_string,
+			}
 		}
 		err := tmpl.ExecuteTemplate(
 			w,
 			"staff",
 			struct {
 				Name     string
-				States   map[string]uint32
+				States   map[string]struct{ S uint32; Sched *string }
 				StatesOr uint32
 				Groups   *map[string]groupT
 			}{
@@ -101,7 +112,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 				func() uint32 {
 					var ret uint32 /* all zero bits */
 					for _, v := range StatesDereferenced {
-						ret |= v
+						ret |= v.S
 					}
 					return ret
 				}(),

@@ -223,7 +223,8 @@ textarea {
 }
 textarea,
 input[type=text],
-input[type=password] {
+input[type=password],
+input[type=datetime-local] {
 	font-family: sans-serif;
 	font-size: smaller;
 	background-color: var(--box);
@@ -242,12 +243,14 @@ td.tdinput, th.tdinput {
 td.tdinput textarea,
 td.tdinput input[type=text],
 td.tdinput input[type=password],
+td.tdinput input[type=datetime-local],
 th.tdinput textarea,
 th.tdinput input[type=text],
-th.tdinput input[type=password] {
+th.tdinput input[type=password],
+th.tdinput input[type=datetime-local] {
 	background-color: transparent !important;
 }
-textarea:focus, input[type=text]:focus, input[type=password]:focus {
+textarea:focus, input[type=text]:focus, input[type=password]:focus, input[type=datetime-local]:focus {
 	outline: none;
 }
 

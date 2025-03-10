@@ -35,6 +35,7 @@ var (
 	errNoSuchCourse                     = errors.New("reference to non-existent course")
 	errInvalidState                     = errors.New("invalid state")
 	errCannotSetState                   = errors.New("cannot set state")
+	errCannotSetSchedule                = errors.New("cannot set schedule")
 	errWebSocketWrite                   = errors.New("error writing to websocket")
 	errHTTPWrite                        = errors.New("error writing to http writer")
 	errCannotCheckCookie                = errors.New("error checking cookie")

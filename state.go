@@ -11,6 +11,7 @@ import (
 	"context"
 	"errors"
 	"sync/atomic"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -28,22 +29,31 @@ var states = map[string]*uint32{
 	"Y12": new(uint32),
 }
 
-func loadState() error {
+var schedules = map[string]*atomic.Pointer[time.Time]{
+	"Y9":  {},
+	"Y10": {},
+	"Y11": {},
+	"Y12": {},
+}
+
+func loadStateAndSchedule() error {
 	for yeargroup := range states {
 		var state uint32
+		var schedule time.Time
 		err := db.QueryRow(
 			context.Background(),
-			"SELECT state FROM states WHERE yeargroup = $1",
+			"SELECT state, schedule FROM states WHERE yeargroup = $1",
 			yeargroup,
-		).Scan(&state)
+		).Scan(&state, &schedule)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
 				state = 0
 				_, err := db.Exec(
 					context.Background(),
-					"INSERT INTO states(yeargroup, state) VALUES ($1, $2)",
+					"INSERT INTO states(yeargroup, state, schedule) VALUES ($1, $2, $3)",
 					yeargroup,
 					state,
+					time.Time{},
 				)
 				if err != nil {
 					return wrapError(errUnexpectedDBError, err)
@@ -56,7 +66,12 @@ func loadState() error {
 		if !ok {
 			return errNoSuchYearGroup
 		}
+		_schedule, ok := schedules[yeargroup]
+		if !ok {
+			return errNoSuchYearGroup
+		}
 		atomic.StoreUint32(_state, state)
+		_schedule.Store(&schedule)
 	}
 	return nil
 }
@@ -72,6 +87,28 @@ func saveStateValue(ctx context.Context, yeargroup string, newState uint32) erro
 		return wrapError(errUnexpectedDBError, err)
 	}
 	return nil
+}
+
+func saveScheduleValue(ctx context.Context, yeargroup string, newSchedule *time.Time) error {
+	_, err := db.Exec(
+		ctx,
+		"UPDATE states SET schedule = $2 WHERE yeargroup = $1",
+		yeargroup,
+		*newSchedule,
+	)
+	if err != nil {
+		return wrapError(errUnexpectedDBError, err)
+	}
+	return nil
+}
+
+func setSchedule(ctx context.Context, yeargroup string, newSchedule *time.Time) error {
+	_schedule, ok := schedules[yeargroup]
+	if !ok {
+		return errNoSuchYearGroup
+	}
+	_schedule.Store(newSchedule)
+	return saveScheduleValue(ctx, yeargroup, newSchedule)
 }
 
 func setState(ctx context.Context, yeargroup string, newState uint32) error {

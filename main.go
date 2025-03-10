@@ -169,7 +169,7 @@ func main() {
 	}
 
 	slog.Info("loading state")
-	if err := loadState(); err != nil {
+	if err := loadStateAndSchedule(); err != nil {
 		log.Fatalln(err)
 	}
 

@@ -57,35 +57,41 @@
 							<th scope="col">Year</th>
 							<th scope="col">Off</th>
 							<th scope="col">View</th>
-							<th scope="col">Choose</th>
+							<th scope="col">On</th>
+							<th scope="col" colspan="2">Schedule On</th>
 						</tr>
 					</thead>
 					<tbody>
 						{{- range $k, $v := .States }}
 						<tr>
-							<th scope="row">{{ $k }}</td>
+							<th scope="row">{{ $k }}</th>
 							<td>
-								<input type="radio" name="yeargroup_{{ $k }}" value="0" {{ if eq $v 0 }}checked{{ end }} />
+								<input type="radio" name="yeargroup_{{ $k }}" value="0" {{ if eq $v.S 0 }}checked{{ end }} />
 							</td>
 							<td>
-								<input type="radio" name="yeargroup_{{ $k }}" value="1" {{ if eq $v 1 }}checked{{ end }} />
+								<input type="radio" name="yeargroup_{{ $k }}" value="1" {{ if eq $v.S 1 }}checked{{ end }} />
 							</td>
 							<td>
-								<input type="radio" name="yeargroup_{{ $k }}" value="2" {{ if eq $v 2 }}checked{{ end }} />
+								<input type="radio" name="yeargroup_{{ $k }}" value="2" {{ if eq $v.S 2 }}checked{{ end }} />
+							</td>
+							<td>
+								<input type="radio" name="yeargroup_{{ $k }}" value="3" {{ if eq $v.S 3 }}checked{{ end }} />
+							</td>
+							<td class="tdinput">
+								<input type="datetime-local" name="schedule_{{ $k }}" {{ if $v.Sched }}value="{{$v.Sched}}"{{end}} />
 							</td>
 						</tr>
 						{{- end }}
 					</tbody>
 					<tfoot>
 						<tr>
-							<td class="th-like" colspan="4">
+							<td class="th-like" colspan="6">
 								<button type="submit" class="btn btn-primary">Save Changes</button>
 							</td>
 						</tr>
 					</tfoot>
 				</table>
 			</form>
-
 			<table class="table-of-courses" style="margin-top: 2rem;">
 				<colgroup>
 					<col style="width: 5%;" />
