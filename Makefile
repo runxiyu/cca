@@ -1,95 +1,119 @@
-# TODO: Use some variables to clean up the massive documentation file specifiers
-
-.PHONY: cca default iadocs docs build_iadocs build_docs setcap clean
+.PHONY: default iadocs docs build_iadocs build_docs setcap clean
 
 default: dist/cca docs iadocs
 
-cca: dist/cca
+# Docs file lists
 
-docs: dist/docs/admin_handbook.html dist/docs/cca.scfg.example dist/docs/azure.json dist/docs/courses_example.csv dist/docs/schema.sql dist/docs/drop.sql
+DOCS_FILES := admin_handbook.html cca.scfg.example azure.json courses_example.csv schema.sql drop.sql
+IADOCS_FILES := index.html cover_page.htm appendix.pdf crita_planning.pdf critb_design.pdf \
+                critb_recordoftasks.htm critc_development.pdf critd_functionality.pdf crite_evaluation.pdf
 
-iadocs: dist/iadocs/index.html dist/iadocs/cover_page.htm dist/iadocs/appendix.pdf dist/iadocs/crita_planning.pdf dist/iadocs/critb_design.pdf dist/iadocs/critb_recordoftasks.htm dist/iadocs/critc_development.pdf dist/iadocs/critd_functionality.pdf dist/iadocs/crite_evaluation.pdf
+# Create docs and iadocs targets using patterns
 
-# Final binary which tries to embed stuff
-dist/cca: go.* *.go build/static/style.css build/static/student.js templates/* build/docs/admin_handbook.html build/docs/cca.scfg.example build/docs/azure.json build/iadocs/index.html build/iadocs/cover_page.htm build/iadocs/appendix.pdf build/iadocs/crita_planning.pdf build/iadocs/critb_design.pdf build/iadocs/critb_recordoftasks.htm build/iadocs/critc_development.pdf build/iadocs/critd_functionality.pdf build/iadocs/crite_evaluation.pdf .editorconfig .gitignore .gitattributes scripts/* sql/* docs/* iadocs/* README.md LICENSE Makefile
+docs: $(DOCS_FILES:%=dist/docs/%)
+iadocs: $(IADOCS_FILES:%=dist/iadocs/%)
+
+# Final binary with embedded stuff
+
+dist/cca: go.* *.go build/static/style.css build/static/student.js templates/* \
+          $(DOCS_FILES:%=build/docs/%) $(IADOCS_FILES:%=build/iadocs/%) \
+          .editorconfig .gitignore .gitattributes scripts/* sql/* docs/* iadocs/* README.md LICENSE Makefile
 	mkdir -p dist
 	go build -o $@
 
-# Documentation
+# Generic docs rules
+
 dist/docs/%: build/docs/%
-	mkdir -p dist/docs
+	mkdir -p $(@D)
 	cp $< $@
+
 build/docs/%.sql: sql/%.sql
-	mkdir -p build/docs
+	mkdir -p $(@D)
 	cp $< $@
+
 build/docs/%.csv: docs/%.csv
-	mkdir -p build/docs
+	mkdir -p $(@D)
 	cp $< $@
+
 build/docs/%.html: docs/%.md docs/handbook.css
-	mkdir -p build/docs
+	mkdir -p $(@D)
 	pandoc --embed-resources --wrap none --standalone -t html -f markdown --css docs/handbook.css $< | gominify --type html -o $@
+
+# Extra docs
+
 build/docs/cca.scfg.example: docs/cca.scfg.example
-	mkdir -p build/docs
+	mkdir -p $(@D)
 	cp $< $@
+
 build/docs/azure.json: docs/azure.json
-	mkdir -p build/docs
+	mkdir -p $(@D)
 	cp $< $@
 
 # IA documentation
-dist/iadocs/%.pdf: build/iadocs/%.pdf
-	mkdir -p dist/iadocs
-	cp $< $@
-dist/iadocs/%.htm: build/iadocs/%.htm
-	mkdir -p dist/iadocs
-	cp $< $@
-dist/iadocs/%.html: build/iadocs/%.html
-	mkdir -p dist/iadocs
-	cp $< $@
-build/iadocs/%.htm: iadocs/%.htm
-	mkdir -p build/iadocs
-	gominify --html-keep-end-tags --html-keep-document-tags -o $@ $<
-build/iadocs/index.html: build/iadocs/cover_page.htm
-	cp $< $@
-build/iadocs/%.pdf: iadocs/%.tex build/iadocs/header.texinc build/iadocs/bib.bib
-	mkdir -p build/iadocs
-	lualatex -interaction batchmode -output-directory=build/iadocs $<
-	biber --output-directory=build/iadocs build/$(<:.tex=.bcf)
-	lualatex -interaction batchmode -output-directory=build/iadocs $<
-	lualatex -interaction batchmode -output-directory=build/iadocs $<
-build/iadocs/critc_development.pdf: iadocs/critc_development.tex build/iadocs/header.texinc build/iadocs/bib.bib build/iadocs/appendix.pdf
-	# Technically I need build/iadocs/appendix.aux instead of build/iadocs/appendix.pdf to be available at this point
-	mkdir -p build/iadocs
-	lualatex -interaction batchmode -output-directory=build/iadocs $<
-	biber --output-directory=build/iadocs build/$(<:.tex=.bcf)
-	lualatex -interaction batchmode -output-directory=build/iadocs $<
-	lualatex -interaction batchmode -output-directory=build/iadocs $<
-build/iadocs/appendix.pdf: iadocs/appendix.tex build/iadocs/source.gen build/iadocs/agpl.texinc
-	mkdir -p build/iadocs
-	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
-	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
-build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.ts templates/* scripts/latexify-source.sh docs/* sql/* scripts/* iadocs/*.tex iadocs/*.texinc iadocs/bib.bib Makefile README.md LICENSE .editorconfig .gitignore .gitattributes
-	mkdir -p build/iadocs
-	scripts/latexify-source.sh
-build/iadocs/%.texinc: iadocs/%.texinc
-	mkdir -p build/iadocs
-	cp $< $@
-build/iadocs/%.bib: iadocs/%.bib
-	mkdir -p build/iadocs
+
+dist/iadocs/%: build/iadocs/%
+	mkdir -p $(@D)
 	cp $< $@
 
-# Temporary files in build/ to be embedded into the final binary
+build/iadocs/%.htm: iadocs/%.htm
+	mkdir -p $(@D)
+	gominify --html-keep-end-tags --html-keep-document-tags -o $@ $<
+
+build/iadocs/index.html: build/iadocs/cover_page.htm
+	cp $< $@
+
+build/iadocs/%.pdf: iadocs/%.tex build/iadocs/header.texinc build/iadocs/bib.bib
+	mkdir -p $(@D)
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+	biber --output-directory=build/iadocs build/$(<:.tex=.bcf)
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+
+# Special case for Criterion C which needs the appendix's references
+
+build/iadocs/critc_development.pdf: iadocs/critc_development.tex build/iadocs/header.texinc build/iadocs/bib.bib build/iadocs/appendix.pdf
+	# Technically I need build/iadocs/appendix.aux instead of build/iadocs/appendix.pdf
+	mkdir -p $(@D)
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+	biber --output-directory=build/iadocs build/$(<:.tex=.bcf)
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+	lualatex -interaction batchmode -output-directory=build/iadocs $<
+
+# Special case for the appendix and the PDF'ed source code
+
+build/iadocs/appendix.pdf: iadocs/appendix.tex build/iadocs/source.gen build/iadocs/agpl.texinc
+	mkdir -p $(@D)
+	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
+	lualatex -interaction batchmode -shell-escape -output-directory=build/iadocs $<
+
+build/iadocs/source.gen: go.* *.go frontend/*.css frontend/*.ts templates/* scripts/latexify-source.sh \
+                        docs/* sql/* scripts/* iadocs/*.tex iadocs/*.texinc iadocs/bib.bib Makefile \
+                        README.md LICENSE .editorconfig .gitignore .gitattributes
+	mkdir -p $(@D)
+	scripts/latexify-source.sh
+
+# TeX includes and bibliography files could just be copied over
+
+build/iadocs/%.texinc: iadocs/%.texinc
+	mkdir -p $(@D)
+	cp $< $@
+
+build/iadocs/%.bib: iadocs/%.bib
+	mkdir -p $(@D)
+	cp $< $@
+
+# Minified files will be embedded from build/static/
+
 build/static/style.css: frontend/style.css
-	mkdir -p build/static
+	mkdir -p $(@D)
 	gominify -o $@ $<
 
 build/static/student.js: frontend/student.ts
-	mkdir -p build/static
+	mkdir -p $(@D)
 	tsc $< --target ES6 --strict --noImplicitAny --outFile $@
 	gominify -o $@ $@
 
-# Quick target to set capabilities
-setcap: dist/cca
-	setcap 'cap_net_bind_service=+ep' dist/cca
+# Cleaning (git clean -xfd is a bit too aggressive, I lost my config once)
 
 clean:
 	rm -rf dist build
