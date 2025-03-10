@@ -9,6 +9,14 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content="YK Pao School CCA Selection System" />
+<style>
+input[type=radio] {
+	accent-color: #6666ff;
+}
+input[type=radio].active {
+	accent-color: #008800;
+}
+</style>
 	</head>
 	<body>
 		<div style="font-size: 150%; color: red; font-weight: bold;" class="broken-styling-warning">
@@ -68,16 +76,16 @@
 						<tr>
 							<th scope="row">{{ $k }}</th>
 							<td class="try-to-center">
-								<input type="radio" name="yeargroup_{{ $k }}" value="0" {{ if eq $v.S 0 }}checked{{ end }} />
+								<input type="radio" name="yeargroup_{{ $k }}" value="0" {{ if eq $v.S 0 }}checked class="active"{{ end }} />
 							</td>
 							<td class="try-to-center">
-								<input type="radio" name="yeargroup_{{ $k }}" value="1" {{ if eq $v.S 1 }}checked{{ end }} />
+								<input type="radio" name="yeargroup_{{ $k }}" value="1" {{ if eq $v.S 1 }}checked class="active"{{ end }} />
 							</td>
 							<td class="try-to-center">
-								<input type="radio" name="yeargroup_{{ $k }}" value="2" {{ if eq $v.S 2 }}checked{{ end }} />
+								<input type="radio" name="yeargroup_{{ $k }}" value="2" {{ if eq $v.S 2 }}checked class="active"{{ end }} />
 							</td>
 							<td class="no-right-border">
-								<input type="radio" name="yeargroup_{{ $k }}" value="3" {{ if eq $v.S 3 }}checked{{ end }} />
+								<input type="radio" name="yeargroup_{{ $k }}" value="3" {{ if eq $v.S 3 }}checked class="active"{{ end }} />
 							</td>
 							<td class="tdinput">
 								<input type="datetime-local" name="schedule_{{ $k }}" {{ if $v.Sched }}value="{{$v.Sched}}"{{end}} />
@@ -88,7 +96,14 @@
 					<tfoot>
 						<tr>
 							<td class="th-like" colspan="6">
-								<button type="submit" class="btn btn-primary">Save Changes</button>
+								<div class="flex-justify">
+									<div class="left">
+										<span style="color: #008800;">Active</span> / <span style="color: #6666ff;">Selected</span>
+									</div>
+									<div class="right">
+										<button type="submit" class="btn btn-primary">Save Changes</button>
+									</div>
+								</div>
 							</td>
 						</tr>
 					</tfoot>
