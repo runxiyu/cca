@@ -33,6 +33,6 @@ The following link to the raw HTML source of the documentation as served by
 cgit. However, a demo instance would provide better documentation, but I'm
 not currently hosting one.
 
-* [Admin handbook](https://git.runxiyu.org/ykps/cca.git/plain/docs/admin_handbook.html)
-* [IA cover page](https://git.runxiyu.org/ykps/cca.git/plain/iadocs/cover_page.htm)
+* [Admin handbook](https://git.runxiyu.org/cca.git/plain/docs/admin_handbook.html)
+* [IA cover page](https://git.runxiyu.org/cca.git/plain/iadocs/cover_page.htm)
 
