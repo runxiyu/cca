@@ -8,7 +8,7 @@ require (
 	git.sr.ht/~emersion/go-scfg v0.0.0-20250102010123-2f3fb2d5d50e
 	github.com/MicahParks/keyfunc/v3 v3.3.10
 	github.com/coder/websocket v1.8.12
-	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/jackc/pgx/v5 v5.7.2
 )
 
