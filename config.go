@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"os"
 
-	"git.sr.ht/~emersion/go-scfg"
+	"codeberg.org/emersion/go-scfg"
 )
 
 /*
