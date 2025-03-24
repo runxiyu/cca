@@ -123,7 +123,7 @@ func setState(ctx context.Context, yeargroup string, newState uint32) error {
 		err := propagate(yeargroup, "START")
 		if err != nil {
 			return err
-	 	}
+		}
 	case 3:
 		// TODO XXX: Implement this!
 	default:

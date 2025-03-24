@@ -139,7 +139,6 @@ func fetchConfig(path string) (retErr error) {
 
 	err = scfg.NewDecoder(bufio.NewReader(f)).Decode(&configWithPointers)
 	if err != nil {
-
 		return fmt.Errorf("decode config: %w", err)
 	}
 
