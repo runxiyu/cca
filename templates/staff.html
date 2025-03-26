@@ -58,7 +58,7 @@ input[type=radio].active {
 		<div class="reading-width">
 			<p><a href="./export/choices" class="btn-normal btn">Export all choices as a spreadsheet</a></p>
 			<p><a href="./export/students" class="btn-normal btn">Export student confirmed status as a spreadsheet</a></p>
-			<form action="/state" method="POST">
+			<form style="margin-top: 2rem;" action="/state" method="POST">
 				<table>
 					<thead>
 						<tr colspan="6">
@@ -134,7 +134,7 @@ input[type=radio].active {
 					</tr>
 					<tr>
 						<th colspan="7" class="tdinput">
-							<input type="text" id="search" placeholder="Search..." />
+							<input type="text" id="searchcourses" placeholder="Search..." />
 						</th>
 					</tr>
 				</thead>
@@ -181,13 +181,71 @@ input[type=radio].active {
 					</tr>
 				</tfoot>
 			</table>
+			<table class="table-of-students" style="margin-top: 2rem;">
+				<thead>
+					<tr colspan="4">
+						<th colspan="4">Students</th>
+					</tr>
+					<tr>
+						<th scope="col">Name</th>
+						<th scope="col">Email</th>
+						<th scope="col">Year</th>
+						<th scope="col">Confirmed</th>
+					</tr>
+					<tr>
+						<th colspan="4" class="tdinput">
+							<input type="text" id="searchstudents" placeholder="Search..." />
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{- range .Students }}
+					<tr class="studentitem">
+						<td>{{.Name}}</td>
+						<td>{{.Email}}</td>
+						<td>{{.Department}}</td>
+						<td>{{.Status}}</td>
+					{{- end }}
+				</tbody>
+				<tfoot>
+					<tr>
+						<td class="th-like" colspan="4">
+							<form method="POST" enctype="multipart/form-data" action="/newstudents">
+								<div class="flex-justify">
+									<div class="left">
+										Upload student list
+									</div>
+									<div class="right">
+										<input title="Upload student list (CSV)" type="file" id="studentscsv" name="studentscsv" accept=".csv" />
+										<input type="submit" value="Replace" class="btn btn-danger" />
+									</div>
+								</div>
+							</form>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4">
+							The list must only contain &ldquo;Name&rdquo; and &ldquo;ID&rdquo; columns. ID must be of form &ldquo;12345&rdquo; with no &ldquo;s&rdquo; prefix.
+						</td>
+					</tr>
+				</tfoot>
+			</table>
 		</div>
 		<script>
 			document.addEventListener("DOMContentLoaded", () => {
-				const search = document.getElementById("search")
+				const search = document.getElementById("searchcourses")
 				search.addEventListener("input", () => {
 					const s = search.value.toLowerCase().trim().normalize('NFD')
 					document.querySelectorAll(".courseitem").forEach(c => {
+						c.hidden = (!c.textContent.toLowerCase().normalize('NFD').includes(s)) && (s.length > 0)
+					})
+				})
+			})
+			document.addEventListener("DOMContentLoaded", () => {
+				const search = document.getElementById("searchstudents")
+				search.addEventListener("input", () => {
+					const s = search.value.toLowerCase().trim().normalize('NFD')
+					document.querySelectorAll(".studentitem").forEach(c => {
 						c.hidden = (!c.textContent.toLowerCase().normalize('NFD').includes(s)) && (s.length > 0)
 					})
 				})

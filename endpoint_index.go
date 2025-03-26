@@ -104,7 +104,13 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 				Sched: schedule_string,
 			}
 		}
-		err := tmpl.ExecuteTemplate(
+
+		student_ish_es, err := eee(req.Context())
+		if err != nil {
+			return "", -1, err
+		}
+
+		err = tmpl.ExecuteTemplate(
 			w,
 			"staff",
 			struct {
@@ -115,6 +121,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 				}
 				StatesOr uint32
 				Groups   *map[string]groupT
+				Students []student_ish
 			}{
 				username,
 				StatesDereferenced,
@@ -126,6 +133,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 					return ret
 				}(),
 				&_groups,
+				student_ish_es,
 			},
 		)
 		if err != nil {
@@ -193,4 +201,11 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 		return "", -1, wrapError(errCannotWriteTemplate, err)
 	}
 	return "", -1, nil
+}
+
+type student_ish struct {
+	Name       string
+	Email      string
+	Department string
+	Status     string
 }
