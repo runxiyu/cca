@@ -111,6 +111,7 @@ func main() {
 	setHandler("/auth", handleAuth)
 	setHandler("/state", handleState)
 	setHandler("/newcourses", handleNewCourses)
+	setHandler("/newstudents", handleNewStudents)
 
 	var l net.Listener
 

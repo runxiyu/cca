@@ -112,7 +112,7 @@ func handleExportChoices(
 
 	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w.Header().Set("Content-Disposition", "attachment;filename=cca_choices.csv")
-	_, err = w.Write([]byte{0xEF, 0xBB, 0xBF})
+	_, err = w.Write([]byte{0xEF, 0xBB, 0xBF}) // utf8 bom because excel
 	if err != nil {
 		return "", -1, fmt.Errorf("write http stream: %w", err)
 	}

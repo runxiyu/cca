@@ -19,6 +19,10 @@ CREATE TABLE users (
 	expr BIGINT, -- seconds
 	confirmed BOOLEAN NOT NULL
 );
+CREATE TABLE expected_students (
+	id INT PRIMARY KEY NOT NULL,
+	name TEXT NOT NULL
+);
 CREATE TABLE choices (
 	PRIMARY KEY (userid, courseid),
 	seltime BIGINT NOT NULL, -- microseconds
