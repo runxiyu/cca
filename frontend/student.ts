@@ -110,6 +110,14 @@ function update_confirmed_course_details(handle: string): void {
 	});
 }
 
+function swap_2_and_3(input: string): string {
+	return input.replace(/[23]/g, (char) => {
+		if (char === "2") return "3";
+		if (char === "3") return "2";
+		return char;
+	});
+}
+
 function handle_course_selection(checkbox: HTMLInputElement): void {
 	if (!checkbox.id.startsWith('tick')) {
 		alert(`${checkbox.id} is not in the correct format.`);
@@ -119,11 +127,12 @@ function handle_course_selection(checkbox: HTMLInputElement): void {
 	checkbox.indeterminate = true;
 
 	if (checkbox.checked) {
+		let swapped_group = swap_2_and_3(checkbox.dataset.group!);
 		document.querySelectorAll('.coursecheckbox').forEach(chk => {
 			const other_checkbox = chk as HTMLInputElement;
 			if (
 				other_checkbox.checked &&
-				other_checkbox.dataset.group === checkbox.dataset.group &&
+				(other_checkbox.dataset.group === checkbox.dataset.group || other_checkbox.dataset.group === swapped_group) &&
 				other_checkbox.id !== checkbox.id
 			) {
 				other_checkbox.indeterminate = true;
