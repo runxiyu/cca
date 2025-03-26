@@ -9,6 +9,7 @@ package main
 
 import (
 	"encoding/csv"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -76,6 +77,10 @@ func handleExportStudents(
 		"Content-Disposition",
 		"attachment;filename=cca_students.csv",
 	)
+	_, err = w.Write([]byte{0xEF, 0xBB, 0xBF})
+	if err != nil {
+		return "", -1, fmt.Errorf("write http stream: %w", err)
+	}
 	csvWriter := csv.NewWriter(w)
 	err = csvWriter.Write([]string{
 		"Student Name",
