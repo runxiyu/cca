@@ -184,6 +184,8 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	go pollState()
+
 	if config.Listen.Proto == "http" {
 		slog.Info("serving http")
 		srv := &http.Server{

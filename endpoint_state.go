@@ -21,6 +21,16 @@ var (
 	errInvalidSchedule  = errors.New("invalid schedule")
 )
 
+var loc *time.Location
+
+func init() {
+	var err error
+	loc, err = time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		panic("We're a school in Shanghai, right? " + err.Error())
+	}
+}
+
 func handleState(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	if req.Method != http.MethodPost {
 		return "", http.StatusMethodNotAllowed, errMethodNotAllowed
@@ -51,6 +61,17 @@ func handleState(w http.ResponseWriter, req *http.Request) (string, int, error) 
 	}
 
 	for yeargroup := range states {
+		keySched := "schedule_" + yeargroup
+		if newScheduleStr := req.FormValue(keySched); newScheduleStr != "" {
+			newSchedule, err := time.ParseInLocation("2006-01-02T15:04", newScheduleStr, loc)
+			if err != nil {
+				return "", http.StatusBadRequest, wrapError(errInvalidSchedule, err)
+			}
+			err = setSchedule(req.Context(), yeargroup, &newSchedule)
+			if err != nil {
+				return "", http.StatusBadRequest, wrapError(errCannotSetSchedule, err)
+			}
+		}
 		key := "yeargroup_" + yeargroup
 		if newStateStr := req.FormValue(key); newStateStr != "" {
 			newState, err := strconv.ParseUint(newStateStr, 10, 32)
@@ -60,17 +81,6 @@ func handleState(w http.ResponseWriter, req *http.Request) (string, int, error) 
 			err = setState(req.Context(), yeargroup, uint32(newState))
 			if err != nil {
 				return "", http.StatusBadRequest, wrapError(errCannotSetState, err)
-			}
-		}
-		keySched := "schedule_" + yeargroup
-		if newScheduleStr := req.FormValue(keySched); newScheduleStr != "" {
-			newSchedule, err := time.Parse("2006-01-02T15:04", newScheduleStr)
-			if err != nil {
-				return "", http.StatusBadRequest, wrapError(errInvalidSchedule, err)
-			}
-			err = setSchedule(req.Context(), yeargroup, &newSchedule)
-			if err != nil {
-				return "", http.StatusBadRequest, wrapError(errCannotSetSchedule, err)
 			}
 		}
 	}

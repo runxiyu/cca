@@ -10,6 +10,7 @@ package main
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"sync/atomic"
 	"time"
 
@@ -109,6 +110,27 @@ func setSchedule(ctx context.Context, yeargroup string, newSchedule *time.Time) 
 	}
 	_schedule.Store(newSchedule)
 	return saveScheduleValue(ctx, yeargroup, newSchedule)
+}
+
+func pollState() {
+	for {
+		time.Sleep(time.Second)
+		for yeargroup, _state := range states {
+			if atomic.LoadUint32(_state) == 3 {
+				_schedule, ok := schedules[yeargroup]
+				if !ok {
+					panic(errNoSuchYearGroup)
+				}
+				schedule := _schedule.Load()
+				if time.Now().After(*schedule) {
+					err := setState(context.Background(), yeargroup, 2)
+					if err != nil {
+						slog.Error("schedule setting failed", "yeargroup", yeargroup)
+					}
+				}
+			}
+		}
+	}
 }
 
 func setState(ctx context.Context, yeargroup string, newState uint32) error {
