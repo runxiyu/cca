@@ -221,7 +221,7 @@ function handle_stop_state(): void {
 function handle_start_state(): void {
 	global_state = 1;
 	(document.getElementById('unconfirmbutton') as HTMLButtonElement).disabled = false;
-	document.getElementById('stateindicator')!.textContent = 'enabled';
+	document.getElementById('stateindicator')!.textContent = 'You may choose courses now!';
 
 	document.querySelectorAll('.courseitem').forEach(course => {
 		const checkbox = course.querySelector('.coursecheckbox') as HTMLInputElement;
