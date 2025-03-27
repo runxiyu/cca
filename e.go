@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func eee(ctx context.Context) (res []student_ish, err error) {
+func getStudentsThatHaveNotConfirmedTheirChoicesYetIncludingThoseWhoHaveNotLoggedInAtAll(ctx context.Context) (res []student_ish, err error) {
 	ni, err := queryNameID(ctx, "SELECT name, id FROM expected_students ORDER BY id")
 	if err != nil {
 		return nil, wrapError(errUnexpectedDBError, err)
@@ -38,6 +38,9 @@ func eee(ctx context.Context) (res []student_ish, err error) {
 		if err != nil {
 			return nil, wrapError(errUnexpectedDBError, err)
 		}
+		if currentConfirmed {
+			continue
+		}
 		unamepart, _, _ := strings.Cut(currentEmail, "@")
 		unamepart = strings.TrimPrefix(strings.TrimPrefix(unamepart, "s"), "S")
 		nii, _ := strconv.ParseInt(unamepart, 10, 64)
@@ -53,7 +56,7 @@ func eee(ctx context.Context) (res []student_ish, err error) {
 				Name:       currentUserName,
 				Email:      currentEmail,
 				Department: currentDepartment,
-				Status:     strconv.FormatBool(currentConfirmed),
+				Status:     "Hasn’t confirmed yet",
 			},
 		)
 	}
@@ -65,7 +68,7 @@ func eee(ctx context.Context) (res []student_ish, err error) {
 				Name:       v,
 				Email:      "s" + strconv.FormatInt(k, 10) + "@ykpaoschool.cn",
 				Department: "Unknown",
-				Status:     "never logged in",
+				Status:     "Never logged in",
 			},
 		)
 	}

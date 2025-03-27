@@ -105,9 +105,14 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 			}
 		}
 
-		student_ish_es, err := eee(req.Context())
+		student_ish_es, err := getStudentsThatHaveNotConfirmedTheirChoicesYetIncludingThoseWhoHaveNotLoggedInAtAll(req.Context())
 		if err != nil {
 			return "", -1, err
+		}
+
+		ee := []string{}
+		for _, v := range student_ish_es {
+			ee = append(ee, v.Email)
 		}
 
 		err = tmpl.ExecuteTemplate(
@@ -122,6 +127,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 				StatesOr uint32
 				Groups   *map[string]groupT
 				Students []student_ish
+				Ee       []string
 			}{
 				username,
 				StatesDereferenced,
@@ -134,6 +140,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 				}(),
 				&_groups,
 				student_ish_es,
+				ee,
 			},
 		)
 		if err != nil {
