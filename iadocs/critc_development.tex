@@ -7,6 +7,8 @@
 \newcommand{\coderef}[1]{(appendix page~\pageref*{#1})}
 \newcommand{\codenref}[1]{\texttt{#1} (appendix page~\pageref*{#1})}
 
+\usepackage{minted}
+
 \usepackage[]{tikz}
 \usetikzlibrary{arrows.meta, positioning}
 
@@ -27,9 +29,9 @@ User will need to be authenticated to use this system. Only teachers from the CC
 	\item \label{method-powerschool} My system could accept users' usernames and passwords, and send them to PowerSchool and check if their credentials could be used to successfully log in.
 \end{enumerate}
 
-Although it is possible to store passwords securely with password-based key derivation algorithms such as Argon2 \parencite{argon2}, method~\ref{method-powerschool} still requires my sever to have ephemeral access to the user's school password in plain text form in memory, which is a security liability. It is also relatively difficult to store sensitive data correctly in memory, as that would involve, for example locking pages out of swap and overwriting relevant memory regions with random data, which is relatively difficult in Go.
+Although it is possible to store passwords securely with password-based key derivation algorithms such as Argon2 \parencite{argon2}, method~\ref{method-powerschool} still requires my sever to have ephemeral access to the user's school password in plain text form in memory, which is a security liability. It is also relatively difficult to store sensitive data correctly in memory, as that would involve, in my experience, locking pages out of swap and overwriting relevant memory regions with random data, which is relatively difficult in Go due to the runtime's expectations and the lack of usable \texttt{mlockall}/\texttt{madvise} bindings.
 
-Instead, I read the Microsoft Entra ID's OpenID Connect protocol reference \parencite{ms-oidc} and implemented it in \fileref{endpoint_auth.go}. \codenref{generateAuthorizationURL} generates an authorization URL for Microsoft Entra ID that the user is expected to visit; when the user finishes authentication on the Microsoft login form and consents to the application reading basic user information, their browser sends a POST request that is handled by \codenref{handleAuth} with an authorization token containing user data, signed by Microsoft. We check the validity of the signature and insert the user data (name, department, student ID, Microsoft Entra object UUID, etc) into the database while giving them a session cookie. From now on, we may authenticate the user's requests with their session cookie.
+Instead, I read the Microsoft Entra ID's OpenID Connect protocol reference \parencite{ms-oidc} and implemented it in \fileref{endpoint_auth.go}. \texttt{generateAuthorizationURL} generates an authorization URL for Microsoft Entra ID that the user is expected to visit; when the user finishes authentication on the Microsoft login form and consents to the application reading basic user information, their browser sends a POST request that is handled by \texttt{handleAuth} with an authorization token containing user data, signed by Microsoft. We check the validity of the signature and insert the user data (name, department, student ID, Microsoft Entra object UUID, etc) into the database while giving them a session cookie. From now on, we may authenticate the user's requests with their session cookie. See \autoref{oidc-diagram} for a diagram of the authentication flow. This is, in my opinion, the most appropriate way to implement authentication in my school, as we already use it for almost all other integrations.
 
 \begin{figure}
 	\centering
@@ -77,8 +79,133 @@ Instead, I read the Microsoft Entra ID's OpenID Connect protocol reference \pare
 		\node[below right= 9.9 and -1.1 of webserver] (webserver eight) {};
 		\draw[line] (webserver eight) -- ++(5, 0) node[midway, above] {Return logged in page\\with session cookie after\\validating the signature\\of the \texttt{id\_token}};
 	\end{tikzpicture}
-	\caption{OpenID Connect Sign-in Flow, modified from \textcite{ms-oidc}}
+	\caption{OpenID Connect Sign-in Flow, modified from \textcite{ms-oidc}}\label{oidc-diagram}
 \end{figure}
+
+The core implementation is in handling the authentication endpoint, which is as follows.
+
+\begin{minted}{go}
+// Handles redirects to the /auth endpoint from the authorize endpoint.
+// Expects JSON Web Keys to be already set up correctly; if myKeyfunc is null,
+// a null pointer is dereferenced and the goroutine panics.
+func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) { // \codelabel{handleAuth}
+	if req.Method != http.MethodPost {
+		return "", http.StatusMethodNotAllowed, errors.New("only POST is allowed here")
+	}
+
+	err := req.ParseForm()
+	if err != nil {
+		return "", http.StatusBadRequest, fmt.Errorf("malformed form: %w", err)
+	}
+
+	returnedError := req.PostFormValue("error")
+	if returnedError != "" {
+		returnedErrorDescription := req.PostFormValue("error_description")
+		return "", http.StatusUnauthorized, fmt.Errorf("jwt auth returned error: %v: %v", returnedError, returnedErrorDescription)
+	}
+
+	idTokenString := req.PostFormValue("id_token")
+	if idTokenString == "" {
+		return "", http.StatusUnauthorized, fmt.Errorf("insufficient fields: id_token")
+	}
+
+	claimsTemplate := &MicrosoftAuthClaims{} //exhaustruct:ignore
+	token, err := jwt.ParseWithClaims(
+		idTokenString,
+		claimsTemplate,
+		myKeyfunc.Keyfunc,
+	)
+	if err != nil {
+		return "", http.StatusBadRequest, fmt.Errorf("parse jwt claims: %w", err)
+	}
+
+	switch {
+	case token.Valid:
+		break
+	case errors.Is(err, jwt.ErrTokenMalformed):
+		return "", http.StatusBadRequest, fmt.Errorf("malformed jwt: %w", err)
+	case errors.Is(err, jwt.ErrTokenSignatureInvalid):
+		return "", http.StatusBadRequest, fmt.Errorf("invalid jwt signature: %w", err)
+	case errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet):
+		return "", http.StatusBadRequest, fmt.Errorf("invalid jwt timing: %w", err)
+	default:
+		return "", http.StatusBadRequest, fmt.Errorf("invalid jwt: %w", err)
+	}
+
+	claims, claimsOk := token.Claims.(*MicrosoftAuthClaims)
+
+	if !claimsOk { // Should never happen, unless MS breaks their API
+		return "", http.StatusBadRequest, errors.New("failed to unpack claims")
+	}
+
+	// If the user has a department override in the config, use that,
+	// otherwise just take it from MS's ID Token groups.
+	department, ok := getDepartmentByUserIDOverride(claims.Oid)
+	if !ok {
+		department, ok = getDepartmentByGroups(claims.Groups)
+		if !ok {
+			return "", http.StatusBadRequest, errors.New("unknown department")
+		}
+	}
+
+	cookieValue, err := randomString(tokenLength) // TODO: Use the Go 1.24 API
+	if err != nil {
+		return "", -1, err
+	}
+
+	now := time.Now()
+	expr := now.Add(time.Duration(config.Auth.Expr) * time.Second)
+	exprU := expr.Unix()
+
+	cookie := http.Cookie{
+		Name:     "session",
+		Value:    cookieValue,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   config.Prod,
+		Expires:  expr,
+	} //exhaustruct:ignore
+
+	http.SetCookie(w, &cookie)
+
+	// TODO: Upsert or something? IIRC that's MySQL rather than Postgres though
+	// Also this might need to be wrapped in a transaction
+	_, err = db.Exec(
+		req.Context(),
+		"INSERT INTO users (id, name, email, department, session, expr, confirmed) VALUES ($1, $2, $3, $4, $5, $6, false)",
+		claims.Oid,
+		claims.Name,
+		claims.Email,
+		department,
+		cookieValue,
+		exprU,
+	)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == pgErrUniqueViolation {
+			_, err := db.Exec(
+				req.Context(),
+				"UPDATE users SET (name, email, department, session, expr) = ($1, $2, $3, $4, $5) WHERE id = $6",
+				claims.Name,
+				claims.Email,
+				department,
+				cookieValue,
+				exprU,
+				claims.Oid,
+			)
+			if err != nil {
+				return "", -1, fmt.Errorf("update user: %w", err)
+			}
+		} else {
+			return "", -1, fmt.Errorf("insert user: %w", err)
+		}
+	}
+
+	http.Redirect(w, req, "/", http.StatusSeeOther)
+
+	return "", -1, nil
+}
+\end{minted}
 
 \printbibliography
 

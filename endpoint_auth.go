@@ -28,7 +28,7 @@ const tokenLength = 20
  * explicitly selected in the Azure app registration and might appear as
  * zero strings if it hasn't been configured correctly.
  */
-type msclaimsT struct {
+type MicrosoftAuthClaims struct {
 	Name   string   `json:"name"`
 	Email  string   `json:"email"`
 	Oid    string   `json:"oid"`
@@ -60,11 +60,9 @@ func generateAuthorizationURL() (string, error) { // \codelabel{generateAuthoriz
 	), nil
 }
 
-/*
- * Handles redirects to the /auth endpoint from the authorize endpoint.
- * Expects JSON Web Keys to be already set up correctly; if myKeyfunc is null,
- * a null pointer is dereferenced and the thread panics.
- */
+// Handles redirects to the /auth endpoint from the authorize endpoint.
+// Expects JSON Web Keys to be already set up correctly; if myKeyfunc is null,
+// a null pointer is dereferenced and the goroutine panics.
 func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) { // \codelabel{handleAuth}
 	if req.Method != http.MethodPost {
 		return "", http.StatusMethodNotAllowed, errors.New("only POST is allowed here")
@@ -86,7 +84,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 		return "", http.StatusUnauthorized, fmt.Errorf("insufficient fields: id_token")
 	}
 
-	claimsTemplate := &msclaimsT{} //exhaustruct:ignore
+	claimsTemplate := &MicrosoftAuthClaims{} //exhaustruct:ignore
 	token, err := jwt.ParseWithClaims(
 		idTokenString,
 		claimsTemplate,
@@ -103,22 +101,21 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 		return "", http.StatusBadRequest, fmt.Errorf("malformed jwt: %w", err)
 	case errors.Is(err, jwt.ErrTokenSignatureInvalid):
 		return "", http.StatusBadRequest, fmt.Errorf("invalid jwt signature: %w", err)
-	case errors.Is(err, jwt.ErrTokenExpired) ||
-		errors.Is(err, jwt.ErrTokenNotValidYet):
+	case errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet):
 		return "", http.StatusBadRequest, fmt.Errorf("invalid jwt timing: %w", err)
 	default:
 		return "", http.StatusBadRequest, fmt.Errorf("invalid jwt: %w", err)
 	}
 
-	claims, claimsOk := token.Claims.(*msclaimsT)
+	claims, claimsOk := token.Claims.(*MicrosoftAuthClaims)
 
-	if !claimsOk {
+	if !claimsOk { // Should never happen, unless MS breaks their API
 		return "", http.StatusBadRequest, errors.New("failed to unpack claims")
 	}
 
-	var department string
-	var ok bool
-	department, ok = getDepartmentByUserIDOverride(claims.Oid)
+	// If the user has a department override in the config, use that,
+	// otherwise just take it from MS's ID Token groups.
+	department, ok := getDepartmentByUserIDOverride(claims.Oid)
 	if !ok {
 		department, ok = getDepartmentByGroups(claims.Groups)
 		if !ok {
@@ -126,7 +123,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 		}
 	}
 
-	cookieValue, err := randomString(tokenLength)
+	cookieValue, err := randomString(tokenLength) // TODO: Use the Go 1.24 API
 	if err != nil {
 		return "", -1, err
 	}
@@ -146,6 +143,8 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 
 	http.SetCookie(w, &cookie)
 
+	// TODO: Upsert or something? IIRC that's MySQL rather than Postgres though
+	// Also this might need to be wrapped in a transaction
 	_, err = db.Exec(
 		req.Context(),
 		"INSERT INTO users (id, name, email, department, session, expr, confirmed) VALUES ($1, $2, $3, $4, $5, $6, false)",

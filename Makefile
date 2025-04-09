@@ -74,10 +74,12 @@ build/iadocs/%.pdf: iadocs/%.tex build/iadocs/header.texinc build/iadocs/bib.bib
 build/iadocs/critc_development.pdf: iadocs/critc_development.tex build/iadocs/header.texinc build/iadocs/bib.bib build/iadocs/appendix.pdf
 	# Technically I need build/iadocs/appendix.aux instead of build/iadocs/appendix.pdf
 	mkdir -p $(@D)
-	lualatex -interaction batchmode -output-directory=build/iadocs $<
-	biber --output-directory=build/iadocs build/$(<:.tex=.bcf)
-	lualatex -interaction batchmode -output-directory=build/iadocs $<
-	lualatex -interaction batchmode -output-directory=build/iadocs $<
+	cp iadocs/critc_development.tex $(@D)
+	cd $(@D) && \
+		lualatex -interaction batchmode -shell-escape critc_development && \
+		biber critc_development && \
+		lualatex -interaction batchmode -shell-escape critc_development && \
+		lualatex -interaction batchmode -shell-escape critc_development
 
 # Special case for the appendix and the PDF'ed source code
 
