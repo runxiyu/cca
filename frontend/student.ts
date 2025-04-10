@@ -155,8 +155,7 @@ function setup_socket_handlers(): void {
 }
 
 function handle_hi_message(course_list = ''): void {
-	toggle_elements(DOM_STATES.need_connection, true);
-	toggle_elements(DOM_STATES.before_connection, false);
+	console.log(course_list);
 
 	if (course_list) {
 		course_list.split(',').forEach(course_id => {
@@ -165,6 +164,10 @@ function handle_hi_message(course_list = ''): void {
 			update_course_counters(course_id, true);
 		});
 	}
+
+	toggle_elements(DOM_STATES.need_connection, true);
+	toggle_elements(DOM_STATES.before_connection, false);
+
 }
 
 function handle_course_removal(course_id: string): void {
