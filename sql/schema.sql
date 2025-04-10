@@ -9,7 +9,7 @@ CREATE TABLE courses (
 	course_id TEXT NOT NULL,
 	section_id TEXT NOT NULL,
 	year_groups SMALLINT NOT NULL,
-	legal_sex_requirements TEXT NOT NULL CHECK (type IN ('F', 'M', '')) -- ouch
+	legal_sex_requirements TEXT NOT NULL CHECK (legal_sex_requirements IN ('F', 'M', '')) -- ouch
 );
 CREATE TABLE users (
 	id TEXT PRIMARY KEY NOT NULL, -- should be UUID
@@ -23,7 +23,7 @@ CREATE TABLE users (
 CREATE TABLE expected_students (
 	id INT PRIMARY KEY NOT NULL,
 	name TEXT NOT NULL,
-	legal_sex TEXT NOT NULL CHECK (type IN ('F', 'M')) -- ouch
+	legal_sex TEXT NOT NULL CHECK (legal_sex IN ('F', 'M')) -- ouch
 );
 CREATE TABLE choices (
 	PRIMARY KEY (userid, courseid),
