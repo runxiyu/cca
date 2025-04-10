@@ -8,7 +8,8 @@ CREATE TABLE courses (
 	cgroup TEXT NOT NULL,
 	course_id TEXT NOT NULL,
 	section_id TEXT NOT NULL,
-	year_groups SMALLINT NOT NULL
+	year_groups SMALLINT NOT NULL,
+	legal_sex_requirements TEXT NOT NULL CHECK (type IN ('F', 'M', '')) -- ouch
 );
 CREATE TABLE users (
 	id TEXT PRIMARY KEY NOT NULL, -- should be UUID

@@ -63,15 +63,15 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 	if titleLine == nil {
 		return "", -1, errUnexpectedNilCSVLine
 	}
-	if len(titleLine) != 9 {
+	if len(titleLine) != 10 {
 		return "", -1, wrapAny(
 			errBadCSVFormat,
-			"expecting 9 fields on the first line",
+			"expecting 10 fields on the first line",
 		)
 	}
 	var titleIndex, maxIndex, teacherIndex, locationIndex,
 		typeIndex, groupIndex, sectionIDIndex,
-		courseIDIndex, yearGroupsIndex int = -1, -1, -1, -1, -1, -1, -1, -1, -1
+		courseIDIndex, yearGroupsIndex, legalSexIndex int = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 	for i, v := range titleLine {
 		switch v {
 		case "Title":
@@ -92,6 +92,16 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 			courseIDIndex = i
 		case "Year Groups":
 			yearGroupsIndex = i
+		case "Legal Sex Requirements":
+			legalSexIndex = i
+		default:
+			return "", http.StatusBadRequest, wrapAny(
+				errBadCSVFormat,
+				fmt.Sprintf(
+					"unexpected field \"%s\" on the first line",
+					v,
+				),
+			)
 		}
 	}
 
@@ -210,7 +220,7 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 					errUnexpectedNilCSVLine,
 				)
 			}
-			if len(line) != 9 {
+			if len(line) != 10 {
 				return false, -1, wrapAny(
 					errInsufficientFields,
 					fmt.Sprintf(
@@ -252,7 +262,7 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 
 			_, err = tx.Exec(
 				ctx,
-				"INSERT INTO courses(nmax, title, teacher, location, ctype, cgroup, section_id, course_id, year_groups) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+				"INSERT INTO courses(nmax, title, teacher, location, ctype, cgroup, section_id, course_id, legal_sex_requirements, year_groups) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
 				line[maxIndex],
 				line[titleIndex],
 				line[teacherIndex],
@@ -261,6 +271,7 @@ func handleNewCourses(w http.ResponseWriter, req *http.Request) (string, int, er
 				line[groupIndex],
 				line[sectionIDIndex],
 				line[courseIDIndex],
+				line[legalSexIndex],
 				yearGroupsSpec,
 			)
 			if err != nil {

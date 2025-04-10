@@ -1,16 +1,16 @@
-Title,Max,Teacher,Location,Type,Group,Section ID,Course ID,Year Groups
-Floorball,65535,Chen Xiaojia,Gym,Sport,MW3,FL,FL,
-Fakeball,65535,Foo Bar,Gym,Sport,MW1,FK,FK,
-Chamber Music,65535,Bar Baz,Music Rooms,Non-sport,MW1,CM,CM,
-Programming Club,65535,Foo Baz,Library,Non-sport,MW1,PC,PC,
-Flag Football,65535,Ding Zhaoyuan,Pitch,Sport,MW2,FF,FF,
-Table Tennis,65535,Somebody,Table Tennis Room,Sport,MW2,TT,TT,
-Spinning,65535,Somebody,Spinning Room,Sport,MW2,SP,SP,
-Some Music,65535,Eeeee,Music Rooms,Non-sport,TT1,SM,SM,
-Some More Music,65535,Eeeee,Music Rooms,Non-sport,TT1,SMM,SMM,
-Math and Computer Science,65535,Jeff Zhang,2307,Non-sport,TT2,MC,MC,Y11 Y12
-Philosophy Intro Thing,3,Andrew Riege,N110,Non-sport,TT2,MC,MC,Y11 Y12
-Basketball,65535,Somebody,Gym,Sport,TT2,BB,BB,
-Chinese Drama,65535,Monica Chen (?),Black Box (?),Non-sport,TT2,CD,CD,
-Actually Flag Football,30,Hmm,Pitch,Sport,TT3,AFF,AFF,
-Blaaa Y11 thing,1,Hmm,Pitch,Non-sport,TT3,AFF,AFF,Y11
+Title,Max,Teacher,Location,Type,Group,Section ID,Course ID,Year Groups,Legal Sex Requirements
+Blob Studies,65535,Mr. Snibble,Crate Room,Non-sport,MW1,BS,BS,,
+Rocket Tossing,65535,Captain Zog,Upper Field,Sport,MW2,RT,RT,,
+Cheese Mechanics,65535,Dr. Wobble,Cafetorium,Non-sport,TT2,CM,CM,Y11,
+Advanced Beeping,65535,Ms. Glitch,Server Room,Non-sport,MW3,AB,AB,Y12,
+Dancing Cubes,65535,Zorp Instructor,Mirror Room,Sport,TT3,DC,DC,,
+Float Club,65535,Commander Floatie,Pool Deck,Sport,MW2,FC,FC,,
+Wiggle Theory,65535,Professor Noodle,Lab 404,Non-sport,TT1,WT,WT,,
+Spinny Chairs 101,65535,Tutor Bounce,Breakout Room,Non-sport,MW1,SC,SC,,
+Clang Practice,65535,Unit Clonk,Metal Room,Sport,MW2,CP,CP,,
+Hat Logic,65535,Intern Beep,Room Hat-1,Non-sport,TT2,HL,HL,Y11 Y12,
+Shouting Gently,65535,Ms. Fuzz,Sound Dome,Non-sport,MW3,SG,SG,,
+Random Activities,65535,Coach Blorp,Anywhere,Sport,TT3,RA,RA,,
+Suspicious Silence Club,65535,Agent Hmm,Secret Nook,Non-sport,MW1,SSC,SSC,,
+Mystery Buttons,65535,Operator Zap,Control Room,Non-sport,TT2,MB,MB,,
+Slow Running,65535,Speedy,Trackish Area,Sport,MW2,SR,SR,,
