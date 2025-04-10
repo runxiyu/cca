@@ -52,7 +52,7 @@ func handleNewStudents(w http.ResponseWriter, req *http.Request) (string, int, e
 	if len(titleLine) != 3 {
 		return "", -1, wrapAny(
 			errBadCSVFormat,
-			"expecting 3 fields on the first line (Name, ID)",
+			"expecting 3 fields on the first line (Name, ID, Legal Sex)",
 		)
 	}
 	var nameIndex, idIndex, legalSexIndex int = -1, -1, -1
