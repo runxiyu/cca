@@ -168,6 +168,9 @@ function handle_hi_message(course_list = ''): void {
 	toggle_elements(DOM_STATES.need_connection, true);
 	toggle_elements(DOM_STATES.before_connection, false);
 
+	if (user_state === 1) {
+		_handle_confirmation_state();
+	}
 }
 
 function handle_course_removal(course_id: string): void {
@@ -242,6 +245,9 @@ function handle_start_state(): void {
 
 function handle_confirmation_state(): void {
 	user_state = 1;
+}
+
+function _handle_confirmation_state(): void {
 	document.querySelectorAll('.confirmed-handle').forEach(handle => {
 		update_confirmed_course_details(handle.textContent!);
 	});
