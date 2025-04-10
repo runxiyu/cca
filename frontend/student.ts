@@ -169,7 +169,7 @@ function handle_hi_message(course_list = ''): void {
 	toggle_elements(DOM_STATES.before_connection, false);
 
 	if (user_state === 1) {
-		_handle_confirmation_state();
+		render_confirmation_state();
 	}
 }
 
@@ -247,7 +247,7 @@ function handle_confirmation_state(): void {
 	user_state = 1;
 }
 
-function _handle_confirmation_state(): void {
+function render_confirmation_state(): void {
 	document.querySelectorAll('.confirmed-handle').forEach(handle => {
 		update_confirmed_course_details(handle.textContent!);
 	});
