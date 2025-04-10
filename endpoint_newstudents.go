@@ -49,19 +49,21 @@ func handleNewStudents(w http.ResponseWriter, req *http.Request) (string, int, e
 	if titleLine == nil {
 		return "", -1, errUnexpectedNilCSVLine
 	}
-	if len(titleLine) != 2 {
+	if len(titleLine) != 3 {
 		return "", -1, wrapAny(
 			errBadCSVFormat,
-			"expecting 2 fields on the first line (Name, ID)",
+			"expecting 3 fields on the first line (Name, ID)",
 		)
 	}
-	var nameIndex, idIndex int = -1, -1
+	var nameIndex, idIndex, legalSexIndex int = -1, -1, -1
 	for i, v := range titleLine {
 		switch v {
 		case "Name":
 			nameIndex = i
 		case "ID":
 			idIndex = i
+		case "Legal Sex":
+			legalSexIndex = i
 		}
 	}
 
@@ -75,6 +77,12 @@ func handleNewStudents(w http.ResponseWriter, req *http.Request) (string, int, e
 		return "", http.StatusBadRequest, wrapAny(
 			errMissingCSVColumn,
 			"ID",
+		)
+	}
+	if legalSexIndex == -1 {
+		return "", http.StatusBadRequest, wrapAny(
+			errMissingCSVColumn,
+			"Legal Sex",
 		)
 	}
 
@@ -124,7 +132,7 @@ func handleNewStudents(w http.ResponseWriter, req *http.Request) (string, int, e
 					errUnexpectedNilCSVLine,
 				)
 			}
-			if len(line) != 2 {
+			if len(line) != 3 {
 				return false, -1, wrapAny(
 					errInsufficientFields,
 					fmt.Sprintf(
@@ -146,11 +154,12 @@ func handleNewStudents(w http.ResponseWriter, req *http.Request) (string, int, e
 			}
 
 			name := line[nameIndex]
+			legalSex := line[legalSexIndex]
 
 			_, err = tx.Exec(
 				ctx,
-				"INSERT INTO expected_students(name, id) VALUES ($1, $2)",
-				name, id,
+				"INSERT INTO expected_students(name, id, legal_sex) VALUES ($1, $2, $3)",
+				name, id, legalSex,
 			)
 			if err != nil {
 				return false, -1, wrapError(

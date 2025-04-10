@@ -21,7 +21,8 @@ CREATE TABLE users (
 );
 CREATE TABLE expected_students (
 	id INT PRIMARY KEY NOT NULL,
-	name TEXT NOT NULL
+	name TEXT NOT NULL,
+	legal_sex TEXT NOT NULL CHECK (type IN ('F', 'M')) -- ouch
 );
 CREATE TABLE choices (
 	PRIMARY KEY (userid, courseid),
