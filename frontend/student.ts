@@ -155,8 +155,6 @@ function setup_socket_handlers(): void {
 }
 
 function handle_hi_message(course_list = ''): void {
-	console.log(course_list);
-
 	if (course_list) {
 		course_list.split(',').forEach(course_id => {
 			const checkbox = document.getElementById(`tick${course_id}`) as HTMLInputElement;
