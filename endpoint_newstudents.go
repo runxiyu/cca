@@ -200,5 +200,8 @@ func queryNameID(ctx context.Context, query string, args ...any) (result map[int
 		}
 		result[id] = name
 	}
-	return result, wrapError(errUnexpectedDBError, rows.Err())
+	if err = rows.Err(); err != nil {
+		return nil, wrapError(errUnexpectedDBError, err)
+	}
+	return result, nil
 }
