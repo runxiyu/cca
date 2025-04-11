@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/MicahParks/keyfunc/v3"
@@ -155,6 +156,8 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	} //exhaustruct:ignore
 
 	http.SetCookie(w, &cookie)
+
+	claims.Email = strings.ToLower(claims.Email)
 
 	// TODO: Upsert or something? IIRC that's MySQL rather than Postgres
 	// though; Also this might need to be wrapped in a transaction
