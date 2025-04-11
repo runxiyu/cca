@@ -6,6 +6,7 @@
 var socket: WebSocket;
 var global_state: number;
 var user_state: number;
+var connection_state: number;
 
 const DOM_STATES: Record<string, string> = {
 	need_connection: '.need-connection',
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', (): void => {
 
 	global_state = 0;
 	user_state = 0;
+	connection_state = 0;
 
 	setup_initial_state();
 	socket.addEventListener('open', () => setup_socket_handlers());
@@ -166,6 +168,8 @@ function handle_hi_message(course_list = ''): void {
 	toggle_elements(DOM_STATES.need_connection, true);
 	toggle_elements(DOM_STATES.before_connection, false);
 
+	connection_state = 1;
+
 	if (user_state === 1) {
 		render_confirmation_state();
 	}
@@ -243,6 +247,10 @@ function handle_start_state(): void {
 
 function handle_confirmation_state(): void {
 	user_state = 1;
+
+	if (connection_state === 1) {
+		render_confirmation_state();
+	}
 }
 
 function render_confirmation_state(): void {
