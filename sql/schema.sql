@@ -32,7 +32,8 @@ CREATE TABLE choices (
 	FOREIGN KEY(userid) REFERENCES users(id),
 	courseid INTEGER NOT NULL,
 	FOREIGN KEY(courseid) REFERENCES courses(id),
-	UNIQUE (userid, courseid)
+	UNIQUE (userid, courseid),
+	forced BOOLEAN NOT NULL
 );
 CREATE TABLE misc (
 	key TEXT PRIMARY KEY NOT NULL,

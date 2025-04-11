@@ -125,7 +125,7 @@ func messageChooseCourse(
 
 		_, err = tx.Exec(
 			ctx,
-			"INSERT INTO choices (seltime, userid, courseid) VALUES ($1, $2, $3)",
+			"INSERT INTO choices (seltime, userid, courseid, forced) VALUES ($1, $2, $3, false)",
 			time.Now().UnixMicro(),
 			userID,
 			courseID,
