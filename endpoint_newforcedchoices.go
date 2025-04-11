@@ -15,6 +15,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync/atomic"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -148,14 +149,29 @@ func handleNewForcedChoices(w http.ResponseWriter, req *http.Request) (string, i
 
 			sectionID := line[sectionIDIndex]
 
-			_, err = tx.Exec(
+			var courseID int
+			err = tx.QueryRow(
 				ctx,
-				"INSERT INTO pre_selected(student_id, course_id) VALUES ($1, (SELECT id FROM courses WHERE section_id = $2))",
+				"INSERT INTO pre_selected(student_id, course_id) VALUES ($1, (SELECT id FROM courses WHERE section_id = $2)) RETURNING course_id",
 				studentID, sectionID,
-			)
+			).Scan(&courseID)
 			if err != nil {
 				return false, -1, fmt.Errorf("while inserting line %d: %w", lineNumber, err)
 			}
+
+			_course, ok := courses.Load(courseID)
+			if !ok {
+				return false, -1, errNoSuchCourse
+			}
+			course, ok := _course.(*courseT)
+			if !ok {
+				return false, -1, errType
+			}
+			if course == nil {
+				return false, -1, errNoSuchCourse
+			}
+
+			atomic.AddUint32(&course.Selected, 1)
 		}
 		err = tx.Commit(ctx)
 		if err != nil {
