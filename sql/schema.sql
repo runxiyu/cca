@@ -44,9 +44,9 @@ CREATE TABLE states (
 	schedule TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );
 CREATE TABLE pre_selected (
-	student_id TEXT NOT NULL,
+	student_id INT NOT NULL,
 	FOREIGN KEY(student_id) REFERENCES expected_students(id),
-	course_id INTEGER NOT NULL,
+	course_id INT NOT NULL,
 	FOREIGN KEY(course_id) REFERENCES courses(id),
 	PRIMARY KEY (student_id, course_id)
 );

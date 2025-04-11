@@ -230,6 +230,18 @@ input[type=radio].active {
 					</tr>
 				</tfoot>
 			</table>
+
+			<form method="POST" enctype="multipart/form-data" action="/newforcedchoices">
+			<div class="flex-justify">
+				<div class="left">
+					Upload forced association list
+				</div>
+				<div class="right">
+					<input title="Upload forced association list" type="file" id="forcedchoicescsv" name="forcedchoicescsv" accept=".csv" />
+					<input type="submit" value="Insert" class="btn btn-danger" />
+				</div>
+			</div>
+			</form>
 		</div>
 		<script>
 			document.addEventListener("DOMContentLoaded", () => {
