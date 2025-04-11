@@ -107,7 +107,7 @@ func sendSelectedUpdate(
 	return nil
 }
 
-func propagate(yeargroup string, msg string) error {
+func propagate(yeargroup, msg string) error {
 	chanSubPool, ok := chanPool[yeargroup]
 	if !ok {
 		return errNoSuchYearGroup

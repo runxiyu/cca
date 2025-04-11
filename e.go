@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func getStudentsThatHaveNotConfirmedTheirChoicesYetIncludingThoseWhoHaveNotLoggedInAtAll(ctx context.Context) (res []student_ish, err error) {
+func getStudentsThatHaveNotConfirmedTheirChoicesYetIncludingThoseWhoHaveNotLoggedInAtAll(ctx context.Context) (res []studentish, err error) {
 	ni, err := queryNameID(ctx, "SELECT name, id FROM expected_students ORDER BY id")
 	if err != nil {
 		return nil, wrapError(errUnexpectedDBError, err)
@@ -52,7 +52,7 @@ func getStudentsThatHaveNotConfirmedTheirChoicesYetIncludingThoseWhoHaveNotLogge
 
 		res = append(
 			res,
-			student_ish{
+			studentish{
 				Name:       currentUserName,
 				Email:      currentEmail,
 				Department: currentDepartment,
@@ -64,7 +64,7 @@ func getStudentsThatHaveNotConfirmedTheirChoicesYetIncludingThoseWhoHaveNotLogge
 	for k, v := range ni {
 		res = append(
 			res,
-			student_ish{
+			studentish{
 				Name:       v,
 				Email:      "s" + strconv.FormatInt(k, 10) + "@ykpaoschool.cn",
 				Department: "Unknown",

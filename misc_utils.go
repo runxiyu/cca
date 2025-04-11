@@ -51,6 +51,6 @@ func getKeysOfMap[K comparable, V any](i map[K]V) []K {
 	return o
 }
 
-func returnFirst[T1 any, T2 any](v1 T1, _ T2) T1 {
+func returnFirst[T1, T2 any](v1 T1, _ T2) T1 {
 	return v1
 }

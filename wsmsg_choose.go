@@ -92,11 +92,11 @@ func messageChooseCourse(
 	for _, r := range course.Group {
 		switch r {
 		case '2':
-			oppositeGroup = oppositeGroup + "3"
+			oppositeGroup += "3"
 		case '3':
-			oppositeGroup = oppositeGroup + "2"
+			oppositeGroup += "2"
 		default:
-			oppositeGroup = oppositeGroup + string(r)
+			oppositeGroup += string(r)
 		}
 	}
 	if _, ok := (*userCourseGroups)[oppositeGroup]; ok {

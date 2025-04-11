@@ -73,7 +73,7 @@ func handleExportChoices(
 				&currentDepartment,
 			)
 			if err != nil {
-				return "", -1, fmt.Errorf("scan user info: %w")
+				return "", -1, fmt.Errorf("scan user info: %w", err)
 			}
 			before, _, found := strings.Cut(currentUserEmail, "@")
 			if found {
@@ -90,11 +90,11 @@ func handleExportChoices(
 
 		_course, ok := courses.Load(currentCourseID)
 		if !ok {
-			return "", -1, fmt.Errorf("no such course")
+			return "", -1, fmt.Errorf("no such course: %d", currentCourseID)
 		}
 		course := _course.(*courseT)
 		if course == nil {
-			return "", -1, fmt.Errorf("no such course")
+			return "", -1, fmt.Errorf("no such course with broken state: %d", currentCourseID)
 		}
 		output = append(
 			output,

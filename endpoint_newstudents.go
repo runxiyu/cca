@@ -188,7 +188,7 @@ func queryNameID(ctx context.Context, query string, args ...any) (result map[int
 	var rows pgx.Rows
 
 	if rows, err = db.Query(ctx, query, args...); err != nil {
-		return nil, err
+		return nil, wrapError(errUnexpectedDBError, err)
 	}
 	defer rows.Close()
 
@@ -196,9 +196,9 @@ func queryNameID(ctx context.Context, query string, args ...any) (result map[int
 		var name string
 		var id int64
 		if err = rows.Scan(&name, &id); err != nil {
-			return nil, err
+			return nil, wrapError(errUnexpectedDBError, err)
 		}
 		result[id] = name
 	}
-	return result, rows.Err()
+	return result, wrapError(errUnexpectedDBError, rows.Err())
 }

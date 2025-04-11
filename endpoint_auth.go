@@ -86,7 +86,7 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	idTokenString := req.PostFormValue("id_token")
 	if idTokenString == "" {
 		return "", http.StatusUnauthorized,
-			fmt.Errorf("insufficient fields: id_token")
+			errors.New("insufficient fields: id_token")
 	}
 
 	claimsTemplate := &MicrosoftAuthClaims{} //exhaustruct:ignore

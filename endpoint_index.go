@@ -11,7 +11,6 @@ import (
 	"errors"
 	"net/http"
 	"sync/atomic"
-	"time"
 )
 
 func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) {
@@ -89,29 +88,28 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 			Sched *string
 		}{}
 		for k, v := range states {
-			var schedule_time *time.Time
-			schedule_time = schedules[k].Load()
-			var schedule_string *string
-			if schedule_time != nil {
-				_1 := schedule_time.Format("2006-01-02T15:04")
-				schedule_string = &_1
+			scheduleTime := schedules[k].Load()
+			var scheduleString *string
+			if scheduleTime != nil {
+				_1 := scheduleTime.Format("2006-01-02T15:04")
+				scheduleString = &_1
 			}
 			StatesDereferenced[k] = struct {
 				S     uint32
 				Sched *string
 			}{
 				S:     atomic.LoadUint32(v),
-				Sched: schedule_string,
+				Sched: scheduleString,
 			}
 		}
 
-		student_ish_es, err := getStudentsThatHaveNotConfirmedTheirChoicesYetIncludingThoseWhoHaveNotLoggedInAtAll(req.Context())
+		studentishes, err := getStudentsThatHaveNotConfirmedTheirChoicesYetIncludingThoseWhoHaveNotLoggedInAtAll(req.Context())
 		if err != nil {
 			return "", -1, err
 		}
 
 		ee := []string{}
-		for _, v := range student_ish_es {
+		for _, v := range studentishes {
 			ee = append(ee, v.Email)
 		}
 
@@ -126,7 +124,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 				}
 				StatesOr uint32
 				Groups   *map[string]groupT
-				Students []student_ish
+				Students []studentish
 				Ee       []string
 			}{
 				username,
@@ -139,7 +137,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 					return ret
 				}(),
 				&_groups,
-				student_ish_es,
+				studentishes,
 				ee,
 			},
 		)
@@ -210,7 +208,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) (string, int, error) 
 	return "", -1, nil
 }
 
-type student_ish struct {
+type studentish struct {
 	Name       string
 	Email      string
 	Department string

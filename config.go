@@ -9,6 +9,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 
@@ -143,158 +144,158 @@ func fetchConfig(path string) (retErr error) {
 	}
 
 	if configWithPointers.URL == nil {
-		return fmt.Errorf("missing config value: url")
+		return errors.New("missing config value: url")
 	}
 	config.URL = *(configWithPointers.URL)
 
 	if configWithPointers.Prod == nil {
-		return fmt.Errorf("missing config value: prod")
+		return errors.New("missing config value: prod")
 	}
 	config.Prod = *(configWithPointers.Prod)
 
 	if configWithPointers.Listen.Proto == nil {
-		return fmt.Errorf("missing config value: listen.proto")
+		return errors.New("missing config value: listen.proto")
 	}
 	config.Listen.Proto = *(configWithPointers.Listen.Proto)
 
 	if configWithPointers.Listen.Net == nil {
-		return fmt.Errorf("missing config value: listen.net")
+		return errors.New("missing config value: listen.net")
 	}
 	config.Listen.Net = *(configWithPointers.Listen.Net)
 
 	if configWithPointers.Listen.Addr == nil {
-		return fmt.Errorf("missing config value: listen.addr")
+		return errors.New("missing config value: listen.addr")
 	}
 	config.Listen.Addr = *(configWithPointers.Listen.Addr)
 
 	if configWithPointers.Listen.Trans == nil {
-		return fmt.Errorf("missing config value: listen.trans")
+		return errors.New("missing config value: listen.trans")
 	}
 	config.Listen.Trans = *(configWithPointers.Listen.Trans)
 
 	if config.Listen.Trans == "tls" {
 		if configWithPointers.Listen.TLS.Cert == nil {
-			return fmt.Errorf("missing config value: listen.tls.cert")
+			return errors.New("missing config value: listen.tls.cert")
 		}
 		config.Listen.TLS.Cert = *(configWithPointers.Listen.TLS.Cert)
 
 		if configWithPointers.Listen.TLS.Key == nil {
-			return fmt.Errorf("missing config value: listen.tls.key")
+			return errors.New("missing config value: listen.tls.key")
 		}
 		config.Listen.TLS.Key = *(configWithPointers.Listen.TLS.Key)
 	}
 
 	if configWithPointers.DB.Type == nil {
-		return fmt.Errorf("missing config value: db.type")
+		return errors.New("missing config value: db.type")
 	}
 	config.DB.Type = *(configWithPointers.DB.Type)
 
 	if configWithPointers.DB.Conn == nil {
-		return fmt.Errorf("missing config value: db.conn")
+		return errors.New("missing config value: db.conn")
 	}
 	config.DB.Conn = *(configWithPointers.DB.Conn)
 
 	if configWithPointers.Auth.Client == nil {
-		return fmt.Errorf("missing config value: auth.client")
+		return errors.New("missing config value: auth.client")
 	}
 	config.Auth.Client = *(configWithPointers.Auth.Client)
 
 	if configWithPointers.Auth.Authorize == nil {
-		return fmt.Errorf("missing config value: auth.authorize")
+		return errors.New("missing config value: auth.authorize")
 	}
 	config.Auth.Authorize = *(configWithPointers.Auth.Authorize)
 
 	if configWithPointers.Auth.Jwks == nil {
-		return fmt.Errorf("missing config value: auth.jwks")
+		return errors.New("missing config value: auth.jwks")
 	}
 	config.Auth.Jwks = *(configWithPointers.Auth.Jwks)
 
 	if configWithPointers.Auth.Token == nil {
-		return fmt.Errorf("missing config value: auth.token")
+		return errors.New("missing config value: auth.token")
 	}
 	config.Auth.Token = *(configWithPointers.Auth.Token)
 
 	if configWithPointers.Auth.Expr == nil {
-		return fmt.Errorf("missing config value: auth.expr")
+		return errors.New("missing config value: auth.expr")
 	}
 	config.Auth.Expr = *(configWithPointers.Auth.Expr)
 
 	if configWithPointers.Auth.Departments == nil {
-		return fmt.Errorf("missing config value: auth.depts")
+		return errors.New("missing config value: auth.depts")
 	}
 	config.Auth.Departments = *(configWithPointers.Auth.Departments)
 	if config.Auth.Departments == nil {
-		return fmt.Errorf("missing config value: auth.depts")
+		return errors.New("missing config value: auth.depts")
 	}
 
 	if configWithPointers.Auth.Udepts == nil {
-		return fmt.Errorf("missing config value: auth.udepts")
+		return errors.New("missing config value: auth.udepts")
 	}
 	config.Auth.Udepts = *(configWithPointers.Auth.Udepts)
 	if config.Auth.Udepts == nil {
-		return fmt.Errorf("missing config value: auth.udepts")
+		return errors.New("missing config value: auth.udepts")
 	}
 
 	if configWithPointers.Perf.SendQ == nil {
-		return fmt.Errorf("missing config value: perf.sendq")
+		return errors.New("missing config value: perf.sendq")
 	}
 	config.Perf.SendQ = *(configWithPointers.Perf.SendQ)
 
 	if configWithPointers.Perf.MessageArgumentsCap == nil {
-		return fmt.Errorf("missing config value: perf.msg_args_cap")
+		return errors.New("missing config value: perf.msg_args_cap")
 	}
 	config.Perf.MessageArgumentsCap = *(configWithPointers.Perf.MessageArgumentsCap)
 
 	if configWithPointers.Perf.MessageBytesCap == nil {
-		return fmt.Errorf("missing config value: perf.msg_bytes_cap")
+		return errors.New("missing config value: perf.msg_bytes_cap")
 	}
 	config.Perf.MessageBytesCap = *(configWithPointers.Perf.MessageBytesCap)
 
 	if configWithPointers.Perf.ReadHeaderTimeout == nil {
-		return fmt.Errorf("missing config value: perf.read_header_timeout")
+		return errors.New("missing config value: perf.read_header_timeout")
 	}
 	config.Perf.ReadHeaderTimeout = *(configWithPointers.Perf.ReadHeaderTimeout)
 
 	if configWithPointers.Perf.UsemDelayShiftBits == nil {
-		return fmt.Errorf("missing config value: perf.usem_delay_shift_bits")
+		return errors.New("missing config value: perf.usem_delay_shift_bits")
 	}
 	config.Perf.UsemDelayShiftBits = *(configWithPointers.Perf.UsemDelayShiftBits)
 
 	if configWithPointers.Perf.PropagateImmediate == nil {
-		return fmt.Errorf("missing config value: perf.propagate_immediate")
+		return errors.New("missing config value: perf.propagate_immediate")
 	}
 	config.Perf.PropagateImmediate = *(configWithPointers.Perf.PropagateImmediate)
 
 	if configWithPointers.Req.Y9.Sport == nil {
-		return fmt.Errorf("missing config value: req.y9.sport")
+		return errors.New("missing config value: req.y9.sport")
 	}
 	config.Req.Y9.Sport = *(configWithPointers.Req.Y9.Sport)
 	if configWithPointers.Req.Y9.NonSport == nil {
-		return fmt.Errorf("missing config value: req.y9.non_sport")
+		return errors.New("missing config value: req.y9.non_sport")
 	}
 	config.Req.Y9.NonSport = *(configWithPointers.Req.Y9.NonSport)
 	if configWithPointers.Req.Y10.Sport == nil {
-		return fmt.Errorf("missing config value: req.y10.sport")
+		return errors.New("missing config value: req.y10.sport")
 	}
 	config.Req.Y10.Sport = *(configWithPointers.Req.Y10.Sport)
 	if configWithPointers.Req.Y10.NonSport == nil {
-		return fmt.Errorf("missing config value: req.y10.non_sport")
+		return errors.New("missing config value: req.y10.non_sport")
 	}
 	config.Req.Y10.NonSport = *(configWithPointers.Req.Y10.NonSport)
 	if configWithPointers.Req.Y11.Sport == nil {
-		return fmt.Errorf("missing config value: req.y11.sport")
+		return errors.New("missing config value: req.y11.sport")
 	}
 	config.Req.Y11.Sport = *(configWithPointers.Req.Y11.Sport)
 	if configWithPointers.Req.Y11.NonSport == nil {
-		return fmt.Errorf("missing config value: req.y11.non_sport")
+		return errors.New("missing config value: req.y11.non_sport")
 	}
 	config.Req.Y11.NonSport = *(configWithPointers.Req.Y11.NonSport)
 	if configWithPointers.Req.Y12.Sport == nil {
-		return fmt.Errorf("missing config value: req.y12.sport")
+		return errors.New("missing config value: req.y12.sport")
 	}
 	config.Req.Y12.Sport = *(configWithPointers.Req.Y12.Sport)
 	if configWithPointers.Req.Y12.NonSport == nil {
-		return fmt.Errorf("missing config value: req.y12.non_sport")
+		return errors.New("missing config value: req.y12.non_sport")
 	}
 	config.Req.Y12.NonSport = *(configWithPointers.Req.Y12.NonSport)
 
