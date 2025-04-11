@@ -214,7 +214,7 @@ function handle_course_approval(course_id: string): void {
 
 function handle_stop_state(): void {
 	global_state = 0;
-	document.getElementById('stateindicator')!.textContent = 'disabled';
+	document.getElementById('stateindicator')!.textContent = 'Course selections are currently stopped for your yeargroup.';
 	(document.getElementById('confirmbutton') as HTMLButtonElement).disabled = true;
 	(document.getElementById('unconfirmbutton') as HTMLButtonElement).disabled = true;
 	document.querySelectorAll('.coursecheckbox').forEach(c => {
@@ -225,7 +225,7 @@ function handle_stop_state(): void {
 function handle_start_state(): void {
 	global_state = 1;
 	(document.getElementById('unconfirmbutton') as HTMLButtonElement).disabled = false;
-	document.getElementById('stateindicator')!.textContent = 'You may choose courses now!';
+	document.getElementById('stateindicator')!.textContent = 'Course selections are open for your year group.';
 
 	document.querySelectorAll('.courseitem').forEach(course => {
 		const checkbox = course.querySelector('.coursecheckbox') as HTMLInputElement;
