@@ -67,7 +67,6 @@ func handleAuth(w http.ResponseWriter, req *http.Request) (string, int, error) {
 	if req.Method != http.MethodPost {
 		return "", http.StatusMethodNotAllowed,
 			errors.New("only POST is allowed here")
-
 	}
 
 	err := req.ParseForm()

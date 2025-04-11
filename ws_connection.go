@@ -287,6 +287,12 @@ func handleConn(
 				 * reading routine
 				 */
 			}
+			slog.Info(
+				"incoming",
+				"user", userID,
+				"msg", bytesToString(*errbytes.bytes),
+			)
+
 			mar = splitMsg(errbytes.bytes)
 			switch mar[0] {
 			case "HELLO":
